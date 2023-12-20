@@ -1,5 +1,7 @@
 import cv2
-cam = cv2.VideoCapture(cv2.CAP_FIREWIRE + 0)
+# print(cv2.getBuildInformation())
+
+cam = cv2.VideoCapture(0, cv2.CAP_FIREWIRE)
 while True:
     ret_val, img = cam.read()
     if img:
