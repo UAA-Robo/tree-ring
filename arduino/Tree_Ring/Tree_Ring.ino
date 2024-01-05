@@ -42,10 +42,10 @@ void loop()
   }
  }
 
- //if(digitalRead(limitSwitch) == 0){
+ if(digitalRead(limitSwitch) == 0){
   step(isClockwise,200);//(direction ,steps per revolution). This is clockwise rotation.
       //delay(500);
- //}
+ }
  //step(false,1000);//Turn (direction ,steps per revolution). This is anticlockwise rotation.
  //delay(500);
 }
