@@ -1,0 +1,1 @@
+To run the arduino code make sure to set the board type to arduino nano in the arduino IDE
