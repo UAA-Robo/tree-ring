@@ -1,7 +1,14 @@
+import serial.tools.list_ports
 import serial
 import time
 
-arduino = serial.Serial(port='COM4',  baudrate=9600, timeout=.1)
+port = ""
+for p in list(serial.tools.list_ports.comports()):
+    if "CH340" in p.description:
+        port = p.device
+        break
+
+arduino = serial.Serial(port=port,  baudrate=9600, timeout=.1)
 
 def write_read(x):
     arduino.write(bytes(x,  'utf-8'))
