@@ -8,3 +8,20 @@ AmScope provides the following files in Python:
 * qt.py - this file provides an example that grabs frames from the camera and renders them in a GUI.
 * libamacam.dylib - needed for mac
 * win/ - contains drivers needed for windows
+
+
+TODO:
+- QT application (gui.py):
+    - Displays video
+    - Lets you start/stop automation program
+    - Select where to store photos?
+
+- Wrapper for camera(s) (camera.py)?
+
+- Automation program that (automationScript.py):
+    1. Takes picture + stores it
+    2. Calls arduino to shift motor
+    3. Stops when hits limit switch?
+
+
+
