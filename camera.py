@@ -1,4 +1,4 @@
-import sys, amcam
+import amcam
 import enum, os, time
 from pathlib import Path
 import cv2
@@ -9,6 +9,13 @@ class camera_type(enum.Enum):
     MICROSCOPE = 1
     WEBCAM = 2
 
+#-----------------------------------------------------------
+# STILL TO DO:
+#  - Store all images in a vector
+#  - Test microscope camera
+#  - Provide methods for retrieving current image for GUI
+#-----------------------------------------------------------
+
 class Camera:
     def __init__(self, file_extension: str='jpg') -> None:
         """
@@ -16,6 +23,7 @@ class Camera:
         before taking any pictures if you don't want to save to the current directory!
 
         :param file_extension: The type of image to save, defaults to 'jpg'.
+        :raises IOError: Throws an IO exception if no camera can be opened.
         """
         self.file_ext = file_extension
         self.cam = None
@@ -36,7 +44,7 @@ class Camera:
         else: # Use microscope
             self.cam_name = available_cameras[0].displayname
             self.cam_type = camera_type.MICROSCOPE
-            print(self.cam_name)
+            print(self.cam_name) #! Remove later
             try:
                 self.cam = amcam.Amcam.Open(available_cameras[0].id) #TODO: <-- Check this
             except amcam.HRESULTException as e:
@@ -114,6 +122,7 @@ class Camera:
         frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
         out = cv2.imwrite(self._capture_dir + f'image_{self.get_current_frame()}.' + self.file_ext,
                           frame)
+        if not out: return False
         self._current_image = frame
         return True
 
