@@ -17,6 +17,37 @@ class camera_type(enum.Enum):
 #  - Provide methods for retrieving current image for GUI
 #-----------------------------------------------------------
 
+available_cameras = amcam.Amcam.EnumV2()
+if len(available_cameras) <= 0: # Use webcam
+    start_time = time.time()
+    cam = cv2.VideoCapture(0)
+    time_elapsed = time.time() - start_time
+    cam_name = "webcam"
+    print("No microscope found, defaulting to webcam.")
+    if not cam.isOpened(): raise IOError("Failed to open webcam")
+    else:
+        cam_type = camera_type.WEBCAM
+        print(f"Webcam took {time_elapsed:.2f} seconds to open.")
+
+else: # Use microscope
+    cam_name = available_cameras[0].displayname
+    cam_type = camera_type.MICROSCOPE
+    print(f"Microscope found! Using camera {cam_name}")
+    try:
+        cam = amcam.Amcam.Open(available_cameras[0].id) #TODO: <-- Check this
+    except amcam.HRESULTException as e:
+        print(e)
+    else:
+        _w, _h = cam.get_Size() #TODO: <-- Check this
+        buffer_size = ((self._w * 24 + 31) // 32 * 4) * self._h #TODO: <-- Check this
+        buffer = bytes(buffer_size) #TODO: <-- Check this
+        try:
+            if sys.platform == 'win32':
+                cam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
+            # cam.StartPullModeWithCallback(camera_callback, self)
+        except amcam.HRESULTException as e:
+            print(e)
+
 class Camera:
     def __init__(self, file_extension: str='jpg') -> None:
         """
@@ -31,36 +62,7 @@ class Camera:
         self.cam_name = None
         self.buffer = None
         self.cam_type = camera_type.UNKNOWN
-        available_cameras = amcam.Amcam.EnumV2()
-        if len(available_cameras) <= 0: # Use webcam
-            start_time = time.time()
-            self.cam = cv2.VideoCapture(0)
-            time_elapsed = time.time() - start_time
-            self.cam_name = "webcam"
-            print("No microscope found, defaulting to webcam.")
-            if not self.cam.isOpened(): raise IOError("Failed to open webcam")
-            else:
-                self.cam_type = camera_type.WEBCAM
-                print(f"Webcam took {time_elapsed:.2f} seconds to open.")
-
-        else: # Use microscope
-            self.cam_name = available_cameras[0].displayname
-            self.cam_type = camera_type.MICROSCOPE
-            print(f"Microscope found! Using camera {self.cam_name}")
-            try:
-                self.cam = amcam.Amcam.Open(available_cameras[0].id) #TODO: <-- Check this
-            except amcam.HRESULTException as e:
-                print(e)
-            else:
-                self._w, self._h = self.cam.get_Size() #TODO: <-- Check this
-                buffer_size = ((self._w * 24 + 31) // 32 * 4) * self._h #TODO: <-- Check this
-                self.buffer = bytes(buffer_size) #TODO: <-- Check this
-                try:
-                    if sys.platform == 'win32':
-                        self.cam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
-                    self.cam.StartPullModeWithCallback(self.camera_callback, self)
-                except amcam.HRESULTException as e:
-                    print(e)
+        
         
         self.current_image = None
         self._capture_dir = "captures"
@@ -132,22 +134,22 @@ class Camera:
                 return False
         return True
 
-    def webcam_picture(self) -> bool:
+    def webcam_picture(self) -> qt.QImage:
         """
         @brief    Captures and stores a picture from the webcam.
 
         @return    True on success, false otherwise.
         """
-        success, frame = self.cam.read()
+        success, frame = cam.read()
         if not success: return False
         frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
         out = cv2.imwrite(self._capture_dir + f'image_{self.get_current_frame()}.' + self.file_ext,
                           frame)
         byte_array = frame.tobytes()
-        self.current_image = qt.QImage(byte_array, self._w, self._h, (self._w * 24 + 31) // 32 * 4, qt.QImage.Format_RGB888)
-        if not out: return False
-        self._current_image = frame
-        return True
+        return qt.QImage(byte_array, _w, _h, (_w * 24 + 31) // 32 * 4, qt.QImage.Format_RGB888)
+        # if not out: return False
+        # self._current_image = frame
+        # return True
 
 
 
