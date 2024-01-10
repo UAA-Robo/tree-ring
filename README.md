@@ -17,6 +17,8 @@ TODO:
     - Select where to store photos?
 
 - Wrapper for camera(s) (camera.py)?
+    - CV2 webcam
+    - amcam
 
 - Automation program that (automationScript.py):
     1. Takes picture + stores it
