@@ -68,8 +68,7 @@ class GUI(QWidget):
         video_thread.start()
         self.show()
 
-# if __name__ == '__main__':
-if True:
+if __name__ == '__main__':
     app = QApplication(sys.argv)
     win = GUI()
     win.show()
