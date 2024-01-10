@@ -15,12 +15,12 @@ class VideoStreamThread(QThread):
     # Signal to trigger change in main GUI
     changePixmap = pyqtSignal(QImage)
 
+    # Signal to trigger pulling image from microscope camera (only acts if using microscope)
     event_image = pyqtSignal()
 
     def run(self):
         self.event_image.connect(self.event_image_signal)
         self.camera = Camera(self.camera_callback, self)
-        print("ok")
         while self.camera.type() == camera_type.WEBCAM:
             self.tasks() # <-------------------------------and here?
             convertToQtFormat = self.camera.stream() #          |
