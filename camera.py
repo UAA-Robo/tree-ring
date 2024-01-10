@@ -134,7 +134,7 @@ class Camera:
                 return False
         return True
 
-    def webcam_picture(self) -> qt.QImage:
+    def webcam_picture() -> qt.QImage:
         """
         @brief    Captures and stores a picture from the webcam.
 
@@ -143,7 +143,7 @@ class Camera:
         success, frame = cam.read()
         if not success: return False
         frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
-        out = cv2.imwrite(self._capture_dir + f'image_{self.get_current_frame()}.' + self.file_ext,
+        out = cv2.imwrite("captures/" + f'image_0.' + 'jpg',
                           frame)
         byte_array = frame.tobytes()
         return qt.QImage(byte_array, _w, _h, (_w * 24 + 31) // 32 * 4, qt.QImage.Format_RGB888)
