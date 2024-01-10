@@ -8,26 +8,18 @@ from camera import Camera
 
 # Code borrowed from https://stackoverflow.com/questions/44404349/pyqt-showing-video-stream-from-opencv
 
+Cam = Camera()
+
 class VideoStreamThread(QThread):
 
     # Signal to trigger change in main GUI
     changePixmap = pyqtSignal(QImage)
 
     def run(self):
-        #cap = cv2.VideoCapture(0)
         while True:
-            convertToQtFormat = Camera.webcam_picture()
+            convertToQtFormat = Cam.webcam_picture()
             p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
             self.changePixmap.emit(p)
-            # ret, frame = cap.read()
-            # if ret:
-            #     # https://stackoverflow.com/a/55468544/6622587
-            #     rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            #     h, w, ch = rgbImage.shape
-            #     bytesPerLine = ch * w
-            #     convertToQtFormat = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
-            #     p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
-            #     self.changePixmap.emit(p)
 
 
 class GUI(QWidget):

@@ -144,14 +144,21 @@ class Camera:
         """
         success, frame = self.cam.read()
         if not success: return False
-        frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
-        out = cv2.imwrite(self._capture_dir + f'image_{self.get_current_frame()}.' + self.file_ext,
-                          frame)
-        byte_array = frame.tobytes()
-        self.current_image = qt.QImage(byte_array, self._w, self._h, (self._w * 24 + 31) // 32 * 4, qt.QImage.Format_RGB888)
-        if not out: return False
-        self._current_image = frame
-        return True
+        # frame = cv2.resize(frame, None, fx=0.5, fy=0.5, interpolation=cv2.INTER_AREA)
+        # out = cv2.imwrite(self._capture_dir + f'image_{self.get_current_frame()}.' + self.file_ext,
+        #                   frame)
+        # byte_array = frame.tobytes()
+
+        rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        h, w, ch = rgbImage.shape
+        bytesPerLine = ch * w
+        self.current_image = qt.QImage(rgbImage.data, w, h, bytesPerLine, qt.QImage.Format_RGB888)
+        
+        #self.current_image = qt.QImage(byte_array, self._w, self._h, (self._w * 24 + 31) // 32 * 4, qt.QImage.Format_RGB888)
+        return self.current_image
+        # if not out: return False
+        # self._current_image = frame
+        # return True
 
 
 
