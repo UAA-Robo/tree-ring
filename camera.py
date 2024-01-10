@@ -88,12 +88,11 @@ class Camera:
         """
         @brief    Closes the camera.
         """
-        print("deleted!")
         if self._hcam is not None and self._cam_type == camera_type.MICROSCOPE:
             self._hcam.Close() # Amcam camera close method
         elif self._hcam is not None and self._cam_type == camera_type.WEBCAM:
             self._hcam.release() # cv2 VideoCapture close method
-            self._hcam = None
+        self._hcam = None
         
 
 
