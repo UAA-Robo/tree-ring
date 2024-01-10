@@ -44,10 +44,8 @@ class GUI(QWidget):
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        #self.resize(1800, 1200)
         # create a label
         self.label = QLabel(self)
-        #self.label.move(280, 120)
         self.label.resize(640, 480)
         video_thread = VideoStreamThread(self)
         video_thread.changePixmap.connect(self.setImage)
