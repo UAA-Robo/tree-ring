@@ -3,23 +3,38 @@ import sys
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap
-from camera import Camera
+from camera import *
 
 
 # Code borrowed from https://stackoverflow.com/questions/44404349/pyqt-showing-video-stream-from-opencv
 
-Cam = Camera()
+# Cam = Camera()
 
 class VideoStreamThread(QThread):
 
     # Signal to trigger change in main GUI
     changePixmap = pyqtSignal(QImage)
 
+    event_image = pyqtSignal()
+
     def run(self):
-        while True:
-            convertToQtFormat = Cam.webcam_picture()
-            p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
-            self.changePixmap.emit(p)
+        self.event_image.connect(self.event_image_signal)
+        self.camera = Camera(self.camera_callback, self)
+        # while True:
+        #     convertToQtFormat = 1
+        #     p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+        #     self.changePixmap.emit(p)
+
+    @staticmethod
+    def camera_callback(event, ctx):
+        if event == amcam.AMCAM_EVENT_IMAGE:
+            ctx.event_image.emit()
+
+    @pyqtSlot()
+    def event_image_signal(self):
+        convertToQtFormat = self.camera.stream()
+        p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+        self.changePixmap.emit(p)
 
 
 class GUI(QWidget):
@@ -47,7 +62,8 @@ class GUI(QWidget):
         video_thread.start()
         self.show()
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+if True:
     app = QApplication(sys.argv)
     win = GUI()
     win.show()
