@@ -4,11 +4,11 @@ from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLa
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot, QRect
 from PyQt5.QtGui import QImage, QPixmap
 from camera import *
+from automationScript import Automation
 
 
 # Code borrowed from https://stackoverflow.com/questions/44404349/pyqt-showing-video-stream-from-opencv
 
-# Cam = Camera()
 
 class VideoStreamThread(QThread):
 
@@ -51,7 +51,10 @@ class GUI(QWidget):
         self.top = 100
         self.width = 640
         self.height = 480
+        self.Automation = Automation()
+        
         self.initUI()
+        
 
     @pyqtSlot(QImage)
     def setImage(self, image):
@@ -73,6 +76,7 @@ class GUI(QWidget):
         self.start_button.setGeometry(QRect(150, 70, 93, 28))
         self.start_button.setText("Start Automation")
         self.grid.addWidget(self.start_button, 0, 0, Qt.AlignLeft | Qt.AlignBottom)
+        self.start_button.clicked.connect(self.Automation.start_automation) # Add Button Trigger
 
         # Start Video Thread
         video_thread = VideoStreamThread(self)
