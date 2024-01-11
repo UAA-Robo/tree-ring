@@ -11,7 +11,7 @@ from automationScript import Automation
 
 
 class VideoStreamThread(QThread):
-
+    
     # Signal to trigger change in main GUI
     changePixmap = pyqtSignal(QImage)
 
@@ -52,7 +52,7 @@ class GUI(QWidget):
         self.width = 640
         self.height = 480
         self.Automation = Automation()
-        
+
         self.initUI()
         
 
