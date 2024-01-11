@@ -1,7 +1,7 @@
 import cv2
 import sys
-from PyQt5.QtWidgets import  QWidget, QLabel, QApplication
-from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLayout
+from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot, QRect
 from PyQt5.QtGui import QImage, QPixmap
 from camera import *
 
@@ -60,9 +60,21 @@ class GUI(QWidget):
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
-        # create a label
+
+        # Formatting
+        self.grid = QGridLayout(self)
+
+        # Create a label
         self.label = QLabel(self)
         self.label.resize(640, 480)
+
+        # Create buttons
+        self.start_button = QPushButton(self)
+        self.start_button.setGeometry(QRect(150, 70, 93, 28))
+        self.start_button.setText("Start Automation")
+        self.grid.addWidget(self.start_button, 0, 0, Qt.AlignLeft | Qt.AlignBottom)
+
+        # Start Video Thread
         video_thread = VideoStreamThread(self)
         video_thread.changePixmap.connect(self.setImage)
         video_thread.start()
