@@ -16,8 +16,15 @@ def write_read(x):
     data = arduino.readline()
     return  data
 
+time.sleep(2)
+arduino.write(bytes('Z',  'utf-8'))
+while True:
+    time.sleep(0.5)
+    print(arduino.readline())
+'''
 while True:
     print("High")
-    write_read('H')
+    print(write_read('H'))
     print("Low")
-    write_read("L")
+    print(write_read("L"))
+'''

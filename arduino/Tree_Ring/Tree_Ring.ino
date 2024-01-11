@@ -29,16 +29,30 @@ void step(boolean dir,int steps)
  }
 }
 
+void Zero(){
+  Serial.write("Zeroing");
+  while(digitalRead(limitSwitch) != 0){
+    step(true,20);
+  }
+  step(false,200);
+  Serial.write("Zeroed");
+}
+
 void loop()
 {
  //steps per revolution for 200 pulses = 360 degree full cycle rotation
  if(Serial.available()){
   incomingByte = Serial.read();
-  if(incomingByte == 72){
+  if(incomingByte == 72){ // H
+    Serial.write("Clockwise");
     isClockwise = true;
   } 
-  if(incomingByte == 76){
+  if(incomingByte == 76){ // L
+    Serial.write("AntiClockwise");
     isClockwise = false;
+  }
+  if(incomingByte == 90){ // Z
+    Zero();
   }
  }
 
