@@ -12,18 +12,27 @@ AmScope provides the following files in Python:
 
 TODO:
 - QT application (gui.py):
-    - Displays video
-    - Lets you start/stop automation program
-    - Select where to store photos?
+    - Stop automation program (maybe pause) -> Dawson
+    - Select where to store photos -> Dawson
+    - Adjust movement length -> Mya, Anthony
+    - Input core length  -> Mya
+    - Make pretty (Make image smaller, or app bigger)  -> Mya
 
-- Wrapper for camera(s) (camera.py)?
-    - CV2 webcam
-    - amcam
+- Camera
+    - Adjust exposure options
 
 - Automation program that (automationScript.py):
-    1. Takes picture + stores it
-    2. Calls arduino to shift motor
-    3. Stops when hits limit switch?
+    - Needs a wrapper arduino code -> Mya
+    - Needs to take in core length -> Mya
+    - Automatic image stitching
 
+- Arduino Code:
+    - Zero unstutter  -> Anthony
+    - Adjust limit switch so sample doesn't move when pressed  -> Anthony
+    - merge readme and code into main
 
-
+- Hardware:
+    - Print Motor mount
+    - Print limit switch mount
+    - PCB
+    - Get new hardware working -> Anthony
