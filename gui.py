@@ -11,6 +11,9 @@ from automationScript import Automation
 
 
 class VideoStreamThread(QThread):
+    def __init__(self, camera: Camera):
+        super().__init__()
+        self.camera = camera
     
     # Signal to trigger change in main GUI
     changePixmap = pyqtSignal(QImage)
@@ -20,7 +23,7 @@ class VideoStreamThread(QThread):
 
     def run(self):
         self.event_image.connect(self.event_image_signal)
-        self.camera = Camera(self.camera_callback, self)
+        # self.camera = Camera(self.camera_callback, self)
         while self.camera.type() == camera_type.WEBCAM:
             convertToQtFormat = self.camera.stream()
             p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
@@ -45,8 +48,8 @@ class GUI(QWidget):
         self.top = 100
         self.width = 640
         self.height = 480
-        self.Automation = Automation()
-
+        self.camera = Camera()
+        self.Automation = Automation(self.camera)
         self.initUI()
         
 
@@ -73,10 +76,13 @@ class GUI(QWidget):
         self.start_button.clicked.connect(self.Automation.start_automation) # Add Button Trigger
 
         # Start Video Thread
-        video_thread = VideoStreamThread(self)
+        video_thread = VideoStreamThread(self.camera)
         video_thread.changePixmap.connect(self.setImage)
         video_thread.start()
+        self.camera.connect_stream(video_thread.camera_callback, video_thread)
         self.show()
+
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

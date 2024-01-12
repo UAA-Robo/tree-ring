@@ -1,4 +1,9 @@
+from camera import Camera
+from PIL import Image
+
 class Automation:
+    def __init__(self, camera: Camera) -> None:
+        self.camera = camera
 
     def start_automation(self):
         """
@@ -13,7 +18,10 @@ class Automation:
         """
         @brief    Gets and Stores the image from the camera
         """
-        return
+        img = self.camera.image()
+        img.save('image.jpg')
+        # img.save("image.jpg")
+
 
     def shift_sample(self):
         """

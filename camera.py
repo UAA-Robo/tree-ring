@@ -1,5 +1,7 @@
+import io
 import sys, amcam, time, enum
 from PyQt5.QtGui import QImage
+from PIL import Image
 import cv2
 
 class camera_type(enum.Enum):
@@ -8,7 +10,7 @@ class camera_type(enum.Enum):
     WEBCAM = 2
 
 class Camera:
-    def __init__(self, camera_callback, gui) -> None:
+    def __init__(self) -> None:
         """
         @brief    Camera class for handling taking pictures and saving images. Be sure to set the save path
                   before taking any pictures if you don't want to save to the current directory!
@@ -43,11 +45,19 @@ class Camera:
                 self._width, self._height = self._hcam.get_Size()
                 buffer_size = ((self._width * 24 + 31) // 32 * 4) * self._height
                 self._buffer = bytes(buffer_size)
+                # self._imgbuffer = bytes(buffer_size)
                 try:
                     if sys.platform == 'win32':
                         self._hcam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
-                    self._hcam.StartPullModeWithCallback(camera_callback, gui)
+                    # self._hcam.StartPullModeWithCallback(camera_callback, gui)
                 except amcam.HRESULTException as e: print(e)
+            self._curr_buffer = self._buffer
+    
+    def connect_stream(self, camera_callback, thread):
+        if self._cam_type == camera_type.MICROSCOPE:
+            try:
+                self._hcam.StartPullModeWithCallback(camera_callback, thread)
+            except amcam.HRESULTException as e: print(e)
         
     def name(self): return self._cam_name
 
@@ -82,7 +92,12 @@ class Camera:
         else:
             raise IOError("No camera opened to stream from.")
 
-
+    def image(self) -> QImage:
+        # Code from https://stackoverflow.com/questions/32908639/open-pil-image-from-byte-file
+        # self._hcam.PullStillImageV2(self._imgbuffer, 24, None)
+        img = QImage(self._curr_buffer, self._width, self._height, (self._width * 24 + 31) // 32 * 4, QImage.Format_RGB888)
+        # img.show()
+        return img
 
     def close(self):
         """
