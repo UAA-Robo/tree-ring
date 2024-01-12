@@ -14,8 +14,7 @@ class camera_type(enum.Enum):
 class Camera:
     def __init__(self) -> None:
         """
-        @brief    Camera class for handling taking pictures and saving images. Be sure to set the save path
-                  before taking any pictures if you don't want to save to the current directory!
+        @brief    Camera class that runs the camera operations and modifies camera settings
 
         @throws IOError    Throws an IOError if no camera can be opened.
         """
@@ -54,11 +53,7 @@ class Camera:
     
     def connect_stream(self):
         """
-        @brief    Connects the camera's image stream to a thread and starts the stream with the
-                  camera callback method given.
-
-        @param camera_callback     The method to use as the camera callback.
-        @param thread    The thread to send the signal to.
+        @brief    Starts the camera's stream.
         """
         if self._cam_type == camera_type.MICROSCOPE:
             try:
@@ -77,8 +72,7 @@ class Camera:
     def stream(self) -> None:
         """
         @brief    Streams the image received by the camera in real time.
-
-        @return    Returns a QImage from the camera.
+        
         @throws IOError    Throws an IOError if no camera could be opened.
         """
         #print("running stream")
