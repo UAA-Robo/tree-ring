@@ -24,6 +24,7 @@ class Camera:
         self._width = 0 # Video width
         self._height = 0 # Video height
         self._cam_name = ''
+        self._image = None
         self._cam_type = camera_type.UNKNOWN
         available_cameras = amcam.Amcam.EnumV2()
         if len(available_cameras) <= 0:
@@ -48,9 +49,10 @@ class Camera:
                 try:
                     if sys.platform == 'win32':
                         self._hcam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
+                        self.connect_stream()
                 except amcam.HRESULTException as e: print(e)
     
-    def connect_stream(self, camera_callback, thread):
+    def connect_stream(self):
         """
         @brief    Connects the camera's image stream to a thread and starts the stream with the
                   camera callback method given.
@@ -60,20 +62,26 @@ class Camera:
         """
         if self._cam_type == camera_type.MICROSCOPE:
             try:
-                self._hcam.StartPullModeWithCallback(camera_callback, thread)
+                self._hcam.StartPullModeWithCallback(self.camera_callback, self)
             except amcam.HRESULTException as e: print(e)
+    
+    @staticmethod
+    def camera_callback(event, _self: 'Camera'):
+        if event == amcam.AMCAM_EVENT_IMAGE:
+            _self.stream()
         
     def name(self): return self._cam_name
 
     def type(self): return self._cam_type
 
-    def stream(self) -> QImage:
+    def stream(self) -> None:
         """
         @brief    Streams the image received by the camera in real time.
 
         @return    Returns a QImage from the camera.
         @throws IOError    Throws an IOError if no camera could be opened.
         """
+        #print("running stream")
 
         # Use Microscope camera
         if self._hcam is not None and self._cam_type == camera_type.MICROSCOPE:
@@ -81,8 +89,8 @@ class Camera:
                 self._hcam.PullImageV2(self._buffer, 24, None)
             except amcam.HRESULTException as e: print(e)
             else:
-                img = QImage(self._buffer, self._width, self._height, (self._width * 24 + 31) // 32 * 4, QImage.Format_RGB888)
-                return img
+                self._image = QImage(self._buffer, self._width, self._height, (self._width * 24 + 31) // 32 * 4, QImage.Format_RGB888)
+                # return img
             
         # Use webcam
         elif self._hcam is not None and self._cam_type == camera_type.WEBCAM:
@@ -91,19 +99,18 @@ class Camera:
                 rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 h, w, ch = rgbImage.shape
                 bytesPerLine = ch * w
-                img = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
-                return img
+                self._image = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
+                # return img
         else:
             raise IOError("No camera opened to stream from.")
 
-    def image(self) -> QImage:
+    def get_image(self) -> QImage:
         """
         @brief    Takes an image from the camera to store.
 
         @return    Returns a QImage from the camera.
         """
-        img = QImage(self._buffer, self._width, self._height, (self._width * 24 + 31) // 32 * 4, QImage.Format_RGB888)
-        return img
+        return self._image
 
     def close(self):
         """

@@ -1,5 +1,5 @@
 import cv2
-import sys
+import sys, time
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLayout
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot, QRect
 from PyQt5.QtGui import QImage, QPixmap
@@ -13,29 +13,16 @@ class VideoStreamThread(QThread):
         self.camera = camera
     
     # Signal to trigger change in main GUI
-    changePixmap = pyqtSignal(QImage)
-
-    # Signal to trigger pulling image from microscope camera (only acts if using microscope)
-    event_image = pyqtSignal()
+    change_image = pyqtSignal(QImage)
 
     def run(self):
-        self.event_image.connect(self.event_image_signal)
-        # self.camera = Camera(self.camera_callback, self)
-        while self.camera.type() == camera_type.WEBCAM:
-            convertToQtFormat = self.camera.stream()
-            p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
-            self.changePixmap.emit(p)
+        while True:
+            convertToQtFormat = self.camera.get_image()
+            if convertToQtFormat is not None:
+                p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
+                self.change_image.emit(p)
+            time.sleep(0.0001)  # Required to be slower than camera
 
-    @staticmethod
-    def camera_callback(event, ctx):
-        if event == amcam.AMCAM_EVENT_IMAGE:
-            ctx.event_image.emit()
-
-    @pyqtSlot()
-    def event_image_signal(self):
-        convertToQtFormat = self.camera.stream()
-        p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
-        self.changePixmap.emit(p)
 
 class GUI(QWidget):
     def __init__(self):
@@ -51,7 +38,7 @@ class GUI(QWidget):
         
 
     @pyqtSlot(QImage)
-    def setImage(self, image):
+    def set_image(self, image):
         self.label.setPixmap(QPixmap.fromImage(image))
 
     def initUI(self):
@@ -74,9 +61,8 @@ class GUI(QWidget):
 
         # Start Video Thread
         video_thread = VideoStreamThread(self.camera)
-        video_thread.changePixmap.connect(self.setImage)
+        video_thread.change_image.connect(self.set_image)
         video_thread.start()
-        self.camera.connect_stream(video_thread.camera_callback, video_thread)
         self.show()
 
 
