@@ -49,7 +49,6 @@ class Camera:
                     if sys.platform == 'win32':
                         self._hcam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
                 except amcam.HRESULTException as e: print(e)
-            self._curr_buffer = self._buffer
     
     def connect_stream(self, camera_callback, thread):
         """
@@ -103,7 +102,7 @@ class Camera:
 
         @return    Returns a QImage from the camera.
         """
-        img = QImage(self._curr_buffer, self._width, self._height, (self._width * 24 + 31) // 32 * 4, QImage.Format_RGB888)
+        img = QImage(self._buffer, self._width, self._height, (self._width * 24 + 31) // 32 * 4, QImage.Format_RGB888)
         return img
 
     def close(self):
