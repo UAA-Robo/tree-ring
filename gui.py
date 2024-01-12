@@ -19,29 +19,20 @@ class VideoStreamThread(QThread):
     event_image = pyqtSignal()
 
     def run(self):
-        self._apptick = 0
         self.event_image.connect(self.event_image_signal)
         self.camera = Camera(self.camera_callback, self)
         while self.camera.type() == camera_type.WEBCAM:
-            self.tasks() # <-------------------------------and here?
-            convertToQtFormat = self.camera.stream() #          |
+            convertToQtFormat = self.camera.stream()
             p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
-            self.changePixmap.emit(p) #                         |
-    #                                                           |
-    def tasks(self): #                                          |
-        self._apptick += 1
-        print(self._apptick)
-        ... # Mya -- still not sure how the camera interacts with the event_image_signal thing
-            #        so for other tasks maybe we call that from the signal method?
- #                                                              |
-    @staticmethod #                                             |
-    def camera_callback(event, ctx): #                          |
-        if event == amcam.AMCAM_EVENT_IMAGE: #                  |
-            ctx.event_image.emit() #                            |
- #                                                              |
-    @pyqtSlot() #                                               |
-    def event_image_signal(self): #                             V
-        self.tasks() # <------------------------------------ here?
+            self.changePixmap.emit(p)
+
+    @staticmethod
+    def camera_callback(event, ctx):
+        if event == amcam.AMCAM_EVENT_IMAGE:
+            ctx.event_image.emit()
+
+    @pyqtSlot()
+    def event_image_signal(self):
         convertToQtFormat = self.camera.stream()
         p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
         self.changePixmap.emit(p)
