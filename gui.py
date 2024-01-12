@@ -59,6 +59,12 @@ class GUI(QWidget):
         self.grid.addWidget(self.start_button, 0, 0, Qt.AlignLeft | Qt.AlignBottom)
         self.start_button.clicked.connect(self.Automation.start_automation) # Add Button Trigger
 
+        self.zeroing_button = QPushButton(self)
+        self.zeroing_button.setGeometry(QRect(150, 70, 93, 28))
+        self.zeroing_button.setText("Zero Platform")
+        self.grid.addWidget(self.zeroing_button, 0, 0, Qt.AlignRight | Qt.AlignBottom)
+        self.zeroing_button.clicked.connect(self.Automation.zero_platform) # Add Button Trigger
+
         # Start Video Thread
         video_thread = VideoStreamThread(self.camera)
         video_thread.change_image.connect(self.set_image)
