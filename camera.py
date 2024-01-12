@@ -4,6 +4,8 @@ from PyQt5.QtGui import QImage
 from PIL import Image
 import cv2
 
+# Code borrowed from https://stackoverflow.com/questions/44404349/pyqt-showing-video-stream-from-opencv
+
 class camera_type(enum.Enum):
     UNKNOWN = 0
     MICROSCOPE = 1
@@ -15,8 +17,6 @@ class Camera:
         @brief    Camera class for handling taking pictures and saving images. Be sure to set the save path
                   before taking any pictures if you don't want to save to the current directory!
 
-        @param camera_callback     The method to use as the camera callback.
-        @param gui    The GUI object to stream the video to.
         @throws IOError    Throws an IOError if no camera can be opened.
         """
         self._hcam = None
@@ -45,15 +45,20 @@ class Camera:
                 self._width, self._height = self._hcam.get_Size()
                 buffer_size = ((self._width * 24 + 31) // 32 * 4) * self._height
                 self._buffer = bytes(buffer_size)
-                # self._imgbuffer = bytes(buffer_size)
                 try:
                     if sys.platform == 'win32':
                         self._hcam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
-                    # self._hcam.StartPullModeWithCallback(camera_callback, gui)
                 except amcam.HRESULTException as e: print(e)
             self._curr_buffer = self._buffer
     
     def connect_stream(self, camera_callback, thread):
+        """
+        @brief    Connects the camera's image stream to a thread and starts the stream with the
+                  camera callback method given.
+
+        @param camera_callback     The method to use as the camera callback.
+        @param thread    The thread to send the signal to.
+        """
         if self._cam_type == camera_type.MICROSCOPE:
             try:
                 self._hcam.StartPullModeWithCallback(camera_callback, thread)
@@ -93,10 +98,12 @@ class Camera:
             raise IOError("No camera opened to stream from.")
 
     def image(self) -> QImage:
-        # Code from https://stackoverflow.com/questions/32908639/open-pil-image-from-byte-file
-        # self._hcam.PullStillImageV2(self._imgbuffer, 24, None)
+        """
+        @brief    Takes an image from the camera to store.
+
+        @return    Returns a QImage from the camera.
+        """
         img = QImage(self._curr_buffer, self._width, self._height, (self._width * 24 + 31) // 32 * 4, QImage.Format_RGB888)
-        # img.show()
         return img
 
     def close(self):
@@ -109,9 +116,6 @@ class Camera:
             self._hcam.release() # cv2 VideoCapture close method
         self._hcam = None
         
-
-
-
 # Driver test code
 # try:
 #     my_camera = Camera()

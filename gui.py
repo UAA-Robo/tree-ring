@@ -7,9 +7,6 @@ from camera import *
 from automationScript import Automation
 
 
-# Code borrowed from https://stackoverflow.com/questions/44404349/pyqt-showing-video-stream-from-opencv
-
-
 class VideoStreamThread(QThread):
     def __init__(self, camera: Camera):
         super().__init__()

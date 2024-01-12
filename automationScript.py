@@ -1,5 +1,6 @@
 from camera import Camera
-from PIL import Image
+
+# Code borrowed from https://python.hotexamples.com/examples/PyQt5.Qt/QImage/save/python-qimage-save-method-examples.html
 
 class Automation:
     def __init__(self, camera: Camera) -> None:
