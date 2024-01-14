@@ -18,7 +18,7 @@ class VideoStreamThread(QThread):
     def run(self):
         while True:
             convertToQtFormat = self.camera.get_image()
-            if convertToQtFormat is not None:
+            if convertToQtFormat:
                 p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
                 self.change_image.emit(p)
             time.sleep(0.0001)  # Required to be slower than camera
@@ -34,6 +34,7 @@ class GUI(QWidget):
         self.height = 480
         self.camera = Camera()
         self.Automation = Automation(self.camera)
+        
         self.initUI()
         
 

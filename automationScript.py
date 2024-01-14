@@ -6,7 +6,10 @@ import threading
 
 
 class Arduino:
-    def __init__(self,) -> None:
+    def __init__(self) -> None:
+        """
+        @brief  Starts Arduino class.
+        """
 
         self.port = None
         self.arduino = None
@@ -22,7 +25,7 @@ class Arduino:
                 self.port = p.device
                 break
 
-        self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
+        #self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
 
 
     def write_to_arduino(self, char):
@@ -52,30 +55,42 @@ class Arduino:
             pass
 
 
-class Automation(threading.Thread):
+class Automation():
 
     def __init__(self, camera: Camera) -> None:
         """
-        @brief  Starts the automation class in it's own thread so all methods are non-blocking.
+        @brief  Starts the automation class.
         @param camera   Instance of type Camera
         """
-        super().__init__()  # Initializes thread parent class
-        self.start()  # Automatically start class in it's own thread when an instance is created
+
 
         self.camera = camera
         self.arduino = Arduino()
         self.counter = 0
 
+    def run_in_thread(function):
+        """
+        @brief  Wrap function in a thread.
+        @param function     Function to put in thread.
+        """
+        def wrapper(self):
+            thread = threading.Thread(target=function, args=[self])
+            thread.start()
+            return thread
+        return wrapper
 
+
+    @run_in_thread
     def start_automation(self):
         """
-        @brief    Starts the automation process.
+        @brief    Starts the automation process. Non-blocking
         """
         print("Started Automation")
 
         for self.counter in range(10):
             self.get_picture()
-            self.shift_sample()
+            time.sleep(3)
+            #self.shift_sample()
 
 
     def get_picture(self):
@@ -94,10 +109,10 @@ class Automation(threading.Thread):
         print("Shifted Sample")
         time.sleep(2)
 
-
+    @run_in_thread
     def zero_platform(self):
         """
-        @brief   Zeros the platform to the left. 
+        @brief   Zeros the platform to the left.  Non-blocking.
         """
 
         self.arduino.zero_platform()
