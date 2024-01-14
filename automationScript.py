@@ -14,13 +14,15 @@ class Arduino:
 
 
     def connect_to_arduino(self):
+        """
+        @brief  Connects to arduino port.
+        """
         for p in list(serial.tools.list_ports.comports()):
             if "CH340" in p.description:
                 self.port = p.device
                 break
-        self.counter = 0
 
-        #self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
+        self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
 
 
     def write_to_arduino(self, char):
@@ -62,6 +64,7 @@ class Automation(threading.Thread):
 
         self.camera = camera
         self.arduino = Arduino()
+        self.counter = 0
 
 
     def start_automation(self):
