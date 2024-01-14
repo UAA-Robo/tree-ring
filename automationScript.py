@@ -20,7 +20,7 @@ class Arduino:
                 break
         self.counter = 0
 
-        self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
+        #self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
 
 
     def write_to_arduino(self, char):
@@ -50,26 +50,29 @@ class Arduino:
             pass
 
 
-class Automation:
+class Automation(threading.Thread):
 
     def __init__(self, camera: Camera) -> None:
+        """
+        @brief  Starts the automation class in it's own thread so all methods are non-blocking.
+        @param camera   Instance of type Camera
+        """
+        super().__init__()  # Initializes thread parent class
+        self.start()  # Automatically start class in it's own thread when an instance is created
+
         self.camera = camera
         self.arduino = Arduino()
 
 
     def start_automation(self):
         """
-        @brief    Starts the automation process. Non-blocking.
+        @brief    Starts the automation process.
         """
         print("Started Automation")
 
-        def run(_self: 'Automation'):
-            for _self.counter in range(10):
-                _self.get_picture()
-                _self.shift_sample()
-
-        th = threading.Thread(target=run, args=[self], daemon=True)
-        th.start()
+        for self.counter in range(10):
+            self.get_picture()
+            self.shift_sample()
 
 
     def get_picture(self):
@@ -91,15 +94,11 @@ class Automation:
 
     def zero_platform(self):
         """
-        @brief   Zeros the platform to the left. Non-blocking.
+        @brief   Zeros the platform to the left. 
         """
 
-        def run(_self: 'Automation'):
-            _self.arduino.zero_platform()
-            print("Zeroed Sample")
-        
-        th = threading.Thread(target=run, args=[self], daemon=True)
-        th.start()
+        self.arduino.zero_platform()
+        print("Zeroed Sample")
 
 
 if __name__ == "__main__":
