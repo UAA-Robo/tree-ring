@@ -90,7 +90,7 @@ class Automation():
         for self.counter in range(10):
             self.get_picture()
             time.sleep(3)
-            #self.shift_sample()
+            self.shift_sample()
 
 
     def get_picture(self):
