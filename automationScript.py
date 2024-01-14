@@ -25,7 +25,7 @@ class Arduino:
                 self.port = p.device
                 break
 
-        #self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
+        self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
 
 
     def write_to_arduino(self, char):
