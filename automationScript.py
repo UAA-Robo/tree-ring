@@ -68,13 +68,13 @@ class Automation():
         self.arduino = Arduino()
         self.counter = 0
 
-    def run_in_thread(function):
+    def run_in_thread(*args):
         """
         @brief  Wrap function in a thread.
         @param function     Function to put in thread.
         """
-        def wrapper(self):
-            thread = threading.Thread(target=function, args=[self])
+        def wrapper(*args):
+            thread = threading.Thread(target=function, args=args)
             thread.start()
             return thread
         return wrapper
