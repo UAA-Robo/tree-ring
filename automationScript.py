@@ -31,8 +31,9 @@ class Arduino:
             if not self.arduino.is_open:
                 raise
             
-        except:
-            print("ERROR Could not connect to arduino!")
+        except Exception as e:
+            print("ERROR Could not connect to arduino:")
+            # print("  ", e)
             return False
 
         return True
@@ -79,6 +80,14 @@ class Automation():
         self.camera = camera
         self.arduino = Arduino()
         self.counter = 0
+        self.capture_dir = 'captures'
+
+    def set_capture_location(self, file_path: str): 
+
+
+        # Check if the folder exists
+        if not os.path.exists(self.capture_dir):
+            os.makedirs(self.capture_dir) # If it does not exist, create it
 
     def run_in_thread(function):
         """
@@ -114,13 +123,9 @@ class Automation():
         """
         @brief    Gets and Stores the image from the camera
         """
-        folder_path = 'captures'
-        # Check if the folder exists
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path) # If it does not exist, create it
 
         img = self.camera.get_image()
-        img.save(f'{folder_path}/image_{self.counter}.jpg')
+        img.save(f'{self.capture_dir}/image_{self.counter}.jpg')
 
 
     def shift_sample(self, shift_length):
@@ -143,9 +148,6 @@ class Automation():
         print("Zeroed Sample")
 
 
-if __name__ == "__main__":
-    Automation = Automation()
-    Automation.start_automation()
 
 
 

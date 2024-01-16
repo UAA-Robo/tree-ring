@@ -1,8 +1,10 @@
 import cv2
-import sys, time
+import sys, time, os
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLayout, QLineEdit
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot, QRect
 from PyQt5.QtGui import QImage, QPixmap
+from tkinter import filedialog as fd
+from filedialogs import open_folder_dialog
 from camera import *
 from automationScript import Automation
 
@@ -80,8 +82,7 @@ class GUI(QWidget):
         self.start_button.setText("Start Automation")
         self.grid.addWidget(self.start_button, 1, 3)
         self.start_button.clicked.connect(
-            lambda: self.Automation.start_automation(float(self.core_length), 
-                                                     float(self.shift_length))
+            lambda: self.start_automation
         )
 
         self.zeroing_button = QPushButton(self)
@@ -117,6 +118,14 @@ class GUI(QWidget):
         self.shift_length = text
         print(f"New shift input: {text}")
 
+    def start_automation(self):
+        
+        # open_folder = open_folder_dialog()
+        # if open_folder:
+        #     with open(os.path.join(open_folder, ...), "w") as f:
+        #         ...
+
+        self.Automation.start_automation(self.core_length, self.shift_length)
 
 
 
