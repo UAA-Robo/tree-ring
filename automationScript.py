@@ -3,6 +3,7 @@ import serial.tools.list_ports
 import serial
 import time
 import threading
+import os
 
 
 class Arduino:
@@ -13,7 +14,7 @@ class Arduino:
 
         self.port = None
         self.arduino = None
-        self.connect_to_arduino()
+        #self.connect_to_arduino()
 
 
     def connect_to_arduino(self):
@@ -68,7 +69,7 @@ class Automation():
         self.arduino = Arduino()
         self.counter = 0
 
-    def run_in_thread(*args):
+    def run_in_thread(function):
         """
         @brief  Wrap function in a thread.
         @param function     Function to put in thread.
@@ -81,29 +82,36 @@ class Automation():
 
 
     @run_in_thread
-    def start_automation(self):
+    def start_automation(self, core_size):
         """
-        @brief    Starts the automation process. Non-blocking
+        @brief Starts the automation process. Non-blocking,
+        @param core_size    Core size (in mm).
         """
         print("Started Automation")
 
-        for self.counter in range(10):
+        motor_shifts_needed = int(core_size / 3)
+        for self.counter in range(motor_shifts_needed):
             self.get_picture()
             time.sleep(3)
-            self.shift_sample()
+            #self.shift_sample()
 
 
     def get_picture(self):
         """
         @brief    Gets and Stores the image from the camera
         """
+        folder_path = 'captures'
+        # Check if the folder exists
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path) # If it does not exist, create it
+            
         img = self.camera.get_image()
-        img.save(f'captures/image_{self.counter}.jpg')
+        img.save(f'{folder_path}/image_{self.counter}.jpg')
 
 
     def shift_sample(self):
         """
-        @brief  Rotates motor to shift sample.
+        @brief  Rotates motor to shift sample. Rotates by 3mm each shift
         """
         self.arduino.turn_motor_left()
         print("Shifted Sample")
