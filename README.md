@@ -1,3 +1,5 @@
+# Tree Grabber Nabber
+
 This code controls the Amscope camera (our model is the MU500).
 
 The following files are taken from the SDK provided by AmScope [here](https://amscope.com/pages/software-downloads) when you select your camera and model.
@@ -15,8 +17,10 @@ TODO:
     - Stop automation program (maybe pause) -> Dawson
     - Select where to store photos -> Dawson
     - Adjust movement length -> Mya, Anthony
-    - Input core length  -> Mya
+    - Input core length  TO CM -> Mya
     - Make pretty (Make image smaller, or app bigger)  -> Mya
+    - Error handleing
+    - App downloading
 
 - Camera
     - Adjust exposure options
@@ -34,5 +38,12 @@ TODO:
 - Hardware:
     - Print Motor mount
     - Print limit switch mount
+    - Print camera mount
     - PCB
     - Get new hardware working -> Anthony
+
+- Documentation
+    - Step by step instructions
+    - Code guide
+    - Trouble Shooting
+

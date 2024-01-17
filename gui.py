@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLa
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot, QRect
 from PyQt5.QtGui import QImage, QPixmap
 from tkinter import filedialog as fd
-from filedialogs import open_folder_dialog
+# from filedialogs import open_folder_dialog
 from camera import *
 from automationScript import Automation
 
@@ -82,7 +82,7 @@ class GUI(QWidget):
         self.start_button.setText("Start Automation")
         self.grid.addWidget(self.start_button, 1, 3)
         self.start_button.clicked.connect(
-            lambda: self.start_automation
+            lambda: self.start_automation()
         )
 
         self.zeroing_button = QPushButton(self)
@@ -105,7 +105,7 @@ class GUI(QWidget):
         @param update_value     Value to update (needs to be pointer aka class variable)
         """
 
-        self.core_length = float(text)
+        self.core_length = text
         print(f"New core input: {text}")
 
     def on_shift_input_change(self, text):
@@ -124,8 +124,9 @@ class GUI(QWidget):
         # if open_folder:
         #     with open(os.path.join(open_folder, ...), "w") as f:
         #         ...
+        print("Automation started!")
 
-        self.Automation.start_automation(self.core_length, self.shift_length)
+        self.Automation.start_automation(float(self.core_length), float(self.shift_length))
 
 
 

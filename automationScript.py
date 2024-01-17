@@ -123,9 +123,12 @@ class Automation():
         """
         @brief    Gets and Stores the image from the camera
         """
-
+        folder_path = 'captures'
+        # Check if the folder exists
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path) # If it does not exist, create it
         img = self.camera.get_image()
-        img.save(f'{self.capture_dir}/image_{self.counter}.jpg')
+        img.save(f'{folder_path}/image_{self.counter}.jpg')
 
 
     def shift_sample(self, shift_length):

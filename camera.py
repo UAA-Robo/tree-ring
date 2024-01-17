@@ -73,15 +73,10 @@ class Camera:
             th = threading.Thread(target=run_stream, args=[self], daemon=True)
             th.start()
     
-    def camera_callback(self, event):
+    @staticmethod
+    def camera_callback(event, _self: 'Camera'):
         if event == amcam.AMCAM_EVENT_IMAGE:
-            try:
-                self._hcam.PullImageV2(self.buffer, 24, None)
-                # print('pull image ok, total = {}'.format(self.total))
-            except amcam.HRESULTException as e:
-                print('pull image failed, hr=0x{:x}'.format(e.hr))
-        else:
-            print('event callback: {}'.format(event))
+            _self.stream()
         
     def name(self): return self._cam_name
 
