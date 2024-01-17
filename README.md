@@ -14,20 +14,18 @@ AmScope provides the following files in Python:
 
 TODO:
 - QT application (gui.py):
-    - Stop automation program (maybe pause) -> Dawson
-    - Select where to store photos -> Dawson
-    - Adjust movement length -> Mya, Anthony
-    - Input core length  TO CM -> Mya
-    - Make pretty (Make image smaller, or app bigger)  -> Mya
-    - Error handleing
+    - Stop automation program (maybe pause) -> Dawson (by 1/23)
+    - Select where to store photos -> Dawson (by 1/23)
+    - Adjust movement length -> Mya, Anthony (by 1/23)
+    - Input core length  TO CM -> Mya (by 1/23)
+    - Make pretty (Make image smaller, or app bigger)  -> Mya (by 1/23)
+    - Error handleing -> Dawson
     - App downloading
 
 - Camera
     - Adjust exposure options
 
-- Automation program that (automationScript.py):
-    - Needs a wrapper arduino code -> Mya
-    - Needs to take in core length -> Mya
+- Automation program that (automationScript.py):a
     - Automatic image stitching
 
 - Arduino Code:
@@ -36,14 +34,15 @@ TODO:
     - merge readme and code into main
 
 - Hardware:
+    - Print camera mount -> Dawson (by 1/23)
+    - start PCB -> Anthony (by 1/23)
     - Print Motor mount
     - Print limit switch mount
-    - Print camera mount
-    - PCB
-    - Get new hardware working -> Anthony
 
-- Documentation
-    - Step by step instructions
+    - Get new hardware working -> Anthony (by 1/23)
+
+- Documentation w/ docsify
+    - Step by step instructions 
     - Code guide
-    - Trouble Shooting
+    - Trouble Shooting (start by 1/23)
 
