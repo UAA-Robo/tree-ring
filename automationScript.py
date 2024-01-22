@@ -18,6 +18,7 @@ class Arduino:
 
         self.port = None
         self.arduino = None
+        self.IS_CONNECTED = False
         self.error_box = QWidget()
         try:
             self.IS_CONNECTED = self.connect_to_arduino()
@@ -129,15 +130,17 @@ class Automation():
         """
         @brief Starts the automation process. Non-blocking,
         @param core_length    Core size (in mm).
-        @param shift_length   Length to shift motor each turn (in mm).
+        @param shift_length   Length to shift motor each turn (in cm).
         """
         print("Started Automation")
 
         self.change_active_status(True)
-        motor_shifts_needed = int(core_length / shift_length)
-        print(f"    Shifting {motor_shifts_needed} times by  {shift_length} mm")
+
+        motor_shifts_needed = int(core_length * 10  / (shift_length))
+        print(f"    Shifting {motor_shifts_needed} time(s) by  {shift_length} mm")
 
         for self.counter in range(motor_shifts_needed):
+            print(self.counter)
             if not self.is_active(): break
             self.get_picture()
             time.sleep(3)
@@ -162,6 +165,7 @@ class Automation():
     def shift_sample(self, shift_length):
         """
         @brief  Rotates motor to shift sample. Rotates by 3mm each shift
+        @param shift_length   Length to shift motor each turn (in cm).
         """
 
         # TODO - add in shift length logic

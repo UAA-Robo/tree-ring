@@ -79,7 +79,7 @@ class GUI(QWidget):
         self.grid.addWidget(self.video_label, 0, 0, 1, 6, Qt.AlignCenter)  # Spanning 6 columns
 
         # Create core length input
-        self.core_input_label = QLabel('Core Length (mm)', self)
+        self.core_input_label = QLabel('Core Length (cm)', self)
         self.grid.addWidget(self.core_input_label, 1, 1)
         self.core_input_textbox = QLineEdit(self)
         self.core_input_textbox.setText(str(self.core_length))
@@ -150,11 +150,13 @@ class GUI(QWidget):
         
 
         if not self.Automation.is_active(): # Pressed 'START'
-            open_folder = askdirectory()
-            if open_folder:
-                self.Automation.set_capture_location(open_folder)
-            print('Capture directory set to', self.Automation.capture_dir)
-            print("Automation started!")
+            # Ask directory does not work on mac
+            if sys.platform == 'win32': 
+                open_folder = askdirectory()  
+                if open_folder:
+                    self.Automation.set_capture_location(open_folder)
+                print('Capture directory set to', self.Automation.capture_dir)
+                print("Automation started!")
 
             self.Automation.start_automation(float(self.core_length), float(self.shift_length))
         else: # Pressed 'STOP'
