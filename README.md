@@ -20,12 +20,12 @@ TODO:
     - Input core length  TO CM -> Mya (by 1/23)
     - Make pretty (Make image smaller, or app bigger)  -> Mya (by 1/23)
     - Error handleing -> Dawson
-    - App downloading
+    - App downloading -> Mya
 
 - Camera
     - Adjust exposure options
 
-- Automation program that (automationScript.py):a
+- Automation program (automationScript.py):
     - Automatic image stitching
 
 - Arduino Code:
@@ -44,5 +44,5 @@ TODO:
 - Documentation w/ docsify
     - Step by step instructions 
     - Code guide
-    - Trouble Shooting (start by 1/23)
+    - Trouble Shooting (start by 1/23) -> Dawson
 
