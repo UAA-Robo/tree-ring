@@ -2,3 +2,4 @@ pyqt5
 Pillow==10.1.0
 opencv-python==4.9.0.80
 pyserial
+windows-filedialogs

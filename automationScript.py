@@ -1,10 +1,14 @@
-from camera import Camera
+from camera import Camera, CustomIOError
+from PyQt5.QtWidgets import QMessageBox, QWidget
 import serial.tools.list_ports
 import serial
 import time
 import threading
 import os
 
+# class CustomIOError(IOError):
+#     def __init__(self, message: str):
+#         self.msg = message
 
 class Arduino:
     def __init__(self) -> None:
@@ -14,7 +18,12 @@ class Arduino:
 
         self.port = None
         self.arduino = None
-        self.IS_CONNECTED = self.connect_to_arduino()
+        self.error_box = QWidget()
+        try:
+            self.IS_CONNECTED = self.connect_to_arduino()
+        except Exception as e:
+            QMessageBox.warning(self.error_box, "Error Encountered",
+                                e.msg, QMessageBox.Ok)
 
 
     def connect_to_arduino(self):
@@ -29,10 +38,11 @@ class Arduino:
         
             self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
             if not self.arduino.is_open:
-                raise
+                raise CustomIOError("Arduino not connected")
             
         except Exception as e:
             print("ERROR Could not connect to arduino:")
+            raise
             # print("  ", e)
             return False
 

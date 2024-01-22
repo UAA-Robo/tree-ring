@@ -1,6 +1,7 @@
 import io
 import sys, amcam, time, enum
 from PyQt5.QtGui import QImage
+from PyQt5.QtWidgets import QMessageBox, QWidget
 from PIL import Image
 import cv2
 import threading
@@ -11,6 +12,10 @@ class camera_type(enum.Enum):
     UNKNOWN = 0
     MICROSCOPE = 1
     WEBCAM = 2
+
+class CustomIOError(IOError):
+    def __init__(self, message: str):
+        self.msg = message
 
 class Camera:
     def __init__(self) -> None:
@@ -26,9 +31,20 @@ class Camera:
         self._cam_name = ''
         self._image = None
         self._cam_type = camera_type.UNKNOWN
+        self.error_box = QWidget()
+        try:
+            self.load_camera()
+        except Exception as e:
+            QMessageBox.warning(self.error_box, "Error Encountered",
+                                e.msg, QMessageBox.Ok)
+
+
+
+
+    def load_camera(self):
         available_cameras = amcam.Amcam.EnumV2()
         if len(available_cameras) <= 0:
-            # raise IOError #TODO: Eventually
+            # raise CustomIOError("Microscope camera not connected") TODO: Uncomment this maybe
             print("No microscope found, defaulting to webcam...")
             self._cam_type = camera_type.WEBCAM
             self._cam_name = 'Webcam'

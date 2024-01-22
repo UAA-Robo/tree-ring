@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLa
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot, QRect
 from PyQt5.QtGui import QImage, QPixmap
 from tkinter import filedialog as fd
-# from filedialogs import open_folder_dialog
+from tkinter.filedialog import askdirectory
 from camera import *
 from automationScript import Automation
 
@@ -151,10 +151,10 @@ class GUI(QWidget):
         
 
         if not self.Automation.is_active(): # Pressed 'START'
-            # open_folder = open_folder_dialog()
-            # if open_folder:
-            #     with open(os.path.join(open_folder, ...), "w") as f:
-            #         ...
+            open_folder = askdirectory()
+            if open_folder:
+                self.Automation.set_capture_location(open_folder)
+            print('Capture directory set to', self.Automation.capture_dir)
             print("Automation started!")
 
             self.Automation.start_automation(float(self.core_length), float(self.shift_length))
