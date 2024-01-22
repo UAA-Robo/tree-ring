@@ -81,6 +81,19 @@ class Automation():
         self.arduino = Arduino()
         self.counter = 0
         self.capture_dir = 'captures'
+        self._status = False
+        self._last_status = False
+
+    def change_active_status(self, value: bool) -> None:
+        self._status = value
+
+    def is_active(self) -> bool: return self._status
+
+    def status_changed(self) -> bool:
+        if self._status != self._last_status: return True
+        else: return False
+    
+    def sync_status(self) -> None: self._last_status = self._status
 
     def set_capture_location(self, file_path: str): 
 
@@ -110,13 +123,17 @@ class Automation():
         """
         print("Started Automation")
 
+        self.change_active_status(True)
         motor_shifts_needed = int(core_length / shift_length)
         print(f"    Shifting {motor_shifts_needed} times by  {shift_length} mm")
 
         for self.counter in range(motor_shifts_needed):
+            if not self.is_active(): break
             self.get_picture()
             time.sleep(3)
             self.shift_sample(shift_length)
+        
+        self.change_active_status(False)
 
 
     def get_picture(self):
@@ -128,7 +145,8 @@ class Automation():
         if not os.path.exists(folder_path):
             os.makedirs(folder_path) # If it does not exist, create it
         img = self.camera.get_image()
-        img.save(f'{folder_path}/image_{self.counter}.jpg')
+        if img is not None:
+            img.save(f'{folder_path}/image_{self.counter}.jpg')
 
 
     def shift_sample(self, shift_length):

@@ -25,6 +25,20 @@ class VideoStreamThread(QThread):
                 self.change_image.emit(p)
             time.sleep(0.0001)  # Required to be slower than camera
 
+class AutomationListeningThread(QThread):
+    def __init__(self, automation: Automation):
+        super().__init__()
+        self.Automation = automation
+
+    automation_status = pyqtSignal(bool)
+
+    def run(self): 
+        while True: 
+            if self.Automation.status_changed():
+                if self.Automation.is_active(): self.automation_status.emit(True)
+                else: self.automation_status.emit(False)
+                self.Automation.sync_status()
+
 
 class GUI(QWidget):
     def __init__(self):
@@ -46,6 +60,13 @@ class GUI(QWidget):
     @pyqtSlot(QImage)
     def set_image(self, image):
         self.video_label.setPixmap(QPixmap.fromImage(image))
+    
+    @pyqtSlot(bool)
+    def change_automation_status(self, value: bool):
+        if value:
+            self.start_stop_button.setText("Stop Automation")
+        else:
+            self.start_stop_button.setText("Start Automation")
 
     def initUI(self):
         self.setWindowTitle(self.title)
@@ -77,12 +98,12 @@ class GUI(QWidget):
 
 
         # Create buttons
-        self.start_button = QPushButton(self)
-        self.start_button.setGeometry(QRect(150, 70, 93, 28))
-        self.start_button.setText("Start Automation")
-        self.grid.addWidget(self.start_button, 1, 3)
-        self.start_button.clicked.connect(
-            lambda: self.start_automation()
+        self.start_stop_button = QPushButton(self)
+        self.start_stop_button.setGeometry(QRect(150, 70, 93, 28))
+        self.start_stop_button.setText("Start Automation")
+        self.grid.addWidget(self.start_stop_button, 1, 3)
+        self.start_stop_button.clicked.connect(
+            lambda: self.start_stop_automation()
         )
 
         self.zeroing_button = QPushButton(self)
@@ -96,7 +117,15 @@ class GUI(QWidget):
         self.video_thread = VideoStreamThread(self.camera)
         self.video_thread.change_image.connect(self.set_image)
         self.video_thread.start()
+
+        # Start Automation Listening Thread
+        self.listening_thread = AutomationListeningThread(self.Automation)
+        self.listening_thread.automation_status.connect(self.change_automation_status)
+        self.listening_thread.start()
+
+        # Starts the GUI
         self.show()
+
 
     def on_core_input_change(self, text):
         """
@@ -118,15 +147,20 @@ class GUI(QWidget):
         self.shift_length = text
         print(f"New shift input: {text}")
 
-    def start_automation(self):
+    def start_stop_automation(self):
         
-        # open_folder = open_folder_dialog()
-        # if open_folder:
-        #     with open(os.path.join(open_folder, ...), "w") as f:
-        #         ...
-        print("Automation started!")
 
-        self.Automation.start_automation(float(self.core_length), float(self.shift_length))
+        if not self.Automation.is_active(): # Pressed 'START'
+            # open_folder = open_folder_dialog()
+            # if open_folder:
+            #     with open(os.path.join(open_folder, ...), "w") as f:
+            #         ...
+            print("Automation started!")
+
+            self.Automation.start_automation(float(self.core_length), float(self.shift_length))
+        else: # Pressed 'STOP'
+            print("Automation stopped")
+            self.Automation.change_active_status(False)
 
 
 
