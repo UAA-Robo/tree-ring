@@ -22,7 +22,7 @@ class Arduino:
         try:
             self.IS_CONNECTED = self.connect_to_arduino()
         except Exception as e:
-            QMessageBox.warning(self.error_box, "Error Encountered",
+            QMessageBox.critical(self.error_box, "Error Encountered",
                                 e.msg, QMessageBox.Ok)
 
 
