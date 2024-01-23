@@ -70,45 +70,73 @@ class GUI(QWidget):
     def initUI(self):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
+        #self.setStyleSheet("background-color: black;")
+        self.setStyleSheet("""
+            QWidget {
+                background-color: black;
+            }
+            QLabel {
+                color: white;
+            }
+            QPushButton {
+                color: white;
+                border: 1px solid white;
+                border-radius: 15px;
+                padding: 10px;
+            }
+            QLineEdit {
+                border: none;
+                border-bottom: 1px solid white;  
+            }
+        """)
+
 
         # Formatting
         self.grid = QGridLayout(self)
 
+
         # Video label for displaying the stream
         self.video_label = QLabel(self)
-        self.grid.addWidget(self.video_label, 0, 0, 1, 6, Qt.AlignCenter)  # Spanning 6 columns
+        self.grid.addWidget(self.video_label, 0, 0, 1, 5, Qt.AlignCenter )  # Spanning 6 columns
+
+        # Right side for buttons
+        self.right_side = QWidget()
+        self.right_grid = QGridLayout(self.right_side)
+        self.grid.addWidget(self.right_side, 0, 6)
+        self.right_side.setFixedHeight(300)
 
         # Create core length input
         self.core_input_label = QLabel('Core Length (cm)', self)
-        self.grid.addWidget(self.core_input_label, 1, 1)
+        self.right_grid.addWidget(self.core_input_label, 0, 0, Qt.AlignRight)
         self.core_input_textbox = QLineEdit(self)
         self.core_input_textbox.setText(str(self.core_length))
-        self.grid.addWidget(self.core_input_textbox, 1, 2)
+        self.core_input_textbox.setFixedWidth(50)
+        self.right_grid.addWidget(self.core_input_textbox, 0, 1, Qt.AlignLeft)
         self.core_input_textbox.textChanged.connect(self.on_core_input_change)
 
         # Create shift length input
         self.shift_input_label = QLabel('Shift Length (mm)', self)
-        self.grid.addWidget(self.shift_input_label, 2, 1)
+        self.right_grid.addWidget(self.shift_input_label, 1,0, Qt.AlignRight)
         self.shift_input_textbox = QLineEdit(self)
         self.shift_input_textbox.setText(str(self.shift_length))
-        self.grid.addWidget(self.shift_input_textbox, 2, 2)
+        self.shift_input_textbox.setFixedWidth(50)
+        self.right_grid.addWidget(self.shift_input_textbox, 1, 1, Qt.AlignLeft)
         self.shift_input_textbox.textChanged.connect(self.on_shift_input_change)
-
 
 
         # Create buttons
         self.start_stop_button = QPushButton(self)
-        self.start_stop_button.setGeometry(QRect(150, 70, 93, 28))
         self.start_stop_button.setText("Start Automation")
-        self.grid.addWidget(self.start_stop_button, 1, 3)
+        self.start_stop_button.setFixedWidth(150)
+        self.right_grid.addWidget(self.start_stop_button, 2, 0, 1, 2, Qt.AlignHCenter)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
         )
 
         self.zeroing_button = QPushButton(self)
-        self.zeroing_button.setGeometry(QRect(150, 70, 93, 28))
         self.zeroing_button.setText("Zero Platform")
-        self.grid.addWidget(self.zeroing_button, 1, 4)
+        self.zeroing_button.setFixedWidth(150)
+        self.right_grid.addWidget(self.zeroing_button, 3, 0, 1, 2, Qt.AlignHCenter)
         self.zeroing_button.clicked.connect(self.Automation.zero_platform) # Add Button Trigger
 
 
