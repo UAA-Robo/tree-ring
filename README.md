@@ -15,6 +15,13 @@ AmScope provides the following files in Python:
 ## Bundle program into an executable for Windows
 To compile this program go open the terminal in the directory of gui.py and run `python -m PyInstaller gui.py --onefile --windowed`. This will not work on Mac due to strict camera permission.
 
+When building the program into a binary, Windows will throw a 'severe' threat warning. This is
+because the software lacks an official Microsoft signature. To bypass this, open Windows Security,
+click on 'Virus & threat protection,' and click on the link 'Manage settings' under 'Virus & threat
+protection settings.' At the bottom of this menu there is a link to 'Add or remove exclusions.'
+Add an exclusion of the type 'Folder,' and select the directory containing the program. Now running
+the above command will successfully build the executable.
+
 ## TODO:
 - QT application (gui.py):
     - Looks: Fix black text, curve camera corner -> Mya 
