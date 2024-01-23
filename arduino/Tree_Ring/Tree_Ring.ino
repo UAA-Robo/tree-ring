@@ -1,24 +1,32 @@
+
 int dirPin = 3;
 int stepperPin = 4;
 int limitSwitch = 5;
+int enablePin = 6;
+int resetPin = 7;
 
 int incomingByte;
 
 bool isClockwise = true;
+bool isActive = false;
+
+int active_counter = 0;
+int rotateAmount = 200;
 
 void setup()
 {
- pinMode(dirPin, OUTPUT);
- pinMode(stepperPin, OUTPUT);
- pinMode(limitSwitch, INPUT_PULLUP);
-
- Serial.begin(9600);
+  pinMode(dirPin, OUTPUT);
+  pinMode(stepperPin, OUTPUT);
+  pinMode(limitSwitch, INPUT_PULLUP);
+  digitalWrite(dirPin, LOW);
+  digitalWrite(stepperPin, LOW);
+  activate();
+  Serial.begin(9600);
 }
 
 void step(boolean dir,int steps)
  {
  digitalWrite(dirPin,dir);
- delay(50);
 
  for(int i=0;i<steps;i++)
  {
@@ -34,8 +42,24 @@ void Zero(){
   while(digitalRead(limitSwitch) != 0){
     step(true,20);
   }
-  step(false,200);
+  step(false,rotateAmount);
   Serial.write("Zeroed");
+}
+
+void activate(){
+  if(!isActive){
+    active_counter = 0;
+    digitalWrite(enablePin, HIGH);
+    digitalWrite(resetPin, LOW);
+    isActive = true;
+    delayMicroseconds(1000);
+  }
+}
+
+void deactivate(){
+  digitalWrite(enablePin, LOW);
+  digitalWrite(resetPin, HIGH);
+  isActive = false;
 }
 
 void loop()
@@ -51,14 +75,30 @@ void loop()
     Serial.write("AntiClockwise");
     isClockwise = false;
   }
+  if(incomingByte == 82){ // R
+    activate();
+    step(isClockwise, rotateAmount * 3);//(direction ,steps per revolution). This is clockwise rotation.
+  }
   if(incomingByte == 90){ // Z
+    activate();
     Zero();
+  }
+    if(incomingByte == 43){ // + Increase Rotation Amount
+    rotateAmount = rotateAmount + 20;
+    Serial.write(rotateAmount);
+  }
+  if(incomingByte == 45){ // - Decrease Rotation amount
+    rotateAmount = rotateAmount - 20;
+    Serial.write(rotateAmount);
+  }
+  if(incomingByte == 61){ // = Get current Rotation Amount
+    Serial.write(rotateAmount);
   }
  }
 
- if(digitalRead(limitSwitch) == 0){
-  step(isClockwise,200);//(direction ,steps per revolution). This is clockwise rotation.
-      //delay(500);
+  active_counter++;
+ if(active_counter == 6000){
+  deactivate();
  }
  //step(false,1000);//Turn (direction ,steps per revolution). This is anticlockwise rotation.
  //delay(500);
