@@ -50,6 +50,9 @@ class GUI(QWidget):
         
         self.core_length = 20  # Default value (mm)
         self.shift_length = 3  # Default value (mm)
+
+        self.video_width = 640
+        self.video_height = 480
         self.camera = Camera()
         self.Automation = Automation(self.camera)
         
@@ -58,6 +61,8 @@ class GUI(QWidget):
 
     @pyqtSlot(QImage)
     def set_image(self, image):
+    
+        image = image.scaled(self.video_width, self.video_height, Qt.KeepAspectRatio)
         self.video_label.setPixmap(QPixmap.fromImage(image))
     
     @pyqtSlot(bool)
@@ -190,6 +195,12 @@ class GUI(QWidget):
         else: # Pressed 'STOP'
             print("Automation stopped")
             self.Automation.change_active_status(False)
+
+    def resizeEvent(self, event):
+        # Update the image display when the widget is resized
+        self.video_width = int(self.size().width() * 0.75)
+        self.video_height = int(self.size().height() * 0.8)
+        super().resizeEvent(event)
 
 
 
