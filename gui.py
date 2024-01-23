@@ -86,8 +86,8 @@ class GUI(QWidget):
             QPushButton {
                 color: white;
                 border: 1px solid white;
-                border-radius: 15px;
-                padding: 10px;
+                border-radius: 5px;
+                padding: 5px;
             }
             QLineEdit {
                 border: none;
@@ -132,7 +132,7 @@ class GUI(QWidget):
         # Create buttons
         self.start_stop_button = QPushButton(self)
         self.start_stop_button.setText("Start Automation")
-        self.start_stop_button.setFixedWidth(150)
+        self.start_stop_button.setFixedWidth(100)
         self.right_grid.addWidget(self.start_stop_button, 2, 0, 1, 2, Qt.AlignHCenter)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
@@ -140,7 +140,7 @@ class GUI(QWidget):
 
         self.zeroing_button = QPushButton(self)
         self.zeroing_button.setText("Zero Platform")
-        self.zeroing_button.setFixedWidth(150)
+        self.zeroing_button.setFixedWidth(100)
         self.right_grid.addWidget(self.zeroing_button, 3, 0, 1, 2, Qt.AlignHCenter)
         self.zeroing_button.clicked.connect(self.Automation.zero_platform) # Add Button Trigger
 
