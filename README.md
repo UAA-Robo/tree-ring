@@ -12,7 +12,10 @@ AmScope provides the following files in Python:
 * win/ - contains drivers needed for windows
 
 
-TODO:
+## Bundle program into an executable for Windows
+To compile this program go open the terminal in the directory of gui.py and run `pyinstaller gui.py --onefile --windowed`. This will not work on Mac due to strict camera permission.
+
+## TODO:
 - QT application (gui.py):
     - Stop automation program (maybe pause) -> Dawson (by 1/23)
     - Select where to store photos -> Dawson (by 1/23)

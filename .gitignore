@@ -1,1 +1,4 @@
 captures/
+dist/
+build/
+*.spec
