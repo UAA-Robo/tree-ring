@@ -140,12 +140,12 @@ class Automation():
         print(f"    Shifting {motor_shifts_needed} time(s) by  {shift_length} mm")
 
         for self.counter in range(motor_shifts_needed):
-            print(self.counter)
             if not self.is_active(): break
+            print(self.counter)
             self.get_picture()
             time.sleep(3)
+            if not self.is_active(): break
             self.shift_sample(shift_length)
-        
         self.change_active_status(False)
 
 
