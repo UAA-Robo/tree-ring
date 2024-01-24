@@ -13,17 +13,18 @@ AmScope provides the following files in Python:
 
 
 ## Bundle program into an executable for Windows
-To compile this program go open the terminal in the directory of gui.py and run `pyinstaller gui.py --onefile --windowed`. This will not work on Mac due to strict camera permission.
+To compile this program go open the terminal in the directory of gui.py and run `python -m PyInstaller gui.py --onefile --windowed`. This will not work on Mac due to strict camera permission.
 
 ## TODO:
 - QT application (gui.py):
-    - Stop automation program (maybe pause) -> Dawson (by 1/23)
-    - Select where to store photos -> Dawson (by 1/23)
-    - Adjust movement length -> Mya, Anthony (by 1/23)
-    - Input core length  TO CM -> Mya (by 1/23)
-    - Make pretty (Make image smaller, or app bigger)  -> Mya (by 1/23)
+    - Looks: Fix black text, curve camera corner -> Mya 
+    - Change Warning for no camera detected. -> Dawson (done)
+    - Kinda bug where still start automation if no location -> Dawson (by 1/30)
+    - Pause automation program  -> Dawson (by 1/30)
     - Error handleing -> Dawson
-    - App downloading -> Mya
+    - Fix app downloading -> Mya (by 1/30)
+    - Possibly Merge listening thread + videostream thread -> MYA LOOOK
+    - Handle errors in gui.py instead of automation.py -> Mya, Dawson (by 1/30)
 
 - Camera
     - Adjust exposure options
@@ -37,15 +38,14 @@ To compile this program go open the terminal in the directory of gui.py and run 
     - merge readme and code into main
 
 - Hardware:
-    - Print camera mount -> Dawson (by 1/23)
     - start PCB -> Anthony (by 1/23)
     - Print Motor mount
     - Print limit switch mount
-
     - Get new hardware working -> Anthony (by 1/23)
+    - Look at parts for converyr -> Micah (by 1/30)
 
 - Documentation w/ docsify
-    - Step by step instructions 
-    - Code guide
+    - Step by step instructions -> Mya, Dawson (by 30th)
+    - Code guide -> Mya (gui, automation), Dawson (camera), Anthony (arduino)
     - Trouble Shooting (start by 1/23) -> Dawson
-
+    - Update comments -> EVERYONE (by 30th)
