@@ -1,5 +1,7 @@
 # Tree Grabber Nabber
 
+Documentation can be viewed at [uaa-robo.github.io/tree-ring](https://uaa-robo.github.io/tree-ring/) and in the docs folder.
+
 This code controls the Amscope camera (our model is the MU500).
 
 The following files are taken from the SDK provided by AmScope [here](https://amscope.com/pages/software-downloads) when you select your camera and model.
