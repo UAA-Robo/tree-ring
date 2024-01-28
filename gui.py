@@ -8,7 +8,7 @@ from automationScript import Automation
 
 
 class video_stream_thread(QThread):
-    def __init__(self, camera: Camera):
+    def __init__(self, camera: Camera) -> None:
         """
         @brief This thread gets the video (picture) stream from the camera and sends it to the 
             main GUI.
@@ -33,7 +33,7 @@ class automation_listening_thread(QThread):
     @brief This thread monitors the automation class to determine if it is running or not.
     @param Camera The camera class.
     """
-    def __init__(self, automation: Automation):
+    def __init__(self, automation: Automation) -> None:
         super().__init__()
         self.Automation = automation
 
@@ -48,7 +48,7 @@ class automation_listening_thread(QThread):
 
 
 class GUI(QWidget):
-    def __init__(self):
+    def __init__(self) -> None:
         """
         @brief This is the main GUI class.
         """
@@ -71,7 +71,7 @@ class GUI(QWidget):
         
 
     @pyqtSlot(QImage)
-    def set_image(self, image):
+    def set_image(self, image: QPixmap) -> None:
         """
         @brief Sets the image from the camera in the GUI so a stream shows.
         @param image Image from the video_stream_thread.
@@ -81,7 +81,7 @@ class GUI(QWidget):
         self.video_label.setPixmap(QPixmap.fromImage(image))
     
     @pyqtSlot(bool)
-    def change_automation_status(self, value: bool):
+    def change_automation_status(self, value: bool) -> None :
         """
         @brief Sets the automation status from the Automation Script
         @param value Status from the automation_listening_thread. True is running, False is stopped.
@@ -91,7 +91,7 @@ class GUI(QWidget):
         else:
             self.start_stop_button.setText("Start Automation")
 
-    def initUI(self):
+    def initUI(self) -> None:
         """
         @brief Sets the layout for the GUI and starts listeners for button presses.
         """
@@ -183,7 +183,7 @@ class GUI(QWidget):
         self.show()
 
 
-    def on_core_input_change(self, text):
+    def on_core_input_change(self, text: str) -> None:
         """
         @brief Called every time the text in the core_input textbox changes.
         @param text Contains the new text.
@@ -193,7 +193,7 @@ class GUI(QWidget):
         print(f"New core input: {text}")
 
 
-    def on_shift_input_change(self, text):
+    def on_shift_input_change(self, text: str) -> None:
         """
         @brief Called every time the text in the shift_input textbox changes.
         @param text Contains the new text.
@@ -203,7 +203,7 @@ class GUI(QWidget):
         print(f"New shift input: {text}")
 
 
-    def start_stop_automation(self):
+    def start_stop_automation(self) -> None:
         """
         @brief Called when the start/stop button is pressed. On windows when the start button
             is pressed, a dialog prompt asks the user to enter a directory to save images.
@@ -224,7 +224,7 @@ class GUI(QWidget):
             print("Automation stopped")
             self.Automation.change_active_status(False)
 
-    def resizeEvent(self, event):
+    def resizeEvent(self, event: QWidget.QMoveEvent) -> None:
         """
         @brief Updates the image display when the widget is resized. Part of QWidget and called by
             pyqt (name can NOT be changed).

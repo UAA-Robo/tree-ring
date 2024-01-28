@@ -27,7 +27,7 @@ class Arduino:
                                 e.msg, QMessageBox.Ok)
 
 
-    def connect_to_arduino(self):
+    def connect_to_arduino(self) -> None:
         """
         @brief  Connects to arduino port.
         """
@@ -49,7 +49,7 @@ class Arduino:
 
         return True
 
-    def write_to_arduino(self, char):
+    def write_to_arduino(self, char) -> None:
         """
         @brief  Writes to the arduino via serial.
         @param char     Character to send to arduino to trigger functions.
@@ -58,7 +58,7 @@ class Arduino:
             self.arduino.write(bytes(char,  'utf-8'))
 
 
-    def turn_motor_left(self):
+    def turn_motor_left(self) -> None:
         """
         @brief  Sends command to arduino to turn the motor left by 3 revolutions. Blocking.
         """
@@ -68,7 +68,7 @@ class Arduino:
             time.sleep(2)  # Waits for motor to finish. TODO: get response back instead
 
 
-    def zero_platform(self):
+    def zero_platform(self) -> None:
         """
         @brief  Sends command to arduino to turn the motor until the limit switch is hit.
         """
@@ -86,7 +86,6 @@ class Automation():
         @brief  Starts the automation class.
         @param camera   Instance of type Camera
         """
-
 
         self.camera = camera
         self.arduino = Arduino()
@@ -107,7 +106,6 @@ class Automation():
     def sync_status(self) -> None: self._last_status = self._status
 
     def set_capture_location(self, file_path: str): 
-
 
         # Check if the folder exists
         if not os.path.exists(self.capture_dir):
