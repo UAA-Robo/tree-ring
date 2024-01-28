@@ -39,8 +39,13 @@ class automation_listening_thread(QThread):
 
     automation_status = pyqtSignal(bool)
 
+    automation_message = pyqtSignal(str)
+
     def run(self): 
         while True: 
+
+            self.automation_message.emit(self.Automation.get_automation_status())
+
             if self.Automation.status_changed():
                 if self.Automation.is_active(): self.automation_status.emit(True)
                 else: self.automation_status.emit(False)
@@ -53,14 +58,14 @@ class GUI(QWidget):
         @brief This is the main GUI class.
         """
         super().__init__()
-        self.title = 'Tree Grabber Nabber'
+        self.title = 'Tree Ring Grabber Nabber'
         self.left = 100
         self.top = 100
         self.width = 640
         self.height = 480
         
-        self.core_length = 20  # Default value (mm)
-        self.shift_length = 3  # Default value (mm)
+        self.core_length = "20"  # Default value (mm)
+        self.shift_length = "3"  # Default value (mm)
 
         self.video_width = 640  # Pixels
         self.video_height = 480 # Pixels
@@ -91,6 +96,15 @@ class GUI(QWidget):
         else:
             self.start_stop_button.setText("Start Automation")
 
+    @pyqtSlot(str)
+    def change_automation_message(self, value: str) -> None :
+        """
+        @brief Sets the automation message from the Automation Script
+        @param value Automation Message from the automation_listening_thread.
+        """
+        self.message_label.setText(value)
+
+
     def initUI(self) -> None:
         """
         @brief Sets the layout for the GUI and starts listeners for button presses.
@@ -102,6 +116,7 @@ class GUI(QWidget):
         self.setStyleSheet("""
             QWidget {
                 background-color: black;
+                font-size: 15pt;
             }
             QLabel {
                 color: white;
@@ -130,7 +145,7 @@ class GUI(QWidget):
         self.right_side.setFixedHeight(300)
 
         # Title
-        self.title_label = QLabel('Tree Ring Grabber Nabber', self)
+        self.title_label = QLabel(self.title, self)
         self.grid.addWidget(self.title_label, 0, 0, 1, 5, Qt.AlignCenter)
         self.title_label.setStyleSheet('QLabel { font-size: 30pt;}')
 
@@ -138,7 +153,9 @@ class GUI(QWidget):
         self.video_label = QLabel(self)
         self.grid.addWidget(self.video_label, 1, 0, 1, 5, Qt.AlignCenter )  # Spanning 6 columns
 
-
+        # Automation Messages
+        self.message_label = QLabel(self)
+        self.grid.addWidget(self.message_label, 2, 0, 1, 5, Qt.AlignCenter)
 
         # Create core length input
         self.core_input_label = QLabel('Core Length (cm)', self)
@@ -158,11 +175,10 @@ class GUI(QWidget):
         self.right_grid.addWidget(self.shift_input_textbox, 1, 1, Qt.AlignLeft)
         self.shift_input_textbox.textChanged.connect(self.on_shift_input_change)
 
-
         # Create buttons
         self.start_stop_button = QPushButton(self)
         self.start_stop_button.setText("Start Automation")
-        self.start_stop_button.setFixedWidth(120)
+        self.start_stop_button.setFixedWidth(150)
         self.right_grid.addWidget(self.start_stop_button, 2, 0, 1, 2, Qt.AlignHCenter)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
@@ -170,9 +186,9 @@ class GUI(QWidget):
 
         self.zeroing_button = QPushButton(self)
         self.zeroing_button.setText("Zero Platform")
-        self.zeroing_button.setFixedWidth(120)
+        self.zeroing_button.setFixedWidth(150)
         self.right_grid.addWidget(self.zeroing_button, 3, 0, 1, 2, Qt.AlignHCenter)
-        self.zeroing_button.clicked.connect(self.Automation.zero_platform) # Add Button Trigger
+        self.zeroing_button.clicked.connect(lambda: self.Automation.zero_platform()) # Add Button Trigger
 
 
         # Start Video Thread
@@ -183,6 +199,7 @@ class GUI(QWidget):
         # Start Automation Listening Thread
         self.listening_thread = automation_listening_thread(self.Automation)
         self.listening_thread.automation_status.connect(self.change_automation_status)
+        self.listening_thread.automation_message.connect(self.change_automation_message)
         self.listening_thread.start()
 
         # Starts the GUI
@@ -229,6 +246,8 @@ class GUI(QWidget):
         else: # Pressed 'STOP'
             print("Automation stopped")
             self.Automation.change_active_status(False)
+
+
 
     def resizeEvent(self, event) -> None:
         """

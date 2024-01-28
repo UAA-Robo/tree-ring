@@ -117,6 +117,7 @@ class Automation():
         self.capture_dir = 'captures'
         self._status = False
         self._last_status = False
+        self._status_message = ""
 
     def change_active_status(self, value: bool) -> None:
         """
@@ -144,6 +145,13 @@ class Automation():
         """
         self._last_status = self._status
 
+    def get_automation_status(self) -> None:
+        """
+        @brief  Gets automation status message
+        @return Return status as string
+        """
+        return self._status_message
+
     def set_capture_location(self, file_path: str) -> None: 
         """
         @brief Sets capture location.
@@ -164,8 +172,8 @@ class Automation():
         @brief  Wrap function in a thread.
         @param function     Function to put in thread.
         """
-        def wrapper(*args):
-            thread = threading.Thread(target=function, args=args)
+        def wrapper(*args, **kwargs):
+            thread = threading.Thread(target=function, args=args, kwargs=kwargs)
             thread.start()
             return thread
         return wrapper
@@ -178,21 +186,22 @@ class Automation():
         @param core_length    Core size (in mm).
         @param shift_length   Length to shift motor each turn (in cm).
         """
-        print("Started Automation")
+
+        self._status_message = "Automation Started..."
 
         self.change_active_status(True)
 
         motor_shifts_needed = int(core_length * 10  / (shift_length))
-        print(f"    Shifting {motor_shifts_needed} time(s) by  {shift_length} mm")
 
         for self.counter in range(motor_shifts_needed):
+            self._status_message = f"Automation Started...  Shifting {self.counter} / {motor_shifts_needed} time(s) by  {shift_length} mm"
             if not self.is_active(): break
-            print(self.counter)
             self.get_picture()
             time.sleep(3)
             if not self.is_active(): break
             self.shift_sample(shift_length)
         self.change_active_status(False)
+        self._status_message = "Automation Stopped."
 
 
     def get_picture(self):
@@ -215,7 +224,6 @@ class Automation():
 
         self.arduino.update_shift_length(shift_length)
         self.arduino.turn_motor_left()
-        print("Shifted Sample")
         time.sleep(2)
 
     @run_in_thread
@@ -223,9 +231,9 @@ class Automation():
         """
         @brief   Zeros the platform to the left.  Non-blocking.
         """
-
+        self._status_message = "Zeroing Platform..."
         self.arduino.zero_platform()
-        print("Zeroed Sample")
+        self._status_message = "Finished Zeroing Platform."
 
 
 
