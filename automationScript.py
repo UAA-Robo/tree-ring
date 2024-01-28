@@ -2,6 +2,7 @@ from camera import Camera, CustomIOError
 from PyQt5.QtWidgets import QMessageBox, QWidget
 import serial.tools.list_ports
 import serial
+from datetime import datetime
 import time
 import threading
 import os
@@ -200,8 +201,10 @@ class Automation():
         """
         self.check_capture_location()
         img = self.camera.get_image()
+
+        current_time = datetime.now().strftime("%d-%m-%y_%H:%M:%S")
         if img is not None:
-            img.save(f'{self.capture_dir}/image_{self.counter}.jpg')
+            img.save(f'{self.capture_dir}/image_{current_time}.jpg')
 
 
     def shift_sample(self, shift_length):
