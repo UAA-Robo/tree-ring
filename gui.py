@@ -1,10 +1,9 @@
-import cv2
-import sys, time, os
+import sys, time
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLayout, QLineEdit
-from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot, QRect
+from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap
 from tkinter.filedialog import askdirectory
-from camera import *
+from camera import Camera
 from automationScript import Automation
 
 
