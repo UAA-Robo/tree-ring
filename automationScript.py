@@ -16,6 +16,9 @@ class Arduino:
         self.arduino = None
         self.IS_CONNECTED = False
         self.error_box = QWidget()
+
+        self.SHIFT_LENGTH_CHANGE = 0.1  # Increment to change shift length (mm) 
+
         try:
             self.IS_CONNECTED = self.connect_to_arduino()
         except Exception as e:
@@ -61,7 +64,9 @@ class Arduino:
         if self.IS_CONNECTED:
             self.arduino.write(bytes('L',  'utf-8'))
             self.arduino.write(bytes('R',  'utf-8'))
-            time.sleep(2)  # Waits for motor to finish. TODO: get response back instead
+            # time.sleep(2)
+            while(self.arduino.readline() != 'AntiClockwise'): 
+                pass
 
 
     def zero_platform(self) -> None:
@@ -71,8 +76,30 @@ class Arduino:
         if self.IS_CONNECTED:
             self.arduino.write(bytes('Z',  'utf-8'))
             
-            while(self.arduino.readline != 'Zeroed'): 
+            while(self.arduino.readline() != 'Zeroed'): 
                 pass
+    
+    def update_shift_length(self, shift_length: float) -> None:
+        """
+        @brief  Sends command to arduino to update shift length.
+        @param  shift_length Length in mm to shift sample each time.
+        """
+        if self.IS_CONNECTED:
+            current_shift_length = float(self.arduino.readline())
+
+            increments = (current_shift_length - shift_length) / self.SHIFT_LENGTH_CHANGE
+
+            if increments < 0:
+                for _ in range(abs(increments)):
+                    # Decrements by SHIFT_LENGTH_CHANGE each time
+                    self.arduino.write(bytes('-',  'utf-8'))
+                    time.sleep(0.001)
+            else:
+                for _ in range(increments):
+                    # Increments by SHIFT_LENGTH_CHANGE each time
+                    self.arduino.write(bytes('+',  'utf-8'))
+                    time.sleep(0.001)
+
 
 
 class Automation():
@@ -183,7 +210,7 @@ class Automation():
         @param shift_length   Length to shift motor each turn (in cm).
         """
 
-        # TODO - add in shift length logic
+        self.arduino.update_shift_length(shift_length)
         self.arduino.turn_motor_left()
         print("Shifted Sample")
         time.sleep(2)
