@@ -8,8 +8,13 @@ from camera import *
 from automationScript import Automation
 
 
-class VideoStreamThread(QThread):
+class video_stream_thread(QThread):
     def __init__(self, camera: Camera):
+        """
+        @brief This thread gets the video (picture) stream from the camera and sends it to the 
+            main GUI.
+        @param Camera The camera class.
+        """
         super().__init__()
         self.camera = camera
     
@@ -18,13 +23,17 @@ class VideoStreamThread(QThread):
 
     def run(self):
         while True:
-            convertToQtFormat = self.camera.get_image()
-            if convertToQtFormat:
-                p = convertToQtFormat.scaled(640, 480, Qt.KeepAspectRatio)
-                self.change_image.emit(p)
+            image = self.camera.get_image()  # Converted to QT format
+            if image:
+                scaled_image = image.scaled(640, 480, Qt.KeepAspectRatio)
+                self.change_image.emit(scaled_image)
             time.sleep(0.0001)  # Required to be slower than camera
 
-class AutomationListeningThread(QThread):
+class automation_listening_thread(QThread):
+    """
+    @brief This thread monitors the automation class to determine if it is running or not.
+    @param Camera The camera class.
+    """
     def __init__(self, automation: Automation):
         super().__init__()
         self.Automation = automation
@@ -41,8 +50,11 @@ class AutomationListeningThread(QThread):
 
 class GUI(QWidget):
     def __init__(self):
+        """
+        @brief This is the main GUI class.
+        """
         super().__init__()
-        self.title = 'Tree Ring Grabber'
+        self.title = 'Tree Grabber Nabber'
         self.left = 100
         self.top = 100
         self.width = 640
@@ -51,8 +63,8 @@ class GUI(QWidget):
         self.core_length = 20  # Default value (mm)
         self.shift_length = 3  # Default value (mm)
 
-        self.video_width = 640
-        self.video_height = 480
+        self.video_width = 640  # Pixels
+        self.video_height = 480 # Pixels
         self.camera = Camera()
         self.Automation = Automation(self.camera)
         
@@ -61,18 +73,30 @@ class GUI(QWidget):
 
     @pyqtSlot(QImage)
     def set_image(self, image):
+        """
+        @brief Sets the image from the camera in the GUI so a stream shows.
+        @param image Image from the video_stream_thread.
+        """
     
         image = image.scaled(self.video_width, self.video_height, Qt.KeepAspectRatio)
         self.video_label.setPixmap(QPixmap.fromImage(image))
     
     @pyqtSlot(bool)
     def change_automation_status(self, value: bool):
+        """
+        @brief Sets the automation status from the Automation Script
+        @param value Status from the automation_listening_thread. True is running, False is stopped.
+        """
         if value:
             self.start_stop_button.setText("Stop Automation")
         else:
             self.start_stop_button.setText("Start Automation")
 
     def initUI(self):
+        """
+        @brief Sets the layout for the GUI and starts listeners for button presses.
+        """
+
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         #self.setStyleSheet("background-color: black;")
@@ -147,12 +171,12 @@ class GUI(QWidget):
 
 
         # Start Video Thread
-        self.video_thread = VideoStreamThread(self.camera)
+        self.video_thread = video_stream_thread(self.camera)
         self.video_thread.change_image.connect(self.set_image)
         self.video_thread.start()
 
         # Start Automation Listening Thread
-        self.listening_thread = AutomationListeningThread(self.Automation)
+        self.listening_thread = automation_listening_thread(self.Automation)
         self.listening_thread.automation_status.connect(self.change_automation_status)
         self.listening_thread.start()
 
@@ -162,25 +186,29 @@ class GUI(QWidget):
 
     def on_core_input_change(self, text):
         """
-        @brief Called every time the text in the textbox changes.
+        @brief Called every time the text in the core_input textbox changes.
         @param text Contains the new text.
-        @param update_value     Value to update (needs to be pointer aka class variable)
         """
 
         self.core_length = text
         print(f"New core input: {text}")
 
+
     def on_shift_input_change(self, text):
         """
-        @brief Called every time the text in the textbox changes.
+        @brief Called every time the text in the shift_input textbox changes.
         @param text Contains the new text.
-        @param update_value     Value to update (needs to be pointer aka class variable)
         """
 
         self.shift_length = text
         print(f"New shift input: {text}")
 
+
     def start_stop_automation(self):
+        """
+        @brief Called when the start/stop button is pressed. On windows when the start button
+            is pressed, a dialog prompt asks the user to enter a directory to save images.
+        """
         
 
         if not self.Automation.is_active(): # Pressed 'START'
@@ -198,11 +226,14 @@ class GUI(QWidget):
             self.Automation.change_active_status(False)
 
     def resizeEvent(self, event):
-        # Update the image display when the widget is resized
+        """
+        @brief Updates the image display when the widget is resized. Part of QWidget and called by
+            pyqt (name can NOT be changed).
+        @param event Event that resizes screen.
+        """
         self.video_width = int(self.size().width() * 0.75)
         self.video_height = int(self.size().height() * 0.8)
         super().resizeEvent(event)
-
 
 
 if __name__ == '__main__':
