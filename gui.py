@@ -1,7 +1,7 @@
 import sys, time
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLayout, QLineEdit
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage, QPixmap, QFont
 from tkinter.filedialog import askdirectory
 from camera import Camera
 from automationScript import Automation
@@ -123,16 +123,22 @@ class GUI(QWidget):
         # Formatting
         self.grid = QGridLayout(self)
 
-
-        # Video label for displaying the stream
-        self.video_label = QLabel(self)
-        self.grid.addWidget(self.video_label, 0, 0, 1, 5, Qt.AlignCenter )  # Spanning 6 columns
-
         # Right side for buttons
         self.right_side = QWidget()
         self.right_grid = QGridLayout(self.right_side)
-        self.grid.addWidget(self.right_side, 0, 6)
+        self.grid.addWidget(self.right_side, 0, 6, 3, 1)
         self.right_side.setFixedHeight(300)
+
+        # Title
+        self.title_label = QLabel('Tree Ring Grabber Nabber', self)
+        self.grid.addWidget(self.title_label, 0, 0, 1, 5, Qt.AlignCenter)
+        self.title_label.setStyleSheet('QLabel { font-size: 30pt;}')
+
+        # Video label for displaying the stream
+        self.video_label = QLabel(self)
+        self.grid.addWidget(self.video_label, 1, 0, 1, 5, Qt.AlignCenter )  # Spanning 6 columns
+
+
 
         # Create core length input
         self.core_input_label = QLabel('Core Length (cm)', self)
