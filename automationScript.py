@@ -6,10 +6,6 @@ import time
 import threading
 import os
 
-# class CustomIOError(IOError):
-#     def __init__(self, message: str):
-#         self.msg = message
-
 class Arduino:
     def __init__(self) -> None:
         """
@@ -95,19 +91,43 @@ class Automation():
         self._last_status = False
 
     def change_active_status(self, value: bool) -> None:
+        """
+        @brief  Sets automation status.
+        @param value  True/False status to set.
+        """
         self._status = value
 
-    def is_active(self) -> bool: return self._status
+    def is_active(self) -> bool: 
+        """
+        @brief  Gets automation status.
+        """
+        return self._status
 
     def status_changed(self) -> bool:
+        """
+        @brief  Updates automation status.
+        """
         if self._status != self._last_status: return True
         else: return False
     
-    def sync_status(self) -> None: self._last_status = self._status
+    def sync_status(self) -> None: 
+        """
+        @brief  Updates sync status.
+        """
+        self._last_status = self._status
 
-    def set_capture_location(self, file_path: str): 
+    def set_capture_location(self, file_path: str) -> None: 
+        """
+        @brief Sets capture location.
+        @param fle_path Path to set as capture location.
+        """
 
-        # Check if the folder exists
+        self.capture_dir = file_path
+
+    def check_capture_location(self) -> None:
+        """
+        @brief Checks the capture location and creates a folder if it does not exist.
+        """
         if not os.path.exists(self.capture_dir):
             os.makedirs(self.capture_dir) # If it does not exist, create it
 
@@ -151,13 +171,10 @@ class Automation():
         """
         @brief    Gets and Stores the image from the camera
         """
-        folder_path = 'captures'
-        # Check if the folder exists
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path) # If it does not exist, create it
+        self.check_capture_location()
         img = self.camera.get_image()
         if img is not None:
-            img.save(f'{folder_path}/image_{self.counter}.jpg')
+            img.save(f'{self.capture_dir}/image_{self.counter}.jpg')
 
 
     def shift_sample(self, shift_length):

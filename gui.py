@@ -224,7 +224,7 @@ class GUI(QWidget):
             print("Automation stopped")
             self.Automation.change_active_status(False)
 
-    def resizeEvent(self, event: QWidget.QMoveEvent) -> None:
+    def resizeEvent(self, event) -> None:
         """
         @brief Updates the image display when the widget is resized. Part of QWidget and called by
             pyqt (name can NOT be changed).
