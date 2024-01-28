@@ -44,7 +44,6 @@ class Arduino:
         except Exception as e:
             print("ERROR Could not connect to arduino:")
             raise
-            # print("  ", e)
             return False
 
         return True
