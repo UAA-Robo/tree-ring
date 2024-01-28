@@ -1,4 +1,4 @@
-import sys, time
+import sys, time, os
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLayout, QLineEdit
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QImage, QPixmap, QFont
@@ -234,13 +234,16 @@ class GUI(QWidget):
         
 
         if not self.Automation.is_active(): # Pressed 'START'
-            # Ask directory does not work on mac
             if sys.platform == 'win32': 
                 open_folder = askdirectory()  
                 if open_folder:
                     self.Automation.set_capture_location(open_folder)
                 print('Capture directory set to', self.Automation.capture_dir)
                 print("Automation started!")
+            else:
+                # Ask directory does not work on mac so sets to tree_ring_captures folder on desktop
+                self.Automation.set_capture_location(os.path.expanduser(
+                    '~/Desktop/tree_ring_captures'))
 
             self.Automation.start_automation(float(self.core_length), float(self.shift_length))
         else: # Pressed 'STOP'
