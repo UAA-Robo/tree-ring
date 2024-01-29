@@ -13,9 +13,17 @@ class camera_type(enum.Enum):
     MICROSCOPE = 1
     WEBCAM = 2
 
-class CustomIOError(IOError):
-    def __init__(self, message: str):
+class CriticalIOError(IOError):
+    def __init__(self, message: str) -> None:
         self.msg = message
+
+class CriticalCameraError(CriticalIOError): pass
+
+class WarningIOError(IOError):
+    def __init__(self, message: str) -> None:
+        self.msg = message
+
+class WarningCameraError(WarningIOError): pass
 
 class Camera:
     def __init__(self) -> None:
@@ -31,26 +39,33 @@ class Camera:
         self._cam_name = ''
         self._image = None
         self._cam_type = camera_type.UNKNOWN
-        self.error_box = QWidget()
+        # self.error_box = QWidget()
         try:
             self.load_camera()
         except Exception as e:
-            QMessageBox.warning(self.error_box, "Error Encountered",
-                                e.msg, QMessageBox.Ok)
+            raise e
 
 
+    def is_microscope(self) -> bool:
+        """
+        @brief Used to determine if the camera loaded is the microscope camera.
+        @return True if the camera is the microscope camera, false otherwise.
+        """
 
+        if self._cam_type == camera_type.MICROSCOPE: return True
+        else: return False
 
     def load_camera(self):
         available_cameras = amcam.Amcam.EnumV2()
         if len(available_cameras) <= 0:
-            # raise CustomIOError("Microscope camera not connected") TODO: Uncomment this maybe
+            # raise CriticalCameraError("Microscope camera not connected")
             print("No microscope found, defaulting to webcam...")
             self._cam_type = camera_type.WEBCAM
             self._cam_name = 'Webcam'
             starttime = time.time()
-            self._hcam = cv2.VideoCapture(0)
+            # self._hcam = cv2.VideoCapture(0)
             print(f"Webcam took {(time.time() - starttime):.2f} seconds to open.")
+            # raise WarningCameraError("Microscope camera not connected, \ndefaulting to next camera")
 
         else:
             self._cam_name = available_cameras[0].displayname
@@ -123,8 +138,8 @@ class Camera:
                 bytesPerLine = ch * w
                 self._image = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
 
-        else:
-            raise IOError("No camera opened to stream from.")
+        # else:
+        #     raise IOError("No camera opened to stream from.")
 
     def get_image(self) -> QImage:
         """

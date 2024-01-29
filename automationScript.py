@@ -1,4 +1,4 @@
-from camera import Camera, CustomIOError
+from camera import Camera, CriticalIOError
 from PyQt5.QtWidgets import QMessageBox, QWidget
 import serial.tools.list_ports
 import serial
@@ -39,7 +39,8 @@ class Arduino:
         
             self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
             if not self.arduino.is_open:
-                raise CustomIOError("Arduino not connected")
+                # raise CriticalIOError("Arduino not connected")
+                ...
             
         except Exception as e:
             print("ERROR Could not connect to arduino:")
@@ -117,8 +118,9 @@ class Automation():
         self._status = False
         self._last_status = False
         self._status_message = ""
+        self.IS_PAUSED = False
 
-    def change_active_status(self, value: bool) -> None:
+    def change_status(self, value: bool) -> None:
         """
         @brief  Sets automation status.
         @param value  True/False status to set.
@@ -154,7 +156,7 @@ class Automation():
     def set_capture_location(self, file_path: str) -> None: 
         """
         @brief Sets capture location.
-        @param fle_path Path to set as capture location.
+        @param file_path Path to set as capture location.
         """
 
         self.capture_dir = file_path
@@ -188,18 +190,22 @@ class Automation():
 
         self._status_message = "Automation Started..."
 
-        self.change_active_status(True)
+        self.change_status(True)
 
         motor_shifts_needed = int(core_length * 10  / (shift_length))
 
         for self.counter in range(motor_shifts_needed):
             self._status_message = f"Automation Started...  Shifting {self.counter} / {motor_shifts_needed} time(s) by  {shift_length} mm"
+            while (self.IS_PAUSED):
+                if not self.is_active(): break
             if not self.is_active(): break
             self.get_picture()
             time.sleep(3)
+            while (self.IS_PAUSED):
+                if not self.is_active(): break
             if not self.is_active(): break
             self.shift_sample(shift_length)
-        self.change_active_status(False)
+        self.change_status(False)
         self._status_message = "Automation Stopped."
 
 

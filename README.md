@@ -36,9 +36,9 @@ the above command will successfully build the executable.
 - QT application (gui.py):
     - Looks: Fix black text, curve camera corner -> Mya (done)
     - Change Warning for no camera detected. -> Dawson (done)
-    - Kinda bug where still start automation if no location -> Dawson (by 1/30)
+    - Kinda bug where still start automation if no location -> Dawson (by 1/30) (done)
     - Pause automation program  -> Dawson (by 1/30)
-    - Error handleing -> Dawson
+    - Error handleing -> Dawson (in progress)
     - Fix app downloading -> Mya (by 1/30)
     - Possibly Merge listening thread + videostream thread -> MYA LOOOK (done)
     - Handle errors in gui.py instead of automation.py -> Mya, Dawson (by 1/30)
