@@ -39,8 +39,8 @@ class Arduino:
         
             self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
             if not self.arduino.is_open:
-                # raise CriticalIOError("Arduino not connected")
-                ...
+                raise CriticalIOError("Arduino not connected")
+                return False
             
         except Exception as e:
             print("ERROR Could not connect to arduino:")

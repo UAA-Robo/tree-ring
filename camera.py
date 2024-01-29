@@ -63,7 +63,7 @@ class Camera:
             self._cam_type = camera_type.WEBCAM
             self._cam_name = 'Webcam'
             starttime = time.time()
-            # self._hcam = cv2.VideoCapture(0)
+            self._hcam = cv2.VideoCapture(0)
             print(f"Webcam took {(time.time() - starttime):.2f} seconds to open.")
             # raise WarningCameraError("Microscope camera not connected, \ndefaulting to next camera")
 
