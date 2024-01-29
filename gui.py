@@ -48,7 +48,7 @@ class automation_listening_thread(QThread):
     def run(self): 
         while True: 
 
-            self.automation_message.emit(self.Automation.get_automation_status())
+            # self.automation_message.emit(self.Automation.get_automation_status())
 
             if self.Automation.status_changed():
                 if self.Automation.is_active(): self.automation_status.emit(True)
