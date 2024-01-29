@@ -65,9 +65,10 @@ class Arduino:
         if self.IS_CONNECTED:
             self.arduino.write(bytes('L',  'utf-8'))
             self.arduino.write(bytes('R',  'utf-8'))
-            # time.sleep(2)
-            while(self.arduino.readline() != 'AntiClockwise'): 
-                pass
+            time.sleep(0.5)
+
+            # while(self.arduino.readline() != 'AntiClockwise'): 
+            #     pass
 
 
     def zero_platform(self) -> None:
@@ -77,8 +78,9 @@ class Arduino:
         if self.IS_CONNECTED:
             self.arduino.write(bytes('Z',  'utf-8'))
             
-            while(self.arduino.readline() != 'Zeroed'): 
-                pass
+            time.sleep(120) # Wait 2 minutes
+            # while(self.arduino.readline() != 'Zeroed'): 
+            #     pass
     
     def update_shift_length(self, shift_length: float) -> None:
         """
@@ -86,19 +88,22 @@ class Arduino:
         @param  shift_length Length in mm to shift sample each time.
         """
         if self.IS_CONNECTED:
-            current_shift_length = float(self.arduino.readline())
 
-            increments = (current_shift_length - shift_length) / self.SHIFT_LENGTH_CHANGE
+            current_shift_length = 3  # TODO: ask arduino for length
+
+            increments = int((shift_length -current_shift_length) / self.SHIFT_LENGTH_CHANGE)
 
             if increments < 0:
                 for _ in range(abs(increments)):
                     # Decrements by SHIFT_LENGTH_CHANGE each time
                     self.arduino.write(bytes('-',  'utf-8'))
+                    print("-")
                     time.sleep(0.001)
             else:
                 for _ in range(increments):
                     # Increments by SHIFT_LENGTH_CHANGE each time
                     self.arduino.write(bytes('+',  'utf-8'))
+                    print("+")
                     time.sleep(0.001)
 
 
@@ -193,6 +198,7 @@ class Automation():
         self.change_status(True)
 
         motor_shifts_needed = int(core_length * 10  / (shift_length))
+        self.arduino.update_shift_length(shift_length)
 
         for self.counter in range(motor_shifts_needed):
             self._status_message = f"Automation Started...  Shifting {self.counter} / {motor_shifts_needed} time(s) by  {shift_length} mm"
@@ -200,11 +206,12 @@ class Automation():
                 if not self.is_active(): break
             if not self.is_active(): break
             self.get_picture()
+
             time.sleep(3)
             while (self.IS_PAUSED):
                 if not self.is_active(): break
             if not self.is_active(): break
-            self.shift_sample(shift_length)
+            self.shift_sample()
         self.change_status(False)
         self._status_message = "Automation Stopped."
 
@@ -217,17 +224,17 @@ class Automation():
         img = self.camera.get_image()
 
         current_time = datetime.now().strftime("%d-%m-%y_%H:%M:%S")
-        if img is not None:
+        print("HERE:", self.capture_dir)
+        if img:
+            print("HERE")
             img.save(f'{self.capture_dir}/image_{current_time}.jpg')
 
 
-    def shift_sample(self, shift_length):
+    def shift_sample(self):
         """
         @brief  Rotates motor to shift sample. Rotates by 3mm each shift
         @param shift_length   Length to shift motor each turn (in cm).
         """
-
-        self.arduino.update_shift_length(shift_length)
         self.arduino.turn_motor_left()
         time.sleep(2)
 
