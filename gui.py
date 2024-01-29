@@ -38,18 +38,25 @@ class automation_listening_thread(QThread):
         self.Automation = automation
 
     automation_status = pyqtSignal(bool)
-
     automation_message = pyqtSignal(str)
 
     def run(self): 
+        previous_message = ""
+        
         while True: 
 
-            self.automation_message.emit(self.Automation.get_automation_status())
+            current_message = self.Automation.get_automation_status()
+            # Prevents app from slowing down by only setting message on change
+            if current_message != previous_message:
+                self.automation_message.emit(current_message)
+                previous_message = current_message
 
             if self.Automation.status_changed():
                 if self.Automation.is_active(): self.automation_status.emit(True)
                 else: self.automation_status.emit(False)
                 self.Automation.sync_status()
+
+            time.sleep(0.001)
 
 
 class GUI(QWidget):
