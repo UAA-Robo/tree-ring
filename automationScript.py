@@ -2,13 +2,10 @@ from camera import Camera, CriticalIOError
 from PyQt5.QtWidgets import QMessageBox, QWidget
 import serial.tools.list_ports
 import serial
+from datetime import datetime
 import time
 import threading
 import os
-
-# class CustomIOError(IOError):
-#     def __init__(self, message: str):
-#         self.msg = message
 
 class Arduino:
     def __init__(self) -> None:
@@ -20,6 +17,9 @@ class Arduino:
         self.arduino = None
         self.IS_CONNECTED = False
         self.error_box = QWidget()
+
+        self.SHIFT_LENGTH_CHANGE = 0.1  # Increment to change shift length (mm) 
+
         try:
             self.IS_CONNECTED = self.connect_to_arduino()
         except Exception as e:
@@ -27,7 +27,7 @@ class Arduino:
                                 e.msg, QMessageBox.Ok)
 
 
-    def connect_to_arduino(self):
+    def connect_to_arduino(self) -> None:
         """
         @brief  Connects to arduino port.
         """
@@ -45,12 +45,11 @@ class Arduino:
         except Exception as e:
             print("ERROR Could not connect to arduino:")
             raise
-            # print("  ", e)
             return False
 
         return True
 
-    def write_to_arduino(self, char):
+    def write_to_arduino(self, char) -> None:
         """
         @brief  Writes to the arduino via serial.
         @param char     Character to send to arduino to trigger functions.
@@ -59,25 +58,49 @@ class Arduino:
             self.arduino.write(bytes(char,  'utf-8'))
 
 
-    def turn_motor_left(self):
+    def turn_motor_left(self) -> None:
         """
         @brief  Sends command to arduino to turn the motor left by 3 revolutions. Blocking.
         """
         if self.IS_CONNECTED:
             self.arduino.write(bytes('L',  'utf-8'))
             self.arduino.write(bytes('R',  'utf-8'))
-            time.sleep(2)  # Waits for motor to finish. TODO: get response back instead
+            # time.sleep(2)
+            while(self.arduino.readline() != 'AntiClockwise'): 
+                pass
 
 
-    def zero_platform(self):
+    def zero_platform(self) -> None:
         """
         @brief  Sends command to arduino to turn the motor until the limit switch is hit.
         """
         if self.IS_CONNECTED:
             self.arduino.write(bytes('Z',  'utf-8'))
             
-            while(self.arduino.readline != 'Zeroed'): 
+            while(self.arduino.readline() != 'Zeroed'): 
                 pass
+    
+    def update_shift_length(self, shift_length: float) -> None:
+        """
+        @brief  Sends command to arduino to update shift length.
+        @param  shift_length Length in mm to shift sample each time.
+        """
+        if self.IS_CONNECTED:
+            current_shift_length = float(self.arduino.readline())
+
+            increments = (current_shift_length - shift_length) / self.SHIFT_LENGTH_CHANGE
+
+            if increments < 0:
+                for _ in range(abs(increments)):
+                    # Decrements by SHIFT_LENGTH_CHANGE each time
+                    self.arduino.write(bytes('-',  'utf-8'))
+                    time.sleep(0.001)
+            else:
+                for _ in range(increments):
+                    # Increments by SHIFT_LENGTH_CHANGE each time
+                    self.arduino.write(bytes('+',  'utf-8'))
+                    time.sleep(0.001)
+
 
 
 class Automation():
@@ -88,29 +111,60 @@ class Automation():
         @param camera   Instance of type Camera
         """
 
-
         self.camera = camera
         self.arduino = Arduino()
         self.counter = 0
         self.capture_dir = 'captures'
         self._status = False
         self._last_status = False
+        self._status_message = ""
         self.IS_PAUSED = False
 
     def change_status(self, value: bool) -> None:
+        """
+        @brief  Sets automation status.
+        @param value  True/False status to set.
+        """
         self._status = value
 
-    def is_active(self) -> bool: return self._status
+    def is_active(self) -> bool: 
+        """
+        @brief  Gets automation status.
+        """
+        return self._status
 
     def status_changed(self) -> bool:
+        """
+        @brief  Updates automation status.
+        """
         if self._status != self._last_status: return True
         else: return False
     
-    def sync_status(self) -> None: self._last_status = self._status
+    def sync_status(self) -> None: 
+        """
+        @brief  Updates sync status.
+        """
+        self._last_status = self._status
 
-    def set_capture_location(self, file_path: str): 
+    def get_automation_status(self) -> None:
+        """
+        @brief  Gets automation status message
+        @return Return status as string
+        """
+        return self._status_message
 
-        # Check if the folder exists
+    def set_capture_location(self, file_path: str) -> None: 
+        """
+        @brief Sets capture location.
+        @param file_path Path to set as capture location.
+        """
+
+        self.capture_dir = file_path
+
+    def check_capture_location(self) -> None:
+        """
+        @brief Checks the capture location and creates a folder if it does not exist.
+        """
         if not os.path.exists(self.capture_dir):
             os.makedirs(self.capture_dir) # If it does not exist, create it
 
@@ -119,8 +173,8 @@ class Automation():
         @brief  Wrap function in a thread.
         @param function     Function to put in thread.
         """
-        def wrapper(*args):
-            thread = threading.Thread(target=function, args=args)
+        def wrapper(*args, **kwargs):
+            thread = threading.Thread(target=function, args=args, kwargs=kwargs)
             thread.start()
             return thread
         return wrapper
@@ -133,18 +187,18 @@ class Automation():
         @param core_length    Core size (in mm).
         @param shift_length   Length to shift motor each turn (in cm).
         """
-        print("Started Automation")
+
+        self._status_message = "Automation Started..."
 
         self.change_status(True)
 
         motor_shifts_needed = int(core_length * 10  / (shift_length))
-        print(f"    Shifting {motor_shifts_needed} time(s) by  {shift_length} mm")
 
         for self.counter in range(motor_shifts_needed):
+            self._status_message = f"Automation Started...  Shifting {self.counter} / {motor_shifts_needed} time(s) by  {shift_length} mm"
             while (self.IS_PAUSED):
                 if not self.is_active(): break
             if not self.is_active(): break
-            print(self.counter)
             self.get_picture()
             time.sleep(3)
             while (self.IS_PAUSED):
@@ -152,19 +206,19 @@ class Automation():
             if not self.is_active(): break
             self.shift_sample(shift_length)
         self.change_status(False)
+        self._status_message = "Automation Stopped."
 
 
     def get_picture(self):
         """
         @brief    Gets and Stores the image from the camera
         """
-        # folder_path = 'captures'
-        # Check if the folder exists
-        if not os.path.exists(self.capture_dir):
-            os.makedirs(self.capture_dir) # If it does not exist, create it
+        self.check_capture_location()
         img = self.camera.get_image()
+
+        current_time = datetime.now().strftime("%d-%m-%y_%H:%M:%S")
         if img is not None:
-            img.save(f'{self.capture_dir}/image_{self.counter}.jpg')
+            img.save(f'{self.capture_dir}/image_{current_time}.jpg')
 
 
     def shift_sample(self, shift_length):
@@ -173,9 +227,8 @@ class Automation():
         @param shift_length   Length to shift motor each turn (in cm).
         """
 
-        # TODO - add in shift length logic
+        self.arduino.update_shift_length(shift_length)
         self.arduino.turn_motor_left()
-        print("Shifted Sample")
         time.sleep(2)
 
     @run_in_thread
@@ -183,9 +236,9 @@ class Automation():
         """
         @brief   Zeros the platform to the left.  Non-blocking.
         """
-
+        self._status_message = "Zeroing Platform..."
         self.arduino.zero_platform()
-        print("Zeroed Sample")
+        self._status_message = "Finished Zeroing Platform."
 
 
 

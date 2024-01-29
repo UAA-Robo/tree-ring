@@ -46,7 +46,14 @@ class Camera:
             raise e
 
 
+    def is_microscope(self) -> bool:
+        """
+        @brief Used to determine if the camera loaded is the microscope camera.
+        @return True if the camera is the microscope camera, false otherwise.
+        """
 
+        if self._cam_type == camera_type.MICROSCOPE: return True
+        else: return False
 
     def load_camera(self):
         available_cameras = amcam.Amcam.EnumV2()
