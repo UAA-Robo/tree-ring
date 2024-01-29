@@ -9,7 +9,7 @@ The following files are taken from the SDK provided by AmScope [here](https://am
 * simplest.py - this file provides a simple example that opens the camera and grabs frames from the camera, though it does not display these frames.
 * qt.py - this file provides an example that grabs frames from the camera and renders them in a GUI.
 * libamacam.dylib - needed for mac
-* win/ - contains drivers needed for windows
+* win/ - contains drivers and dlls needed for windows
 
 We created the following files:
 * camera.py - Interfaces with images from the amcam or the webcam if no amcam is present.
