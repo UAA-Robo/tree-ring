@@ -2,11 +2,14 @@ import cv2
 import sys, time, os
 from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLayout, QLineEdit
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot, QRect
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QCloseEvent, QImage, QPixmap
 from tkinter.filedialog import askdirectory
 from camera import *
 from automationScript import Automation
 
+class InvalidFolderError(Exception):
+    def __init__(self, message: str) -> None:
+        self.msg = message
 
 class VideoStreamThread(QThread):
     def __init__(self, camera: Camera):
@@ -53,8 +56,18 @@ class GUI(QWidget):
 
         self.video_width = 640
         self.video_height = 480
-        self.camera = Camera()
-        self.Automation = Automation(self.camera)
+        try:
+            self.camera = Camera()
+        except CriticalIOError as e:
+            raise e
+        if self.camera._cam_type == camera_type.WEBCAM:
+            QMessageBox.warning(None, "Error encountered", 
+                                "Microscope camera not connected,\
+                                    \ndefaulting to next camera", QMessageBox.Ok)
+        try:
+            self.Automation = Automation(self.camera)
+        except CriticalIOError as e:
+            raise e
         
         self.initUI()
         
@@ -158,6 +171,11 @@ class GUI(QWidget):
         # Starts the GUI
         self.show()
 
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        # return super().closeEvent(a0)
+        print("Closing!")
+        self.Automation.change_status(False)
+
 
     def on_core_input_change(self, text):
         """
@@ -184,17 +202,24 @@ class GUI(QWidget):
 
         if not self.Automation.is_active(): # Pressed 'START'
             # Ask directory does not work on mac
-            if sys.platform == 'win32': 
-                open_folder = askdirectory()  
-                if open_folder:
-                    self.Automation.set_capture_location(open_folder)
-                print('Capture directory set to', self.Automation.capture_dir)
-                print("Automation started!")
+            try:
+                if sys.platform == 'win32': 
+                    open_folder = askdirectory()  
+                    if open_folder:
+                        self.Automation.set_capture_location(open_folder)
+                    else:
+                        # QMessageBox.warning(self, "Invalid capture directory", "
+                        #                     "Please select a capture directory.?", QMessageBox.Ok)
+                        raise InvalidFolderError("Please select a captures")
+                    print('Capture directory set to', self.Automation.capture_dir)
+                    print("Automation started!")
 
-            self.Automation.start_automation(float(self.core_length), float(self.shift_length))
+                self.Automation.start_automation(float(self.core_length), float(self.shift_length))
+            except InvalidFolderError as e:
+                QMessageBox.warning(self, "Invalid selection", e.msg, QMessageBox.Ok)
         else: # Pressed 'STOP'
             print("Automation stopped")
-            self.Automation.change_active_status(False)
+            self.Automation.change_status(False)
 
     def resizeEvent(self, event):
         # Update the image display when the widget is resized
@@ -205,7 +230,10 @@ class GUI(QWidget):
 
 
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    win = GUI()
-    win.show()
-    sys.exit(app.exec_())
+    try:
+        app = QApplication(sys.argv)
+        win = GUI()
+        win.show()
+        sys.exit(app.exec_())
+    except CriticalIOError as e:
+        QMessageBox.critical(None, "Error encountered", e.msg, QMessageBox.Ok)

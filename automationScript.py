@@ -1,4 +1,4 @@
-from camera import Camera, CustomIOError
+from camera import Camera, CriticalIOError
 from PyQt5.QtWidgets import QMessageBox, QWidget
 import serial.tools.list_ports
 import serial
@@ -39,7 +39,8 @@ class Arduino:
         
             self.arduino = serial.Serial(port=self.port,  baudrate=9600, timeout=.1)
             if not self.arduino.is_open:
-                raise CustomIOError("Arduino not connected")
+                # raise CriticalIOError("Arduino not connected")
+                ...
             
         except Exception as e:
             print("ERROR Could not connect to arduino:")
@@ -94,8 +95,9 @@ class Automation():
         self.capture_dir = 'captures'
         self._status = False
         self._last_status = False
+        self.IS_PAUSED = False
 
-    def change_active_status(self, value: bool) -> None:
+    def change_status(self, value: bool) -> None:
         self._status = value
 
     def is_active(self) -> bool: return self._status
@@ -107,7 +109,6 @@ class Automation():
     def sync_status(self) -> None: self._last_status = self._status
 
     def set_capture_location(self, file_path: str): 
-
 
         # Check if the folder exists
         if not os.path.exists(self.capture_dir):
@@ -134,32 +135,36 @@ class Automation():
         """
         print("Started Automation")
 
-        self.change_active_status(True)
+        self.change_status(True)
 
         motor_shifts_needed = int(core_length * 10  / (shift_length))
         print(f"    Shifting {motor_shifts_needed} time(s) by  {shift_length} mm")
 
         for self.counter in range(motor_shifts_needed):
+            while (self.IS_PAUSED):
+                if not self.is_active(): break
             if not self.is_active(): break
             print(self.counter)
             self.get_picture()
             time.sleep(3)
+            while (self.IS_PAUSED):
+                if not self.is_active(): break
             if not self.is_active(): break
             self.shift_sample(shift_length)
-        self.change_active_status(False)
+        self.change_status(False)
 
 
     def get_picture(self):
         """
         @brief    Gets and Stores the image from the camera
         """
-        folder_path = 'captures'
+        # folder_path = 'captures'
         # Check if the folder exists
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path) # If it does not exist, create it
+        if not os.path.exists(self.capture_dir):
+            os.makedirs(self.capture_dir) # If it does not exist, create it
         img = self.camera.get_image()
         if img is not None:
-            img.save(f'{folder_path}/image_{self.counter}.jpg')
+            img.save(f'{self.capture_dir}/image_{self.counter}.jpg')
 
 
     def shift_sample(self, shift_length):
