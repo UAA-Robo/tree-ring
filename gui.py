@@ -42,18 +42,25 @@ class automation_listening_thread(QThread):
         self.Automation = automation
 
     automation_status = pyqtSignal(bool)
-
     automation_message = pyqtSignal(str)
 
     def run(self): 
+        previous_message = ""
+        
         while True: 
 
-            # self.automation_message.emit(self.Automation.get_automation_status())
+            current_message = self.Automation.get_automation_status()
+            # Prevents app from slowing down by only setting message on change
+            if current_message != previous_message:
+                self.automation_message.emit(current_message)
+                previous_message = current_message
 
             if self.Automation.status_changed():
                 if self.Automation.is_active(): self.automation_status.emit(True)
                 else: self.automation_status.emit(False)
                 self.Automation.sync_status()
+
+            time.sleep(0.001)
 
 
 class GUI(QWidget):
@@ -130,7 +137,7 @@ class GUI(QWidget):
         self.setStyleSheet("""
             QWidget {
                 background-color: black;
-                font-size: 15pt;
+                font-size: 12pt;
             }
             QLabel {
                 color: white;
@@ -192,7 +199,6 @@ class GUI(QWidget):
         # Create buttons
         self.start_stop_button = QPushButton(self)
         self.start_stop_button.setText("Start Automation")
-        self.start_stop_button.setFixedWidth(150)
         self.right_grid.addWidget(self.start_stop_button, 2, 0, 1, 2, Qt.AlignHCenter)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
@@ -200,7 +206,7 @@ class GUI(QWidget):
 
         self.zeroing_button = QPushButton(self)
         self.zeroing_button.setText("Zero Platform")
-        self.zeroing_button.setFixedWidth(150)
+
         self.right_grid.addWidget(self.zeroing_button, 3, 0, 1, 2, Qt.AlignHCenter)
         self.zeroing_button.clicked.connect(lambda: self.Automation.zero_platform()) # Add Button Trigger
 
