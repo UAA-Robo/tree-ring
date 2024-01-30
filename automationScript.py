@@ -165,6 +165,7 @@ class Automation():
         """
 
         self.capture_dir = file_path
+        self.check_capture_location()
 
     def check_capture_location(self) -> None:
         """
@@ -220,12 +221,13 @@ class Automation():
         """
         @brief    Gets and Stores the image from the camera
         """
-        self.check_capture_location()
+        # self.check_capture_location()
         img = self.camera.get_image()
 
-        current_time = datetime.now().strftime("%d-%m-%y_%H:%M:%S")
+        current_time = datetime.now().strftime("%d-%m-%y_%H-%M-%S")
+        print(current_time)
         print("HERE:", self.capture_dir)
-        if img:
+        if img is not None:
             print("HERE")
             img.save(f'{self.capture_dir}/image_{current_time}.jpg')
 
