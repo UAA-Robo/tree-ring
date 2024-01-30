@@ -9,17 +9,20 @@ import threading
 # Code borrowed from https://stackoverflow.com/questions/44404349/pyqt-showing-video-stream-from-opencv
 
 class camera_type(enum.Enum):
+    """Class for containing the different types of cameras the program may interact with."""
     UNKNOWN = 0
     MICROSCOPE = 1
     WEBCAM = 2
 
 class CriticalIOError(IOError):
+    """An IOError that should stop launch of the program."""
     def __init__(self, message: str) -> None:
         self.msg = message
 
 class CriticalCameraError(CriticalIOError): pass
 
 class WarningIOError(IOError):
+    """An IOError that should pop up as a warning message."""
     def __init__(self, message: str) -> None:
         self.msg = message
 
@@ -28,9 +31,7 @@ class WarningCameraError(WarningIOError): pass
 class Camera:
     def __init__(self) -> None:
         """
-        @brief    Camera class that runs the camera operations and modifies camera settings
-
-        @throws IOError    Throws an IOError if no camera can be opened.
+        @brief Camera class that runs the camera operations and modifies camera settings.
         """
         self._hcam = None
         self._buffer = None
@@ -43,7 +44,7 @@ class Camera:
         try:
             self.load_camera()
         except Exception as e:
-            raise e
+            print(e)
 
 
     def is_microscope(self) -> bool:
@@ -55,7 +56,7 @@ class Camera:
         if self._cam_type == camera_type.MICROSCOPE: return True
         else: return False
 
-    def load_camera(self):
+    def load_camera(self) -> None:
         available_cameras = amcam.Amcam.EnumV2()
         if len(available_cameras) <= 0:
             # raise CriticalCameraError("Microscope camera not connected")
@@ -85,9 +86,9 @@ class Camera:
         
         self.connect_stream()
     
-    def connect_stream(self):
+    def connect_stream(self) -> None:
         """
-        @brief    Starts the camera's stream.
+        @brief Starts the camera's stream.
         """
         if self._cam_type == camera_type.MICROSCOPE:
             try:
@@ -109,15 +110,13 @@ class Camera:
         if event == amcam.AMCAM_EVENT_IMAGE:
             _self.stream()
         
-    def name(self): return self._cam_name
+    def name(self) -> str: return self._cam_name
 
-    def type(self): return self._cam_type
+    def type(self) -> camera_type: return self._cam_type
 
     def stream(self) -> None:
         """
-        @brief    Streams the image received by the camera in real time.
-        
-        @throws IOError    Throws an IOError if no camera could be opened.
+        @brief Streams the image received by the camera in real time.
         """
 
         # Use Microscope camera
@@ -138,34 +137,19 @@ class Camera:
                 bytesPerLine = ch * w
                 self._image = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
 
-        # else:
-        #     raise IOError("No camera opened to stream from.")
-
     def get_image(self) -> QImage:
         """
-        @brief    Takes an image from the camera to store.
-
-        @return    Returns a QImage from the camera.
+        @brief Takes an image from the camera to store.
+        @return Returns a QImage from the camera.
         """
         return self._image
 
-    def close(self):
+    def close(self) -> None:
         """
-        @brief    Closes the camera.
+        @brief Closes the camera.
         """
         if self._hcam is not None and self._cam_type == camera_type.MICROSCOPE:
             self._hcam.Close() # Amcam camera close method
         elif self._hcam is not None and self._cam_type == camera_type.WEBCAM:
             self._hcam.release() # cv2 VideoCapture close method
         self._hcam = None
-        
-# Driver test code
-# try:
-#     my_camera = Camera()
-#     my_camera.set_save_path()
-# except IOError as e: print(e)
-# else:
-#     # while True:
-#     #     my_camera.take_picture()
-#     #     time.sleep(0.5)
-#     my_camera.take_picture()

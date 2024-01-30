@@ -16,7 +16,7 @@ class video_stream_thread(QThread):
         """
         @brief This thread gets the video (picture) stream from the camera and sends it to the 
             main GUI.
-        @param Camera The camera class.
+        @param camera The camera class.
         """
         super().__init__()
         self.camera = camera
@@ -33,11 +33,11 @@ class video_stream_thread(QThread):
             time.sleep(0.0001)  # Required to be slower than camera
 
 class automation_listening_thread(QThread):
-    """
-    @brief This thread monitors the automation class to determine if it is running or not.
-    @param Camera The camera class.
-    """
     def __init__(self, automation: Automation) -> None:
+        """
+        @brief This thread monitors the automation class to determine if it is running or not.
+        @param automation The Automation class.
+        """
         super().__init__()
         self.Automation = automation
 
