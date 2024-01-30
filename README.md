@@ -65,4 +65,4 @@ the above command will successfully build the executable.
     - Step by step instructions -> Mya, Dawson (by 30th)
     - Code guide -> Mya (gui, automation), Dawson (camera), Anthony (arduino)
     - Trouble Shooting (start by 1/23) -> Dawson
-    - Update comments -> EVERYONE (by 30th) (Mya done)
+    - Update comments -> EVERYONE (by 30th) (Mya done, Dawson done)
