@@ -69,18 +69,6 @@ class Arduino:
 
             # while(self.arduino.readline() != 'AntiClockwise'): 
             #     pass
-
-
-    def zero_platform(self) -> None:
-        """
-        @brief  Sends command to arduino to turn the motor until the limit switch is hit.
-        """
-        if self.IS_CONNECTED:
-            self.arduino.write(bytes('Z',  'utf-8'))
-            
-            time.sleep(120) # Wait 2 minutes
-            # while(self.arduino.readline() != 'Zeroed'): 
-            #     pass
     
     def update_shift_length(self, shift_length: float) -> None:
         """
@@ -240,14 +228,6 @@ class Automation():
         self.arduino.turn_motor_left()
         time.sleep(2)
 
-    @run_in_thread
-    def zero_platform(self):
-        """
-        @brief   Zeros the platform to the left.  Non-blocking.
-        """
-        self._status_message = "Zeroing Platform..."
-        self.arduino.zero_platform()
-        self._status_message = "Finished Zeroing Platform."
 
 
 

@@ -204,13 +204,6 @@ class GUI(QWidget):
             lambda: self.start_stop_automation()
         )
 
-        self.zeroing_button = QPushButton(self)
-        self.zeroing_button.setText("Zero Platform")
-
-        self.right_grid.addWidget(self.zeroing_button, 3, 0, 1, 2, Qt.AlignHCenter)
-        self.zeroing_button.clicked.connect(lambda: self.Automation.zero_platform()) # Add Button Trigger
-
-
         # Start Video Thread
         self.video_thread = video_stream_thread(self.camera)
         self.video_thread.change_image.connect(self.set_image)
