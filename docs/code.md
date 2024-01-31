@@ -10,7 +10,7 @@ Refer to the comments in our code in our github for more in-depth explanations o
 * camera.py
 * Amcam API (win drivers)
 
-The Camera class holds all properties for the camera and wraps all interactions with it. When the program begins and initializes the Camera, a callback method is loaded into the Amcam API. The Amcam API controls the camera, and by manipulating the contents of this callback method, we can choose to act on the events being sent from the camera (in this case we use `AMCAM_EVENT_IMAGE`).
+The Camera class holds all properties for the camera and wraps all interactions with it. When the program begins and initializes the Camera, a callback method is loaded into the Amcam API. The Amcam API controls the camera, and by manipulating the contents of this callback method, we can choose to act on the events being sent from the camera (in this case we use `AMCAM_EVENT_IMAGE`). The microscope image quality is left as default in all settings but the saturation, which is adjusted to around 37.6% of its range (96 / 255).
 
 ### Using the Microscope Camera
 The Amcam camera starts its own thread, seen by `StartPullModeWithCallback()` in `connect_stream`, and runs the callback method first loaded in the init method. From then on, the camera runs asynchronously to the main thread, calling the static method, `camera_callback`. This callback pulls the camera's image into a byte array, converts it to a QImage, and saves it in the class for extraction by the program later.
