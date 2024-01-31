@@ -1,105 +1,131 @@
 
-int dirPin = 3;
-int stepperPin = 4;
-int limitSwitch = 5;
-int enablePin = 6;
-int resetPin = 7;
+int DIRECTION_PIN = 3;
+int STEPPER_PIN = 4;
+int LIMIT_SWITCH_PIN = 5;
+int ENABLE_PIN = 6;
+int RESET_PIN = 7;
 
-int incomingByte;
+int incoming_byte;
 
-bool isClockwise = true;
-bool isActive = false;
+bool IS_CLOCKWISE = true;
+bool IS_ACTIVE = false;
 
 int active_counter = 0;
-int rotateAmount = 200;
+int rotate_amount = 200; //steps per revolution for 200 pulses = 360 degree full cycle rotation
+
 
 void setup()
 {
-  pinMode(dirPin, OUTPUT);
-  pinMode(stepperPin, OUTPUT);
-  pinMode(limitSwitch, INPUT_PULLUP);
-  digitalWrite(dirPin, LOW);
-  digitalWrite(stepperPin, LOW);
+  /* 
+	@brief   Setup the arduino upon power on.
+  */
+
+  pinMode(DIRECTION_PIN, OUTPUT);
+  pinMode(STEPPER_PIN, OUTPUT);
+  pinMode(LIMIT_SWITCH_PIN, INPUT_PULLUP);
+  digitalWrite(DIRECTION_PIN, LOW);
+  digitalWrite(STEPPER_PIN, LOW);
   activate();
   Serial.begin(9600);
 }
 
+
 void step(boolean dir,int steps)
  {
- digitalWrite(dirPin,dir);
+  /*
+	@brief   This makes the motor move by a set amount. 
+  @param dir   Direction the Motor Moves.
+  @param stepts   Steps for the motor to turn. Minimum number of steps is 600, add more to go slower.
+  */
+
+ digitalWrite(DIRECTION_PIN,dir);
 
  for(int i=0;i<steps;i++)
  {
-   digitalWrite(stepperPin, HIGH);
+   digitalWrite(STEPPER_PIN, HIGH);
    delayMicroseconds(600);//Adjust the speed of motor. Increase the value, motor speed become slower.
-   digitalWrite(stepperPin, LOW);
+   digitalWrite(STEPPER_PIN, LOW);
    delayMicroseconds(600);
  }
 }
 
-void Zero(){
+
+void zero(){
+  /* 
+	@brief   Zero the platform.
+  */
   Serial.write("Zeroing");
-  while(digitalRead(limitSwitch) != 0){
+  while(digitalRead(LIMIT_SWITCH_PIN) != 0){
     step(true,20);
   }
-  step(false,rotateAmount);
+  step(false,rotate_amount);
   Serial.write("Zeroed");
 }
 
+
 void activate(){
-  if(!isActive){
+  /* 
+	@brief   Wake up the motor driver.
+  */
+  if(!IS_ACTIVE){
     active_counter = 0;
-    digitalWrite(enablePin, HIGH);
-    digitalWrite(resetPin, LOW);
-    isActive = true;
+    digitalWrite(ENABLE_PIN, HIGH);
+    digitalWrite(RESET_PIN, LOW);
+    IS_ACTIVE = true;
     delayMicroseconds(1000);
   }
 }
 
+
 void deactivate(){
-  digitalWrite(enablePin, LOW);
-  digitalWrite(resetPin, HIGH);
-  isActive = false;
+  /* 
+	@brief   Put the motor driver to sleep. This saves power and makes the motor not heat up.
+  */
+  digitalWrite(ENABLE_PIN, LOW);
+  digitalWrite(RESET_PIN, HIGH);
+  IS_ACTIVE = false;
 }
+
 
 void loop()
 {
- //steps per revolution for 200 pulses = 360 degree full cycle rotation
- if(Serial.available()){
-  incomingByte = Serial.read();
-  if(incomingByte == 72){ // H
-    Serial.write("Clockwise");
-    isClockwise = true;
-  } 
-  if(incomingByte == 76){ // L
-    Serial.write("AntiClockwise");
-    isClockwise = false;
+  /* 
+	@brief   Update loop.
+  */
+  if(Serial.available()) {
+    incoming_byte = Serial.read();
+    if(incoming_byte == 72) { // H Set platform to rotate clockwise.
+      Serial.write("Clockwise");
+      IS_CLOCKWISE = true;
+    } 
+    if(incoming_byte == 76) { // L Set platform to rotate anticlockwise.
+      Serial.write("AntiClockwise");
+      IS_CLOCKWISE = false;
+    }
+    if(incoming_byte == 82) { // R Move the platform.
+      activate();
+      step(IS_CLOCKWISE, rotate_amount * 3);
+    }
+    if(incoming_byte == 90) { // Z Zero the platform.
+      activate();
+      zero();
+    }
+      if(incoming_byte == 43) { // + Increase Rotation Amount.
+      rotate_amount = rotate_amount + 20;
+      Serial.write(rotate_amount);
+    }
+    if(incoming_byte == 45) { // - Decrease Rotation amount.
+      rotate_amount = rotate_amount - 20;
+      Serial.write(rotate_amount);
+    }
+    if(incoming_byte == 61) { // = Get current Rotation Amount.
+      Serial.write(rotate_amount);
+    }
   }
-  if(incomingByte == 82){ // R
-    activate();
-    step(isClockwise, rotateAmount * 3);//(direction ,steps per revolution). This is clockwise rotation.
-  }
-  if(incomingByte == 90){ // Z
-    activate();
-    Zero();
-  }
-    if(incomingByte == 43){ // + Increase Rotation Amount
-    rotateAmount = rotateAmount + 20;
-    Serial.write(rotateAmount);
-  }
-  if(incomingByte == 45){ // - Decrease Rotation amount
-    rotateAmount = rotateAmount - 20;
-    Serial.write(rotateAmount);
-  }
-  if(incomingByte == 61){ // = Get current Rotation Amount
-    Serial.write(rotateAmount);
-  }
- }
 
+  // Put motor to sleep if not in use.
   active_counter++;
- if(active_counter == 6000){
-  deactivate();
- }
- //step(false,1000);//Turn (direction ,steps per revolution). This is anticlockwise rotation.
- //delay(500);
+  if(active_counter == 6000) {
+    deactivate();
+  }
 }
