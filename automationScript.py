@@ -198,7 +198,7 @@ class Automation():
             if not self.is_active(): break
             self.get_picture(image_name)
 
-            time.sleep(3)
+            time.sleep(1)
             while (self._IS_PAUSED):
                 if not self.is_active(): break
             if not self.is_active(): break
