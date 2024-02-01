@@ -38,27 +38,27 @@ the above command will successfully build the executable.
     - Error handleing -> Dawson (in progress)
     - Handle errors in gui.py instead of automation.py -> Mya, Dawson 
     - Try except more intensively -> Mya 
-    - Take out limit switch stuff -> Mya
+    - Take out limit switch stuff -> Mya (done)
     - Fix windows defender
-    - Enter image name -> Mya
+    - Enter image name -> Mya 
 
 
 - Automation
     - Reduce wait time -> Mya
-    - Automatic start/stop based of camera - > Mya
+    - Automatic start/stop based of color- > Mya
 
 
 
 - Camera
-    - Adjust exposure options +  -> Dawson
+    - Adjust exposure options   -> Dawson
 
 
 - Arduino Code:
     - Take out limit switch stuff -> Anthony
-    - merge readme and code into main
+    - merge readme and code into main (done)
 
 - Hardware:
-    - Finish PCB -> Anthony (by 1/23)
+    - Finish PCB -> Anthony 
     - Print Motor mount/pcb mount  (vents, Slide in pane?) -> Mya
     - Get new hardware working -> Anthony 
     - Setting calibration of motor controller -> Anthony
@@ -67,4 +67,4 @@ the above command will successfully build the executable.
     - Clarify step 2 w/ pics -> Mya 
     - Code guide -> Mya (gui, automation), Dawson (camera), Anthony (arduino)
     - Trouble Shooting -> Dawson, Mya
-    - Update comments -> EVERYONE (by 30th) (Mya done, Dawson done)
+    - Update comments -> EVERYONE (done)
