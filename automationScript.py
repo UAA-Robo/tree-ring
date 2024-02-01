@@ -65,7 +65,7 @@ class Arduino:
         if self._IS_CONNECTED:
             self._arduino.write(bytes('L',  'utf-8'))
             self._arduino.write(bytes('R',  'utf-8'))
-            time.sleep(0.5)
+            time.sleep(1)
 
             # while(self.arduino.readline() != 'AntiClockwise'): 
             #     pass
@@ -225,7 +225,6 @@ class Automation():
         @param shift_length   Length to shift motor each turn (in cm).
         """
         self._arduino.turn_motor_left()
-        time.sleep(2)
 
 
 
