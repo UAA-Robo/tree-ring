@@ -287,7 +287,7 @@ class GUI(QWidget):
                     # Ask directory does not work on mac so sets to tree_ring_captures folder on desktop
                     self.Automation.set_capture_location(os.path.expanduser(
                         '~/Desktop/tree_ring_captures'))
-                self.Automation.start_automation(float(self.core_length), float(self.shift_length))
+                self.Automation.start_automation(self.image_name, float(self.core_length), float(self.shift_length))
 
             except InvalidFolderError as e:
                 QMessageBox.warning(self, "Invalid selection", e.msg, QMessageBox.Ok)

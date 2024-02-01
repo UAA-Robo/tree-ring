@@ -107,7 +107,7 @@ class Automation():
         self.camera = camera
         self.arduino = Arduino()
         self.counter = 0
-        self.capture_dir = 'captures'
+        self.capture_dir = "tree_core"
         self._status = False
         self._last_status = False
         self._status_message = ""
@@ -175,11 +175,12 @@ class Automation():
 
 
     @run_in_thread
-    def start_automation(self, core_length, shift_length):
+    def start_automation(self, image_name:str, core_length:float, shift_length:float):
         """
         @brief Starts the automation process. Non-blocking,
-        @param core_length    Core size (in mm).
-        @param shift_length   Length to shift motor each turn (in cm).
+        @param image_name   Name to Save Image under (with image count added).
+        @param core_length  Core size (in mm).
+        @param shift_length Length to shift motor each turn (in cm).
         """
 
         self._status_message = "Automation Started..."
@@ -189,12 +190,13 @@ class Automation():
         motor_shifts_needed = int(core_length * 10  / (shift_length))
         self.arduino.update_shift_length(shift_length)
 
+        self.counter = 0
         for self.counter in range(motor_shifts_needed):
             self._status_message = f"Automation Started...  Shifting {self.counter} / {motor_shifts_needed} time(s) by  {shift_length} mm"
             while (self.IS_PAUSED):
                 if not self.is_active(): break
             if not self.is_active(): break
-            self.get_picture()
+            self.get_picture(image_name)
 
             time.sleep(3)
             while (self.IS_PAUSED):
@@ -205,19 +207,16 @@ class Automation():
         self._status_message = "Automation Stopped."
 
 
-    def get_picture(self):
+    def get_picture(self, image_name:str):
         """
         @brief    Gets and Stores the image from the camera
         """
-        # self.check_capture_location()
+        self.check_capture_location()
         img = self.camera.get_image()
 
-        current_time = datetime.now().strftime("%d-%m-%y_%H-%M-%S")
-        print(current_time)
-        print("HERE:", self.capture_dir)
+        image_number = str(self.counter).zfill(3) # Add 0s in front so 3 digits long
         if img is not None:
-            print("HERE")
-            img.save(f'{self.capture_dir}/image_{current_time}.jpg')
+            img.save(f'{self.capture_dir}/{image_name}_{image_number}.jpg')
 
 
     def shift_sample(self):
