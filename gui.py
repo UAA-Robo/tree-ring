@@ -339,6 +339,7 @@ class GUI(QWidget):
             @brief This widget controls camera video options
             """
             super().__init__()
+            self.toggled = False
             self.title = ''
             self._camera = camera
             self.stylesheet = stylesheet # <-- COULD REMOVE
@@ -373,6 +374,7 @@ class GUI(QWidget):
             self.initUI()
 
         def launch_dialog(self):
+            self.toggled = True
             self.load_default_slider_values()
             self.show()
             
@@ -439,53 +441,61 @@ class GUI(QWidget):
             )
 
         def load_default_slider_values(self) -> None:
-            self.temp_slider.setRange(2000, 15000)
-            self.tint_slider.setRange(200, 2500)
-            self.contrast_slider.setRange(-100, 100)
-            self.hue_slider.setRange(-180, 180)
-            self.saturation_slider.setRange(0, 255)
-            self.brightness_slider.setRange(-64, 64)
-            try:
-                (
-                    temp_pos,
-                    tint_pos,
-                    contrast_pos,
-                    hue_pos,
-                    sat_pos,
-                    brightness_pos
-                ) = self._camera.get_slider_values()
-                print(temp_pos)
-                print(tint_pos)
-                print(contrast_pos)
-                print(hue_pos)
-                print(sat_pos)
-                print(brightness_pos)
-            except ValueError as e:
-                print(e)
-                temp_pos = 6503
-                tint_pos = 1000
-                contrast_pos = 0
-                hue_pos = 0
-                sat_pos = 128
-                brightness_pos = 0
-            self.temp_slider.setValue(temp_pos)
-            self.tint_slider.setValue(tint_pos)
-            self.contrast_slider.setValue(contrast_pos)
-            self.hue_slider.setValue(hue_pos)
-            self.saturation_slider.setValue(sat_pos)
-            self.brightness_slider.setValue(brightness_pos)
-
-        def update_temp_value(self, value: int): self._camera.set_camera_image_settings(temp=value)
-        def update_tint_value(self, value: int): self._camera.set_camera_image_settings(tint=value)
-        def update_contrast_value(self, value: int): self._camera.set_camera_image_settings(contrast=value)
-        def update_hue_value(self, value: int): self._camera.set_camera_image_settings(hue=value)
-        def update_saturation_value(self, value: int): self._camera.set_camera_image_settings(saturation=value)
-        def update_brightness_value(self, value: int): self._camera.set_camera_image_settings(brightness=value)
+            if self.toggled:
+                self.temp_slider.setRange(2000, 15000)
+                self.tint_slider.setRange(200, 2500)
+                self.contrast_slider.setRange(-100, 100)
+                self.hue_slider.setRange(-180, 180)
+                self.saturation_slider.setRange(0, 255)
+                self.brightness_slider.setRange(-64, 64)
+                try:
+                    (
+                        temp_pos,
+                        tint_pos,
+                        contrast_pos,
+                        hue_pos,
+                        sat_pos,
+                        brightness_pos
+                    ) = self._camera.get_slider_values()
+                    print(temp_pos)
+                    print(tint_pos)
+                    print(contrast_pos)
+                    print(hue_pos)
+                    print(sat_pos)
+                    print(brightness_pos)
+                except ValueError as e:
+                    print(e)
+                    temp_pos = 6503
+                    tint_pos = 1000
+                    contrast_pos = 0
+                    hue_pos = 0
+                    sat_pos = 128
+                    brightness_pos = 0
+                if temp_pos is not None: self.temp_slider.setValue(temp_pos)
+                if tint_pos is not None: self.tint_slider.setValue(tint_pos)
+                if contrast_pos is not None: self.contrast_slider.setValue(contrast_pos)
+                if hue_pos is not None: self.hue_slider.setValue(hue_pos)
+                if sat_pos is not None: self.saturation_slider.setValue(sat_pos)
+                if brightness_pos is not None: self.brightness_slider.setValue(brightness_pos)
+    
+        def update_temp_value(self, value: int):
+            if value is not None: self._camera.set_camera_image_settings(temp=value)
+        def update_tint_value(self, value: int):
+            if value is not None: self._camera.set_camera_image_settings(tint=value)
+        def update_contrast_value(self, value: int):
+            if value is not None: self._camera.set_camera_image_settings(contrast=value)
+        def update_hue_value(self, value: int):
+            if value is not None: self._camera.set_camera_image_settings(hue=value)
+        def update_saturation_value(self, value: int):
+            if value is not None: self._camera.set_camera_image_settings(saturation=value)
+        def update_brightness_value(self, value: int):
+            if value is not None: self._camera.set_camera_image_settings(brightness=value)
 
         def save_configuration(self) -> None: self._camera.save_camera_settings()
 
         def reset_configuration(self) -> None:
             self._camera.reset_camera_image_settings()
+            self._camera.load_camera_image_settings()
             self._camera.set_camera_image_settings()
             self.load_default_slider_values()
 

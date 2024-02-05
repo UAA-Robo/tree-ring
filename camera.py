@@ -1,6 +1,5 @@
 import io
 import sys, amcam, time, enum
-
 import yaml
 from PyQt5.QtGui import QImage
 from PyQt5.QtWidgets import QMessageBox, QWidget
@@ -43,22 +42,23 @@ class Camera:
         self._image = None
         self._cam_type = camera_type.UNKNOWN
         # self.error_box = QWidget()
+        self._runtime = 0
         try:
             self.load_camera()
         except Exception as e:
             print(e)
         
-        self._hcam_exposure = None
-        self._hcam_temp = None
-        self._hcam_tint = None
-        self._hcam_level_range_low = None
-        self._hcam_level_range_high = None
-        self._hcam_contrast = None
-        self._hcam_hue = None
-        self._hcam_saturation = None
-        self._hcam_brightness = None
-        self._hcam_gamma = None
-        self._hcam_wbgain = None
+        # self._hcam_exposure = None
+        # self._hcam_temp = None
+        # self._hcam_tint = None
+        # self._hcam_level_range_low = None
+        # self._hcam_level_range_high = None
+        # self._hcam_contrast = None
+        # self._hcam_hue = None
+        # self._hcam_saturation = None
+        # self._hcam_brightness = None
+        # self._hcam_gamma = None
+        # self._hcam_wbgain = None
 
 
     def is_microscope(self) -> bool:
@@ -160,25 +160,28 @@ class Camera:
         self._hcam_wbgain = (0, 0, 0)
 
     def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
-        with open("camera_configuration.yaml", "r") as stream:
-            try:
-                settings = yaml.safe_load(stream)
-                self._hcam_exposure = settings['exposure']
-                self._hcam_temp = settings['temp']
-                self._hcam_tint = settings['tint']
-                self._hcam_level_range_low = settings['levelrange_low']
-                self._hcam_level_range_high = settings['levelrange_high']
-                self._hcam_contrast = settings['contrast']
-                self._hcam_hue = settings['hue']
-                self._hcam_saturation = settings['saturation']
-                self._hcam_brightness = settings['brightness']
-                self._hcam_gamma = settings['gamma']
-                self._hcam_wbgain = settings['wbgain']
-                print(self._hcam_contrast)
-            except yaml.YAMLError as e:
-                print(e)
-            except OSError as e:
-                print(e)
+        try:
+            with open("camera_configuration.yaml", "r") as stream:
+                try:
+                    settings = yaml.safe_load(stream)
+                    self._hcam_exposure = settings['exposure']
+                    self._hcam_temp = settings['temp']
+                    self._hcam_tint = settings['tint']
+                    self._hcam_level_range_low = settings['levelrange_low']
+                    self._hcam_level_range_high = settings['levelrange_high']
+                    self._hcam_contrast = settings['contrast']
+                    self._hcam_hue = settings['hue']
+                    self._hcam_saturation = settings['saturation']
+                    self._hcam_brightness = settings['brightness']
+                    self._hcam_gamma = settings['gamma']
+                    self._hcam_wbgain = settings['wbgain']
+                    print(self._hcam_contrast)
+                except yaml.YAMLError as e:
+                    print('YAML ERROR >', e)
+                except OSError as e:
+                    print('OS ERROR >', e)
+        except Exception as e:
+            print('GENERAL ERROR >', e)
         print('load temp', self._hcam_temp)
 
 
@@ -263,20 +266,23 @@ class Camera:
         print('brightness', self._hcam_brightness)
         print('gamma', self._hcam_gamma)
         print('wbgain', self._hcam_wbgain)
-        try:
-            self._hcam.put_AutoExpoTarget(self._hcam_exposure)
-            self._hcam.put_TempTint(self._hcam_temp, self._hcam_tint)
-            self._hcam.put_LevelRange(self._hcam_level_range_low, self._hcam_level_range_high)
-            self._hcam.put_Contrast(self._hcam_contrast)
-            self._hcam.put_Hue(self._hcam_contrast)
-            self._hcam.put_Saturation(self._hcam_saturation)
-            self._hcam.put_Brightness(self._hcam_brightness)
-            self._hcam.put_Gamma(self._hcam_gamma)
-            # self._hcam.put_WhiteBalanceGain(self._hcam_wbgain) ! Not implemented yet
-        except amcam.HRESULTException as e:
-            print(e)
-        except AttributeError as e:
-            print(e)
+        if self._runtime % 2 == 0:
+            try:
+                if self._hcam_exposure is not None: self._hcam.put_AutoExpoTarget(self._hcam_exposure)
+                if self._hcam_temp is not None and\
+                    self._hcam_tint is not None: self._hcam.put_TempTint(self._hcam_temp, self._hcam_tint)
+                if self._hcam_level_range_high is not None and\
+                    self._hcam_level_range_low is not None: self._hcam.put_LevelRange(self._hcam_level_range_low, self._hcam_level_range_high)
+                if self._hcam_contrast is not None: self._hcam.put_Contrast(self._hcam_contrast)
+                if self._hcam_hue is not None: self._hcam.put_Hue(self._hcam_contrast)
+                if self._hcam_saturation is not None: self._hcam.put_Saturation(self._hcam_saturation)
+                if self._hcam_brightness is not None: self._hcam.put_Brightness(self._hcam_brightness)
+                if self._hcam_gamma is not None: self._hcam.put_Gamma(self._hcam_gamma)
+                #if self._hcam_wbgain is not None: self._hcam.put_WhiteBalanceGain(self._hcam_wbgain) ! Not implemented yet
+            except amcam.HRESULTException as e:
+                print(e)
+            except AttributeError as e:
+                print(e)
         
     def save_camera_settings(self):
         settings: dict = {
@@ -312,7 +318,7 @@ class Camera:
 
     @staticmethod
     def camera_callback(event, _self: 'Camera'):
-        print('running!')
+        _self._runtime += 1
         if event == amcam.AMCAM_EVENT_IMAGE:
             _self.stream()
         elif event == amcam.AMCAM_EVENT_EXPO_START:
