@@ -98,7 +98,7 @@ class GUI(QWidget):
         
 
         self.initUI()
-        self.camera.load_camera_image_settings()
+        # self.camera.load_camera_image_settings()
         self.camera_options_widget = self.CameraOptionsGUI(self.camera, self.stylesheet)
         
 

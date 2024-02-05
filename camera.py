@@ -107,8 +107,10 @@ class Camera:
         """
         if self._cam_type == camera_type.MICROSCOPE:
             try:
+                print('loading microscope')
                 self.reset_camera_image_settings()
-                self.set_camera_image_settings(saturation=0.3764705882352941) # Reduces yellow image quality
+                # self.set_camera_image_settings(saturation=0.3764705882352941) # Reduces yellow image quality
+                self.set_camera_image_settings(saturation=96)
                 self.load_camera_image_settings()
                 self.set_camera_image_settings()
                 self._hcam.StartPullModeWithCallback(self.camera_callback, self)
@@ -250,6 +252,17 @@ class Camera:
             )
         if kwargs: print(kwargs)
         print('setting temp', self._hcam_temp)
+        print('expo', self._hcam_exposure)
+        print('temp', self._hcam_temp)
+        print('tint', self._hcam_tint)
+        print('levelrangelow', self._hcam_level_range_low)
+        print('levelrangehigh', self._hcam_level_range_high)
+        print('contrast', self._hcam_contrast)
+        print('hue', self._hcam_hue)
+        print('saturation', self._hcam_saturation)
+        print('brightness', self._hcam_brightness)
+        print('gamma', self._hcam_gamma)
+        print('wbgain', self._hcam_wbgain)
         try:
             self._hcam.put_AutoExpoTarget(self._hcam_exposure)
             self._hcam.put_TempTint(self._hcam_temp, self._hcam_tint)
@@ -299,6 +312,7 @@ class Camera:
 
     @staticmethod
     def camera_callback(event, _self: 'Camera'):
+        print('running!')
         if event == amcam.AMCAM_EVENT_IMAGE:
             _self.stream()
         elif event == amcam.AMCAM_EVENT_EXPO_START:
