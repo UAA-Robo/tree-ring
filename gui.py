@@ -99,7 +99,6 @@ class GUI(QWidget):
 
         self.initUI()
         # self.camera.load_camera_image_settings()
-        self.camera_options_widget = self.CameraOptionsGUI(self.camera, self.stylesheet)
         
 
     @pyqtSlot(QImage)
@@ -309,7 +308,8 @@ class GUI(QWidget):
             self.Automation.change_status(False)
 
     def test_feature(self) -> None:
-        self.camera_options_widget.launch_dialog()
+        camera_options_widget = self.CameraOptionsGUI(self.camera, self.stylesheet)
+        camera_options_widget.launch_dialog()
 
 
     def resizeEvent(self, event) -> None:
