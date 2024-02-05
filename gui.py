@@ -1,5 +1,6 @@
 import sys, time, os
-from PyQt5.QtWidgets import  QWidget, QLabel, QApplication, QPushButton, QGridLayout, QLineEdit,\
+import threading
+from PyQt5.QtWidgets import  QWidget, QLabel, QSlider, QApplication, QPushButton, QGridLayout, QLineEdit,\
 QMessageBox
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QCloseEvent, QImage, QPixmap, QFont
@@ -95,7 +96,10 @@ class GUI(QWidget):
         except CriticalIOError as e:
             raise e
         
+
         self.initUI()
+        self.camera.load_camera_image_settings()
+        self.camera_options_widget = self.CameraOptionsGUI(self.camera, self.stylesheet)
         
 
     @pyqtSlot(QImage)
@@ -136,7 +140,7 @@ class GUI(QWidget):
         self.setWindowTitle(self.title)
         self.setGeometry(self.left, self.top, self.width, self.height)
         #self.setStyleSheet("background-color: black;")
-        self.setStyleSheet("""
+        self.stylesheet = """
             QWidget {
                 background-color: black;
                 font-size: 12pt;
@@ -155,7 +159,8 @@ class GUI(QWidget):
                 color: white;
                 border-bottom: 1px solid white;  
             }
-        """)
+        """
+        self.setStyleSheet(self.stylesheet)
 
 
         # Formatting
@@ -214,6 +219,13 @@ class GUI(QWidget):
         self.right_grid.addWidget(self.start_stop_button, 3, 0, 1, 2, Qt.AlignHCenter)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
+        )
+        
+        self.test_button = QPushButton(self)
+        self.test_button.setText("Test")
+        self.right_grid.addWidget(self.test_button, 4, 0, 1, 2, Qt.AlignHCenter)
+        self.test_button.clicked.connect(
+            lambda: self.test_feature()
         )
 
         # Start Video Thread
@@ -296,6 +308,8 @@ class GUI(QWidget):
             print("Automation stopped")
             self.Automation.change_status(False)
 
+    def test_feature(self) -> None:
+        self.camera_options_widget.launch_dialog()
 
 
     def resizeEvent(self, event) -> None:
@@ -308,12 +322,179 @@ class GUI(QWidget):
         self.video_height = int(self.size().height() * 0.8)
         super().resizeEvent(event)
 
+    def run_in_thread(function):
+        """
+        @brief  Wrap function in a thread.
+        @param function     Function to put in thread.
+        """
+        def wrapper(*args, **kwargs):
+            thread = threading.Thread(target=function, args=args, kwargs=kwargs)
+            thread.start()
+            return thread
+        return wrapper
+
+    class CameraOptionsGUI(QWidget):
+        def __init__(self, camera: Camera, stylesheet: str) -> None:
+            """
+            @brief This widget controls camera video options
+            """
+            super().__init__()
+            self.title = ''
+            self._camera = camera
+            self.stylesheet = stylesheet # <-- COULD REMOVE
+            self.stylesheet = """
+            QWidget {
+                background-color: black;
+                font-size: 12pt;
+            }
+            QLabel {
+                color: white;
+                font-size: 8pt;
+            }
+            QPushButton {
+                color: white;
+                border: 1px solid white;
+                border-radius: 5px;
+                padding: 5px;
+            }
+            QLineEdit {
+                border: none;
+                color: white;
+                border-bottom: 1px solid white;  
+            }
+        """
+            # self.left = 100
+            # self.top = 100
+            # self.width = 300
+            # self.height = 200
+            self.setFixedHeight(250)
+            self.setFixedWidth(200)
+            
+            self.initUI()
+
+        def launch_dialog(self):
+            self.load_default_slider_values()
+            self.show()
+            
+        def initUI(self) -> None:
+            self.setStyleSheet(self.stylesheet)
+            self.grid = QGridLayout(self)
+            # self.grid.setSpacing(0)
+            self.sliders_side = QWidget()
+            self.buttons_bottom = QWidget()
+            self.sliders_grid = QGridLayout(self.sliders_side)
+            self.buttons_grid = QGridLayout(self.buttons_bottom)
+            self.grid.addWidget(self.sliders_side, 0, 0, 4, 6)
+            self.grid.addWidget(self.buttons_bottom, 4, 0, 1, 6)
+
+            self.temp_label = QLabel('Temperature', self)
+            self.sliders_grid.addWidget(self.temp_label, 0, 0, alignment=Qt.AlignLeft)
+            self.temp_slider = QSlider(Qt.Orientation.Horizontal, self)
+            self.sliders_grid.addWidget(self.temp_slider, 0, 0, alignment=Qt.AlignRight)
+            self.temp_slider.valueChanged.connect(self.update_temp_value)
+
+            self.tint_label = QLabel('Tint', self)
+            self.sliders_grid.addWidget(self.tint_label, 1, 0, alignment=Qt.AlignLeft)
+            self.tint_slider = QSlider(Qt.Orientation.Horizontal, self)
+            self.sliders_grid.addWidget(self.tint_slider, 1, 0, alignment=Qt.AlignRight)
+            self.tint_slider.valueChanged.connect(self.update_tint_value)
+
+            self.contrast_label = QLabel('Contrast', self)
+            self.sliders_grid.addWidget(self.contrast_label, 2, 0, alignment=Qt.AlignLeft)
+            self.contrast_slider = QSlider(Qt.Orientation.Horizontal, self)
+            self.sliders_grid.addWidget(self.contrast_slider, 2, 0, alignment=Qt.AlignRight)
+            self.contrast_slider.valueChanged.connect(self.update_contrast_value)
+
+            self.hue_label = QLabel('Hue', self)
+            self.sliders_grid.addWidget(self.hue_label, 3, 0, alignment=Qt.AlignLeft)
+            self.hue_slider = QSlider(Qt.Orientation.Horizontal, self)
+            self.sliders_grid.addWidget(self.hue_slider, 3, 0, alignment=Qt.AlignRight)
+            self.hue_slider.valueChanged.connect(self.update_hue_value)
+
+            self.saturation_label = QLabel('Saturation', self)
+            self.sliders_grid.addWidget(self.saturation_label, 4, 0, alignment=Qt.AlignLeft)
+            self.saturation_slider = QSlider(Qt.Orientation.Horizontal, self)
+            self.sliders_grid.addWidget(self.saturation_slider, 4, 0, alignment=Qt.AlignRight)
+            self.saturation_slider.valueChanged.connect(self.update_saturation_value)
+
+            self.brightness_label = QLabel('Brightness', self)
+            self.sliders_grid.addWidget(self.brightness_label, 5, 0, alignment=Qt.AlignLeft)
+            self.brightness_slider = QSlider(Qt.Orientation.Horizontal, self)
+            self.sliders_grid.addWidget(self.brightness_slider, 5, 0, alignment=Qt.AlignRight)
+            self.brightness_slider.valueChanged.connect(self.update_brightness_value)
+            
+            # Create buttons
+            self.save_button = QPushButton(self)
+            self.save_button.setText("Save")
+            self.buttons_grid.addWidget(self.save_button, 0, 0, alignment=Qt.AlignLeft)
+            self.save_button.clicked.connect(
+                lambda: self.save_configuration()
+            )
+
+            self.reset_button = QPushButton(self)
+            self.reset_button.setText("Reset")
+            self.buttons_grid.addWidget(self.reset_button, 0, 0, alignment=Qt.AlignRight)
+            self.reset_button.clicked.connect(
+                lambda: self.reset_configuration()
+            )
+
+        def load_default_slider_values(self) -> None:
+            self.temp_slider.setRange(2000, 15000)
+            self.tint_slider.setRange(200, 2500)
+            self.contrast_slider.setRange(-100, 100)
+            self.hue_slider.setRange(-180, 180)
+            self.saturation_slider.setRange(0, 255)
+            self.brightness_slider.setRange(-64, 64)
+            try:
+                (
+                    temp_pos,
+                    tint_pos,
+                    contrast_pos,
+                    hue_pos,
+                    sat_pos,
+                    brightness_pos
+                ) = self._camera.get_slider_values()
+                print(temp_pos)
+                print(tint_pos)
+                print(contrast_pos)
+                print(hue_pos)
+                print(sat_pos)
+                print(brightness_pos)
+            except ValueError as e:
+                print(e)
+                temp_pos = 6503
+                tint_pos = 1000
+                contrast_pos = 0
+                hue_pos = 0
+                sat_pos = 128
+                brightness_pos = 0
+            self.temp_slider.setValue(temp_pos)
+            self.tint_slider.setValue(tint_pos)
+            self.contrast_slider.setValue(contrast_pos)
+            self.hue_slider.setValue(hue_pos)
+            self.saturation_slider.setValue(sat_pos)
+            self.brightness_slider.setValue(brightness_pos)
+
+        def update_temp_value(self, value: int): self._camera.set_camera_image_settings(temp=value)
+        def update_tint_value(self, value: int): self._camera.set_camera_image_settings(tint=value)
+        def update_contrast_value(self, value: int): self._camera.set_camera_image_settings(contrast=value)
+        def update_hue_value(self, value: int): self._camera.set_camera_image_settings(hue=value)
+        def update_saturation_value(self, value: int): self._camera.set_camera_image_settings(saturation=value)
+        def update_brightness_value(self, value: int): self._camera.set_camera_image_settings(brightness=value)
+
+        def save_configuration(self) -> None: self._camera.save_camera_settings()
+
+        def reset_configuration(self) -> None:
+            self._camera.reset_camera_image_settings()
+            self._camera.set_camera_image_settings()
+            self.load_default_slider_values()
+
 
 if __name__ == '__main__':
     try:
         app = QApplication(sys.argv)
         win = GUI()
-        win.show()
+        # win.show() TODO: Check this
         sys.exit(app.exec_())
     except CriticalIOError as e:
         QMessageBox.critical(None, "Error encountered", e.msg, QMessageBox.Ok)

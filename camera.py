@@ -1,5 +1,7 @@
 import io
 import sys, amcam, time, enum
+
+import yaml
 from PyQt5.QtGui import QImage
 from PyQt5.QtWidgets import QMessageBox, QWidget
 from PIL import Image
@@ -45,6 +47,18 @@ class Camera:
             self.load_camera()
         except Exception as e:
             print(e)
+        
+        self._hcam_exposure = None
+        self._hcam_temp = None
+        self._hcam_tint = None
+        self._hcam_level_range_low = None
+        self._hcam_level_range_high = None
+        self._hcam_contrast = None
+        self._hcam_hue = None
+        self._hcam_saturation = None
+        self._hcam_brightness = None
+        self._hcam_gamma = None
+        self._hcam_wbgain = None
 
 
     def is_microscope(self) -> bool:
@@ -95,6 +109,8 @@ class Camera:
             try:
                 self.reset_camera_image_settings()
                 self.set_camera_image_settings(saturation=0.3764705882352941) # Reduces yellow image quality
+                self.load_camera_image_settings()
+                self.set_camera_image_settings()
                 self._hcam.StartPullModeWithCallback(self.camera_callback, self)
                 
             except amcam.HRESULTException as e: print(e)
@@ -141,64 +157,99 @@ class Camera:
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
 
+    def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
+        with open("camera_configuration.yaml", "r") as stream:
+            try:
+                settings = yaml.safe_load(stream)
+                self._hcam_exposure = settings['exposure']
+                self._hcam_temp = settings['temp']
+                self._hcam_tint = settings['tint']
+                self._hcam_level_range_low = settings['levelrange_low']
+                self._hcam_level_range_high = settings['levelrange_high']
+                self._hcam_contrast = settings['contrast']
+                self._hcam_hue = settings['hue']
+                self._hcam_saturation = settings['saturation']
+                self._hcam_brightness = settings['brightness']
+                self._hcam_gamma = settings['gamma']
+                self._hcam_wbgain = settings['wbgain']
+                print(self._hcam_contrast)
+            except yaml.YAMLError as e:
+                print(e)
+            except OSError as e:
+                print(e)
+        print('load temp', self._hcam_temp)
+
+
+    def get_slider_values(self) -> tuple:
+        # if not self.is_microscope(): raise ValueError("Could not load camera settings")
+        print('temp here:', self._hcam_temp)
+        return (
+            self._hcam_temp,
+            self._hcam_tint,
+            self._hcam_contrast,
+            self._hcam_hue,
+            self._hcam_saturation,
+            self._hcam_brightness
+        )
+
     def set_camera_image_settings(self, **kwargs) -> None:
         """
         @brief Modifies the microscope camera's image settings.
         @kwargs
-         - exposure: The auto exposure target (0.0 ~ 1.0).
-         - temp: The temperature value of the image (0.0 ~ 1.0).
-         - tint: The tint of the image (0.0 ~ 1.0).
+         - exposure: The auto exposure target (16 ~ 235).
+         - temp: The temperature value of the image (2000 ~ 15000).
+         - tint: The tint of the image (200 ~ 2500).
          - levelrange_low: The low end of the level range
-            (0.0~1.0, 0.0~1.0, 0.0~1.0, 0.0~1.0).
+                           (0~255, 0~255, 0~255, 0~255).
          - levelrange_high: The high end of the level range
-            (0.0~1.0, 0.0~1.0, 0.0~1.0, 0.0~1.0).
-         - contrast: The contrast value of the image (0.0 ~ 1.0).
-         - hue: The hue value of the image (0.0 ~ 1.0).
-         - saturation: The saturation value of the image (0.0 ~ 1.0).
-         - brightness: The brightness value of the image (0.0 ~ 1.0).
-         - gamma: The gamma value of the image (0.0 ~ 1.0).
+                            (0~255, 0~255, 0~255, 0~255).
+         - contrast: The contrast value of the image (-100 ~ 100).
+         - hue: The hue value of the image (-180 ~ 180).
+         - saturation: The saturation value of the image (0 ~ 255).
+         - brightness: The brightness value of the image (-64 ~ 64).
+         - gamma: The gamma value of the image (20 ~ 180).
          - wbgain: The white balance rgb-triplet of the image
-                (0.0 ~ 1.0, 0.0 ~ 1.0, 0.0 ~ 1.0).
-        
+                   (-127~127, -127~127, -127~127).
         """
 
         if 'exposure' in kwargs:
-            self._hcam_exposure = int(kwargs.get('exposure', '') * 219) + 16
+            self._hcam_exposure = kwargs.get('exposure', '')
         if 'temp' in kwargs:
-            self._hcam_temp = int(kwargs.get('temp', '') * 13000) + 2000
+            self._hcam_temp = kwargs.get('temp', '')
         if 'tint' in kwargs:
-            self._hcam_tint = int(kwargs.get('tint', '') * 2300) + 200
+            self._hcam_tint = kwargs.get('tint', '')
         if 'levelrange_low' in kwargs:
             self._hcam_level_range_low = (
-                int(kwargs.get('levelrange_low', '')[0] * 255) + 0,
-                int(kwargs.get('levelrange_low', '')[1] * 255) + 0,
-                int(kwargs.get('levelrange_low', '')[2] * 255) + 0,
-                int(kwargs.get('levelrange_low', '')[3] * 255) + 0
+                kwargs.get('levelrange_low', '')[0],
+                kwargs.get('levelrange_low', '')[1],
+                kwargs.get('levelrange_low', '')[2],
+                kwargs.get('levelrange_low', '')[3]
             )
         if 'levelrange_high' in kwargs:
             self._hcam_level_range_high = (
-                int(kwargs.get('levelrange_high', '')[0] * 255) + 0,
-                int(kwargs.get('levelrange_high', '')[1] * 255) + 0,
-                int(kwargs.get('levelrange_high', '')[2] * 255) + 0,
-                int(kwargs.get('levelrange_high', '')[3] * 255) + 0
+                kwargs.get('levelrange_high', '')[0],
+                kwargs.get('levelrange_high', '')[1],
+                kwargs.get('levelrange_high', '')[2],
+                kwargs.get('levelrange_high', '')[3]
             )
         if 'contrast' in kwargs:
-            self._hcam_contrast = int(kwargs.get('contrast', '') * 200) - 100
+            self._hcam_contrast = kwargs.get('contrast', '')
         if 'hue' in kwargs:
-            self._hcam_hue = int(kwargs.get('hue', '') * 360) - 180
+            self._hcam_hue = kwargs.get('hue', '')
         if 'saturation' in kwargs: 
-            self._hcam_saturation = int(kwargs.get('saturation', '') * 255) + 0
+            self._hcam_saturation = kwargs.get('saturation', '')
         if 'brightness' in kwargs:
-            self._hcam_brightness = int(kwargs.get('brightness', '') * 128) - 64
+            self._hcam_brightness = kwargs.get('brightness', '')
         if 'gamma' in kwargs:
-            self._hcam_gamma = int(kwargs.get('gamma', '') * 160) + 20
+            self._hcam_gamma = kwargs.get('gamma', '')
         if 'wbgain' in kwargs:
             self._hcam_wbgain = (
-                int(kwargs.get('wbgain', '')[0] * 254) - 127,
-                int(kwargs.get('wbgain', '')[1] * 254) - 127,
-                int(kwargs.get('wbgain', '')[2] * 254) - 127
+                kwargs.get('wbgain', '')[0],
+                kwargs.get('wbgain', '')[1],
+                kwargs.get('wbgain', '')[2]
             )
-        
+        if kwargs: print(kwargs)
+        print('setting temp', self._hcam_temp)
         try:
             self._hcam.put_AutoExpoTarget(self._hcam_exposure)
             self._hcam.put_TempTint(self._hcam_temp, self._hcam_tint)
@@ -211,7 +262,39 @@ class Camera:
             # self._hcam.put_WhiteBalanceGain(self._hcam_wbgain) ! Not implemented yet
         except amcam.HRESULTException as e:
             print(e)
+        except AttributeError as e:
+            print(e)
         
+    def save_camera_settings(self):
+        settings: dict = {
+            'exposure': self._hcam_exposure,
+            'temp': self._hcam_temp,
+            'tint': self._hcam_tint,
+            'levelrange_low': [
+                self._hcam_level_range_low[0],
+                self._hcam_level_range_low[1],
+                self._hcam_level_range_low[2],
+                self._hcam_level_range_low[3]
+            ],
+            'levelrange_high': [
+                self._hcam_level_range_high[0],
+                self._hcam_level_range_high[1],
+                self._hcam_level_range_high[2],
+                self._hcam_level_range_high[3]
+            ],
+            'contrast': self._hcam_contrast,
+            'hue': self._hcam_hue,
+            'saturation': self._hcam_saturation,
+            'brightness': self._hcam_brightness,
+            'gamma': self._hcam_gamma,
+            'wbgain': [
+                self._hcam_wbgain[0],
+                self._hcam_wbgain[1],
+                self._hcam_wbgain[2]
+            ]
+        }
+        output = open("camera_configuration.yaml","w")
+        yaml.dump(settings, output)
 
 
     @staticmethod
