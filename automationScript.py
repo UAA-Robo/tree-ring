@@ -58,9 +58,10 @@ class Arduino:
             self._arduino.write(bytes(char,  'utf-8'))
 
 
-    def turn_motor_left(self) -> None:
+    def shift_right(self) -> None:
         """
-        @brief  Sends command to arduino to turn the motor left by 3 revolutions. Blocking.
+        @brief  Sends command to arduino turn the motor left to shift the platform right by the shift 
+                length. Blocking.
         """
         if self._IS_CONNECTED:
             self._arduino.write(bytes('L',  'utf-8'))
@@ -224,7 +225,7 @@ class Automation():
         @brief  Rotates motor to shift sample. Rotates by 3mm each shift
         @param shift_length   Length to shift motor each turn (in cm).
         """
-        self._arduino.turn_motor_left()
+        self._arduino.shift_right()
 
 
 
