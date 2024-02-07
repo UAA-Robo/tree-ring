@@ -43,5 +43,13 @@ If the microscope camera could not be loaded in the first place, the **cv2** lib
 
 ## Arduino 
     * arduino/tree-ring/tree-ring.ino
+The tree-ring.ino file holds the entirety of the code on the arduino. When powered on the arduino first runs the `setup()` function and once that is complete it will immediately start the `loop()` function. From there the arduino waits for a signal from the computer to start doing any actions.
 
+Arguments that can be passed to Arduino  
+H = Make Motor Turn Clockwise  
+L = Make Motor Turn CounterClockwise  
+R = Move Motor 1 Increment  
+\+ = Increase Motor Turn Length by 1/10  
+\- = Decrease Motor Turn Length by 1/10  
+= = Get Motor Turn Length  
 
