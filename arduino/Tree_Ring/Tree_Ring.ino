@@ -2,8 +2,8 @@
 int DIRECTION_PIN = 3;
 int STEPPER_PIN = 4;
 int LIMIT_SWITCH_PIN = 5;
-int ENABLE_PIN = 6;
-int RESET_PIN = 7;
+int ENABLE_PIN = 7;
+int RESET_PIN = 6;
 
 int incoming_byte;
 
@@ -19,7 +19,7 @@ void setup()
   /* 
 	@brief   Setup the arduino upon power on.
   */
-
+  pinMode(ENABLE_PIN, OUTPUT);
   pinMode(DIRECTION_PIN, OUTPUT);
   pinMode(STEPPER_PIN, OUTPUT);
   pinMode(LIMIT_SWITCH_PIN, INPUT_PULLUP);
@@ -69,7 +69,7 @@ void activate(){
   */
   if(!IS_ACTIVE){
     active_counter = 0;
-    digitalWrite(ENABLE_PIN, HIGH);
+    digitalWrite(ENABLE_PIN, LOW);
     digitalWrite(RESET_PIN, LOW);
     IS_ACTIVE = true;
     delayMicroseconds(1000);
@@ -81,7 +81,7 @@ void deactivate(){
   /* 
 	@brief   Put the motor driver to sleep. This saves power and makes the motor not heat up.
   */
-  digitalWrite(ENABLE_PIN, LOW);
+  digitalWrite(ENABLE_PIN, HIGH);
   digitalWrite(RESET_PIN, HIGH);
   IS_ACTIVE = false;
 }
