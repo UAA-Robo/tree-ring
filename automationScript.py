@@ -111,6 +111,7 @@ class Automation():
         self._status = False
         self._last_status = False
         self._status_message = ""
+        self._stored_status_message = None
         self._IS_PAUSED = False
 
     def change_status(self, value: bool) -> None:
@@ -123,6 +124,7 @@ class Automation():
     def is_active(self) -> bool: 
         """
         @brief  Gets automation status.
+        @return True if the automation script is active, false otherwise.
         """
         return self._status
 
@@ -138,6 +140,24 @@ class Automation():
         @brief  Updates sync status.
         """
         self._last_status = self._status
+
+    def is_paused(self) -> bool:
+        """
+        @brief Gets automation pause status.
+        @return True if the automation script is paused, false otherwise.
+        """
+        return self._IS_PAUSED
+
+    def set_pause(self, value: bool) -> None:
+        """
+        @brief Sets whether the Automation scripts is paused.
+        """
+        self._IS_PAUSED = value
+        if value and self.is_active():
+            self._stored_status_message = self._status_message
+            self._status_message = "Automation paused..."
+        elif self.is_active():
+            self._status_message = self._stored_status_message
 
     def get_automation_status(self) -> None:
         """
@@ -193,14 +213,12 @@ class Automation():
         self._counter = 0
         for self._counter in range(motor_shifts_needed):
             self._status_message = f"Automation Started...  Shifting {self._counter} / {motor_shifts_needed} time(s) by  {shift_length} mm"
-            while (self._IS_PAUSED):
-                if not self.is_active(): break
+            while (self._IS_PAUSED and self.is_active()): pass
             if not self.is_active(): break
             self.get_picture(image_name)
 
             time.sleep(1)
-            while (self._IS_PAUSED):
-                if not self.is_active(): break
+            while (self._IS_PAUSED and self.is_active()): pass
             if not self.is_active(): break
             self.shift_sample()
         self.change_status(False)
