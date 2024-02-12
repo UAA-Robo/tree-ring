@@ -333,6 +333,12 @@ class GUI(QWidget):
             return thread
         return wrapper
 
+
+    ############################################################################################
+    #  Associated GUI Widgets                                                                  #
+    ############################################################################################
+
+
     class CameraOptionsGUI(QWidget):
         def __init__(self, camera: Camera, stylesheet: str) -> None:
             """
@@ -479,6 +485,7 @@ class GUI(QWidget):
                 if brightness_pos is not None: self.brightness_slider.setValue(brightness_pos)
     
         def update_temp_value(self, value: int):
+            print("I set the value!", value)
             if value is not None: self._camera.set_camera_image_settings(temp=value)
         def update_tint_value(self, value: int):
             if value is not None: self._camera.set_camera_image_settings(tint=value)

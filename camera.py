@@ -128,18 +128,18 @@ class Camera:
     
 #   (From the API...)
 #   .-[ DEFAULT VALUES FOR THE IMAGE ]--------------------------------.
-#   | Parameter               |   Range       |   Default             |
+#   | Parameter                | Range         | Default              |
 #   |-----------------------------------------------------------------|
-#   | Auto Exposure Target    |   16~235      |   120                 |
-#   | Temp                    |   2000~15000  |   6503                |
-#   | Tint                    |   200~2500    |   1000                |
-#   | LevelRange              |   0~255       |   Low = 0, High = 255 |
-#   | Contrast                |   -100~100    |   0                   |
-#   | Hue                     |   -180~180    |   0                   |
-#   | Saturation              |   0~255       |   128                 |
-#   | Brightness              |   -64~64      |   0                   |
-#   | Gamma                   |   20~180      |   100                 |
-#   | WBGain                  |   -127~127    |   0                   |
+#   | Auto Exposure Target     | 16~235        | 120                  |
+#   | Temp                     | 2000~15000    | 6503                 |
+#   | Tint                     | 200~2500      | 1000                 |
+#   | LevelRange               | 0~255         | Low = 0, High = 255  |
+#   | Contrast                 | -100~100      | 0                    |
+#   | Hue                      | -180~180      | 0                    |
+#   | Saturation               | 0~255         | 128                  |
+#   | Brightness               | -64~64        | 0                    |
+#   | Gamma                    | 20~180        | 100                  |
+#   | WBGain                   | -127~127      | 0                    |
 #   '-----------------------------------------------------------------'
 
     def reset_camera_image_settings(self) -> None:
