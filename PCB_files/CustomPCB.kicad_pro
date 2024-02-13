@@ -91,7 +91,7 @@
         "padstack": "warning",
         "pth_inside_courtyard": "ignore",
         "shorting_items": "error",
-        "silk_edge_clearance": "warning",
+        "silk_edge_clearance": "ignore",
         "silk_over_copper": "warning",
         "silk_overlap": "warning",
         "skew_out_of_range": "error",
@@ -468,20 +468,15 @@
       "version": 3
     },
     "net_colors": null,
-    "netclass_assignments": {
-      "Net-(A2-1A)": "Power2",
-      "Net-(A2-1B)": "Power1",
-      "Net-(A2-2A)": "Power3",
-      "Net-(A2-2B)": "Power4"
-    },
+    "netclass_assignments": null,
     "netclass_patterns": [
       {
         "netclass": "Power",
-        "pattern": "/5v Positive"
+        "pattern": "/12v Positive"
       },
       {
         "netclass": "Power",
-        "pattern": "/5v Negative"
+        "pattern": "/12v Negative"
       },
       {
         "netclass": "Power",
@@ -518,6 +513,90 @@
       {
         "netclass": "Signal",
         "pattern": "/Signal1"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/Motor1D"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/Motor1C"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/Motor1B"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/Motor1A"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/Motor2D"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/Motor2C"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/Motor2B"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/Motor2A"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/Limit Pin"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/Direction1"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/Direction2"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/Step1"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/Step2"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/Reset1"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/Reset2"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/Enable Pin"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/D2 Breakout"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/D11 Breakout"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/D12 Breakout"
+      },
+      {
+        "netclass": "Signal",
+        "pattern": "/D13 Breakout"
+      },
+      {
+        "netclass": "Power",
+        "pattern": "/12v Positive Terminal"
       }
     ]
   },
