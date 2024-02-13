@@ -95,11 +95,8 @@ class GUI(QWidget):
             self.Automation = Automation(self.camera)
         except CriticalIOError as e:
             raise e
-        
-
+        self.camera_options_widget = None
         self.initUI()
-        # self.camera.load_camera_image_settings()
-        
 
     @pyqtSlot(QImage)
     def set_image(self, image: QPixmap) -> None:
@@ -220,11 +217,11 @@ class GUI(QWidget):
             lambda: self.start_stop_automation()
         )
         
-        self.test_button = QPushButton(self)
-        self.test_button.setText("Test")
-        self.right_grid.addWidget(self.test_button, 4, 0, 1, 2, Qt.AlignHCenter)
-        self.test_button.clicked.connect(
-            lambda: self.test_feature()
+        self.options_button = QPushButton(self)
+        self.options_button.setText("Adjust Camera Options")
+        self.right_grid.addWidget(self.options_button, 4, 0, 1, 2, Qt.AlignHCenter)
+        self.options_button.clicked.connect(
+            lambda: self.open_camera_options_widget()
         )
 
         # Start Video Thread
@@ -244,6 +241,7 @@ class GUI(QWidget):
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # return super().closeEvent(a0)
         print("Closing!")
+        if self.camera_options_widget is not None: self.camera_options_widget.close()
         self.Automation.change_status(False)
 
     def on_image_name_change(self, text: str) -> None:
@@ -307,9 +305,9 @@ class GUI(QWidget):
             print("Automation stopped")
             self.Automation.change_status(False)
 
-    def test_feature(self) -> None:
-        camera_options_widget = self.CameraOptionsGUI(self.camera, self.stylesheet)
-        camera_options_widget.launch_dialog()
+    def open_camera_options_widget(self) -> None:
+        self.camera_options_widget = self.CameraOptionsGUI(self.camera, self.stylesheet)
+        self.camera_options_widget.launch_dialog()
 
 
     def resizeEvent(self, event) -> None:
@@ -431,6 +429,13 @@ class GUI(QWidget):
             self.sliders_grid.addWidget(self.brightness_slider, 5, 0, alignment=Qt.AlignRight)
             self.brightness_slider.valueChanged.connect(self.update_brightness_value)
             
+            self.temp_slider.setRange(2000, 15000)
+            self.tint_slider.setRange(200, 2500)
+            self.contrast_slider.setRange(-100, 100)
+            self.hue_slider.setRange(-180, 180)
+            self.saturation_slider.setRange(0, 255)
+            self.brightness_slider.setRange(-64, 64)
+
             # Create buttons
             self.save_button = QPushButton(self)
             self.save_button.setText("Save")
@@ -448,12 +453,6 @@ class GUI(QWidget):
 
         def load_default_slider_values(self) -> None:
             if self.toggled:
-                self.temp_slider.setRange(2000, 15000)
-                self.tint_slider.setRange(200, 2500)
-                self.contrast_slider.setRange(-100, 100)
-                self.hue_slider.setRange(-180, 180)
-                self.saturation_slider.setRange(0, 255)
-                self.brightness_slider.setRange(-64, 64)
                 try:
                     (
                         temp_pos,
@@ -463,12 +462,6 @@ class GUI(QWidget):
                         sat_pos,
                         brightness_pos
                     ) = self._camera.get_slider_values()
-                    print(temp_pos)
-                    print(tint_pos)
-                    print(contrast_pos)
-                    print(hue_pos)
-                    print(sat_pos)
-                    print(brightness_pos)
                 except ValueError as e:
                     print(e)
                     temp_pos = 6503
@@ -485,17 +478,22 @@ class GUI(QWidget):
                 if brightness_pos is not None: self.brightness_slider.setValue(brightness_pos)
     
         def update_temp_value(self, value: int):
-            print("I set the value!", value)
+            if not self.toggled: return
             if value is not None: self._camera.set_camera_image_settings(temp=value)
         def update_tint_value(self, value: int):
+            if not self.toggled: return
             if value is not None: self._camera.set_camera_image_settings(tint=value)
         def update_contrast_value(self, value: int):
+            if not self.toggled: return
             if value is not None: self._camera.set_camera_image_settings(contrast=value)
         def update_hue_value(self, value: int):
+            if not self.toggled: return
             if value is not None: self._camera.set_camera_image_settings(hue=value)
         def update_saturation_value(self, value: int):
+            if not self.toggled: return
             if value is not None: self._camera.set_camera_image_settings(saturation=value)
         def update_brightness_value(self, value: int):
+            if not self.toggled: return
             if value is not None: self._camera.set_camera_image_settings(brightness=value)
 
         def save_configuration(self) -> None: self._camera.save_camera_settings()

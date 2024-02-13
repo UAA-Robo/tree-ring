@@ -175,19 +175,16 @@ class Camera:
                     self._hcam_brightness = settings['brightness']
                     self._hcam_gamma = settings['gamma']
                     self._hcam_wbgain = settings['wbgain']
-                    print(self._hcam_contrast)
                 except yaml.YAMLError as e:
                     print('YAML ERROR >', e)
                 except OSError as e:
                     print('OS ERROR >', e)
         except Exception as e:
             print('GENERAL ERROR >', e)
-        print('load temp', self._hcam_temp)
 
 
     def get_slider_values(self) -> tuple:
         # if not self.is_microscope(): raise ValueError("Could not load camera settings")
-        print('temp here:', self._hcam_temp)
         return (
             self._hcam_temp,
             self._hcam_tint,
@@ -254,18 +251,18 @@ class Camera:
                 kwargs.get('wbgain', '')[2]
             )
         if kwargs: print(kwargs)
-        print('setting temp', self._hcam_temp)
-        print('expo', self._hcam_exposure)
-        print('temp', self._hcam_temp)
-        print('tint', self._hcam_tint)
-        print('levelrangelow', self._hcam_level_range_low)
-        print('levelrangehigh', self._hcam_level_range_high)
-        print('contrast', self._hcam_contrast)
-        print('hue', self._hcam_hue)
-        print('saturation', self._hcam_saturation)
-        print('brightness', self._hcam_brightness)
-        print('gamma', self._hcam_gamma)
-        print('wbgain', self._hcam_wbgain)
+        # print('setting temp', self._hcam_temp)
+        # print('expo', self._hcam_exposure)
+        # print('temp', self._hcam_temp)
+        # print('tint', self._hcam_tint)
+        # print('levelrangelow', self._hcam_level_range_low)
+        # print('levelrangehigh', self._hcam_level_range_high)
+        # print('contrast', self._hcam_contrast)
+        # print('hue', self._hcam_hue)
+        # print('saturation', self._hcam_saturation)
+        # print('brightness', self._hcam_brightness)
+        # print('gamma', self._hcam_gamma)
+        # print('wbgain', self._hcam_wbgain)
         if self._runtime % 2 == 0:
             try:
                 if self._hcam_exposure is not None: self._hcam.put_AutoExpoTarget(self._hcam_exposure)
