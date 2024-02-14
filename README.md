@@ -54,17 +54,18 @@ the above command will successfully build the executable.
 
 
 - Arduino Code:
-    - Take out limit switch stuff -> Anthony
+    - Take out limit switch stuff -> Anthony (Done)
     - merge readme and code into main (done)
 
 - Hardware:
-    - Finish PCB -> Anthony 
+    - Finish PCB -> Anthony (Waiting on PCB to test it)
     - Print Motor mount/pcb mount  (vents, Slide in pane?) -> Mya
-    - Get new hardware working -> Anthony 
-    - Setting calibration of motor controller -> Anthony
+    - Get new hardware working -> Anthony (Waiting on PCB)
+    - Setting calibration of motor controller -> Anthony (Done)
 
 - Documentation w/ docsify
     - Clarify step 2 w/ pics -> Mya 
     - Code guide -> Mya (gui, automation), Dawson (camera), Anthony (arduino)
+    - Hardware Setup Guide -> Anthony
     - Trouble Shooting -> Dawson, Mya
     - Update comments -> EVERYONE (done)
