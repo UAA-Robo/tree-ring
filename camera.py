@@ -248,6 +248,9 @@ class Camera:
                 bytesPerLine = ch * w
                 self._image = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
 
+    def take_still_image(self) -> None:
+        self._hcam.Snap(1) # Let's see if this works
+
     def get_image(self) -> QImage:
         """
         @brief Takes an image from the camera to store.
