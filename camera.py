@@ -216,10 +216,12 @@ class Camera:
 
     @staticmethod
     def camera_callback(event, _self: 'Camera'):
-        if event == amcam.AMCAM_EVENT_IMAGE:
+        if event == amcam.AMCAM_EVENT_STILLIMAGE:
+            _self.save_still_image() # Save still image!
+        elif event == amcam.AMCAM_EVENT_IMAGE:
             _self.stream()
         elif event == amcam.AMCAM_EVENT_EXPO_START:
-            print("Found expo start!")
+            print("DEBUG> Found expo start!")
         
     def name(self) -> str: return self._cam_name
 
@@ -248,9 +250,16 @@ class Camera:
                 bytesPerLine = ch * w
                 self._image = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
 
+    #* Takes still image
     def take_still_image(self) -> None:
         self._hcam.Snap(1) # Let's see if this works
 
+    #* Save the still image
+    def save_still_image(self) -> None:
+        ...
+        # Use self._hcam.PullStillImageV2(...)
+
+    #!! REMOVE METHOD BELOW
     def get_image(self) -> QImage:
         """
         @brief Takes an image from the camera to store.
