@@ -272,7 +272,7 @@ class Camera:
             width = 2592
             height = 1944
             try:
-                buffer_size = ((width * 24 + 31) // 32 * 4) * height
+                buffer_size = ((width * 24 + 31) // 32 * 4) * height # Also equal to 3*w*h
                 buf = bytes(buffer_size)
                 self._hcam.PullStillImageV2(buf, 24, None)
             except amcam.HRESULTException as e: print(e)
