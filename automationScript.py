@@ -226,17 +226,25 @@ class Automation():
         self._status_message = "Automation Stopped."
 
 
+    # def get_picture(self, image_name:str):
+    #     """
+    #     @brief    Gets and Stores the image from the camera
+    #     """
+    #     self.check_capture_location()
+    #     img = self._camera.get_image()
+
+    #     image_number = str(self._counter).zfill(3) # Add 0s in front so 3 digits long
+    #     if img is not None:
+    #         img.save(f'{self._capture_dir}/{image_name}_{image_number}.jpg')
+
     def get_picture(self, image_name:str):
         """
-        @brief    Gets and Stores the image from the camera
+        @brief    Tells the camera to take a picture.
         """
         self.check_capture_location()
-        img = self._camera.get_image()
-
         image_number = str(self._counter).zfill(3) # Add 0s in front so 3 digits long
-        if img is not None:
-            img.save(f'{self._capture_dir}/{image_name}_{image_number}.jpg')
-
+        self._camera.set_capture_dir(f'{self._capture_dir}/{image_name}_{image_number}.jpg')
+        self._camera.take_still_image()
 
     def shift_sample(self):
         """

@@ -40,6 +40,7 @@ class Camera:
         self._cam_name = ''
         self._image = None
         self._cam_type = camera_type.UNKNOWN
+        self._capture_dir = ""
         # self.error_box = QWidget()
         try:
             self.load_camera()
@@ -250,9 +251,19 @@ class Camera:
                 bytesPerLine = ch * w
                 self._image = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
 
+    def set_capture_dir(self, path:str) -> None:
+        self._capture_dir = path
+
+# nResolutionIndex is a resolution supported by the camera.
+# For example, UCMOS03100KPA supports the following resolutions:
+#     index 0:    2048,   1536
+#     index 1:    1024,   768
+#     index 2:    680,    510
+# so, we can use put_Size(h, 1024, 768) or put_eSize(h, 1). Both have the same effect.
+
     #* Takes still image
     def take_still_image(self) -> None:
-        self._hcam.Snap(1) # Let's see if this works
+        self._hcam.Snap(0) # Let's see if this works
 
     #* Save the still image
     def save_still_image(self) -> None:
