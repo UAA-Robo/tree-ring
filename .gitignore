@@ -1,3 +1,4 @@
 captures/
 build/
 *.spec
+__pycache__

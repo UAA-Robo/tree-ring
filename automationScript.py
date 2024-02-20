@@ -6,6 +6,8 @@ from datetime import datetime
 import time
 import threading
 import os
+import numpy as np
+import cv2
 
 class Arduino:
     def __init__(self) -> None:
@@ -192,7 +194,7 @@ class Automation():
         @param core_length    Core size (in mm).
         @param shift_length   Length to shift motor each turn (in cm).
         """
-
+        
         self._status_message = "Automation Started..."
 
         self.change_status(True)
@@ -200,8 +202,10 @@ class Automation():
         motor_shifts_needed = int(core_length * 10  / (shift_length))
         self.arduino.update_shift_length(shift_length)
 
-        for self.counter in range(motor_shifts_needed):
+        #for self.counter in range(motor_shifts_needed):
+        while(not self.is_right_of_image_red()):
             self._status_message = f"Automation Started...  Shifting {self.counter} / {motor_shifts_needed} time(s) by  {shift_length} mm"
+            self._status_message = f"Automation Started...  Shifting until red is at the right"
             while (self.IS_PAUSED):
                 if not self.is_active(): break
             if not self.is_active(): break
@@ -214,6 +218,32 @@ class Automation():
             self.shift_sample()
         self.change_status(False)
         self._status_message = "Automation Stopped."
+
+    def is_right_of_image_red(self):
+        """
+        @brief Checks if the rightmost column of pixels is red on average.
+        @return True if red, false if not
+        """
+        image = self.camera.get_image()
+
+        # Convert QImage to numpy array
+        buffer = image.bits()
+        buffer.setsize(image.byteCount())
+        image_array = np.frombuffer(buffer, dtype=np.uint8).reshape(image.height(), image.width(), -1) 
+
+        # Get rightmost column pixel color average
+        print("SIZE", image_array.size)
+        average_RGB = np.mean(image_array[:, -1, :], axis=0)
+
+        RED_THRESHOLD = 250
+        print(average_RGB)
+        if average_RGB[0] >= RED_THRESHOLD:
+            return True
+        return False
+    
+
+
+
 
 
     def get_picture(self):
