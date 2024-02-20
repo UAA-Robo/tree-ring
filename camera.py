@@ -83,7 +83,7 @@ class Camera:
                 try:
                     if sys.platform == 'win32':
                         self._hcam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
-                        
+                         
                 except amcam.HRESULTException as e: print(e)
         
         self.connect_stream()
@@ -218,6 +218,7 @@ class Camera:
     @staticmethod
     def camera_callback(event, _self: 'Camera'):
         if event == amcam.AMCAM_EVENT_STILLIMAGE:
+            print("Got still image!")
             _self.save_still_image() # Save still image!
         elif event == amcam.AMCAM_EVENT_IMAGE:
             _self.stream()
@@ -267,7 +268,30 @@ class Camera:
 
     #* Save the still image
     def save_still_image(self) -> None:
-        ...
+        if self._hcam and self._cam_type == camera_type.MICROSCOPE:
+            width = 2592
+            height = 1944
+            try:
+                buffer_size = ((width * 24 + 31) // 32 * 4) * height
+                buf = bytes(buffer_size)
+                self._hcam.PullStillImageV2(buf, 24, None)
+            except amcam.HRESULTException as e: print(e)
+            else:
+                # width, height = self._hcam.get_Size()
+                img = QImage(
+                    buf,
+                    width,
+                    height,
+                    (width * 24 + 31) // 32 * 4,
+                    QImage.Format_RGB888,
+                )
+                try:
+                    if img is not None:
+                        img.save(self._capture_dir)
+                except IOError as e:
+                    print(e)
+        else:
+            ...
         # Use self._hcam.PullStillImageV2(...)
 
     #!! REMOVE METHOD BELOW
