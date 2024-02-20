@@ -33,36 +33,39 @@ Add an exclusion of the type 'Folder,' and select the directory containing the p
 the above command will successfully build the executable.
 
 ## TODO:
-- QT application (gui.py):
-    - Looks: Fix black text, curve camera corner -> Mya (done)
-    - Change Warning for no camera detected. -> Dawson (done)
-    - Kinda bug where still start automation if no location -> Dawson (by 1/30) (done)
-    - Pause automation program  -> Dawson (by 1/30)
+- QT application (gui.py)
+    - Pause automation program  -> Dawson 
     - Error handleing -> Dawson (in progress)
-    - Fix app downloading -> Mya (by 1/30)
-    - Possibly Merge listening thread + videostream thread -> MYA LOOOK (done)
-    - Handle errors in gui.py instead of automation.py -> Mya, Dawson (by 1/30)
+    - Handle errors in gui.py instead of automation.py -> Mya, Dawson 
+    - Try except more intensively -> Mya 
+    - Take out limit switch stuff -> Mya (done)
+    - Fix windows defender
+    - Enter image name -> Mya 
+
+
+- Automation
+    - Reduce wait time -> Mya
+    - Automatic start/stop based of color- > Mya
+
+
 
 - Camera
-    - Adjust exposure options
+    - Adjust exposure options   -> Dawson
 
-- Automation program (automationScript.py):
-    - Automatic image stitching
 
 - Arduino Code:
-    - Zero unstutter  -> Anthony
-    - Adjust limit switch so sample doesn't move when pressed  -> Anthony
-    - merge readme and code into main
+    - Take out limit switch stuff -> Anthony (Done)
+    - merge readme and code into main (done)
 
 - Hardware:
-    - start PCB -> Anthony (by 1/23)
-    - Print Motor mount
-    - Print limit switch mount
-    - Get new hardware working -> Anthony (by 1/23)
-    - Look at parts for converyr -> Micah (by 1/30)
+    - Finish PCB -> Anthony (Waiting on PCB to test it)
+    - Print Motor mount/pcb mount  (vents, Slide in pane?) -> Mya
+    - Get new hardware working -> Anthony (Waiting on PCB)
+    - Setting calibration of motor controller -> Anthony (Done)
 
 - Documentation w/ docsify
-    - Step by step instructions -> Mya, Dawson (by 30th)
+    - Clarify step 2 w/ pics -> Mya 
     - Code guide -> Mya (gui, automation), Dawson (camera), Anthony (arduino)
-    - Trouble Shooting (start by 1/23) -> Dawson
-    - Update comments -> EVERYONE (by 30th) (Mya done, Dawson done)
+    - Hardware Setup Guide -> Anthony
+    - Trouble Shooting -> Dawson, Mya
+    - Update comments -> EVERYONE (done)

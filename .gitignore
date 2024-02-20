@@ -2,3 +2,4 @@ captures/
 build/
 *.spec
 __pycache__
+PCB_files/CustomPCB-backups/

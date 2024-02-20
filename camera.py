@@ -78,6 +78,7 @@ class Camera:
                 self._width, self._height = self._hcam.get_Size()
                 buffer_size = ((self._width * 24 + 31) // 32 * 4) * self._height
                 self._buffer = bytes(buffer_size)
+                
                 try:
                     if sys.platform == 'win32':
                         self._hcam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
@@ -92,6 +93,8 @@ class Camera:
         """
         if self._cam_type == camera_type.MICROSCOPE:
             try:
+                self.reset_camera_image_settings()
+                self.set_camera_image_settings(saturation=0.3764705882352941) # Reduces yellow image quality
                 self._hcam.StartPullModeWithCallback(self.camera_callback, self)
                 
             except amcam.HRESULTException as e: print(e)
@@ -105,10 +108,118 @@ class Camera:
             th = threading.Thread(target=run_stream, args=[self], daemon=True)
             th.start()
     
+#   (From the API...)
+#   .-[ DEFAULT VALUES FOR THE IMAGE ]--------------------------------.
+#   | Parameter               |   Range       |   Default             |
+#   |-----------------------------------------------------------------|
+#   | Auto Exposure Target    |   16~235      |   120                 |
+#   | Temp                    |   2000~15000  |   6503                |
+#   | Tint                    |   200~2500    |   1000                |
+#   | LevelRange              |   0~255       |   Low = 0, High = 255 |
+#   | Contrast                |   -100~100    |   0                   |
+#   | Hue                     |   -180~180    |   0                   |
+#   | Saturation              |   0~255       |   128                 |
+#   | Brightness              |   -64~64      |   0                   |
+#   | Gamma                   |   20~180      |   100                 |
+#   | WBGain                  |   -127~127    |   0                   |
+#   '-----------------------------------------------------------------'
+
+    def reset_camera_image_settings(self) -> None:
+        """
+        @brief Resets the camera's image settings back to default values. To apply changes to the
+            camera one must invoke `set_camera_image_settings()` with no arguments.
+        """
+        self._hcam_exposure = 120
+        self._hcam_temp = 6503
+        self._hcam_tint = 1000
+        self._hcam_level_range_low = (0, 0, 0, 0)
+        self._hcam_level_range_high = (255, 255, 255, 255)
+        self._hcam_contrast = 0
+        self._hcam_hue = 0
+        self._hcam_saturation = 128
+        self._hcam_brightness = 0
+        self._hcam_gamma = 100
+        self._hcam_wbgain = (0, 0, 0)
+
+    def set_camera_image_settings(self, **kwargs) -> None:
+        """
+        @brief Modifies the microscope camera's image settings.
+        @kwargs
+         - exposure: The auto exposure target (0.0 ~ 1.0).
+         - temp: The temperature value of the image (0.0 ~ 1.0).
+         - tint: The tint of the image (0.0 ~ 1.0).
+         - levelrange_low: The low end of the level range
+            (0.0~1.0, 0.0~1.0, 0.0~1.0, 0.0~1.0).
+         - levelrange_high: The high end of the level range
+            (0.0~1.0, 0.0~1.0, 0.0~1.0, 0.0~1.0).
+         - contrast: The contrast value of the image (0.0 ~ 1.0).
+         - hue: The hue value of the image (0.0 ~ 1.0).
+         - saturation: The saturation value of the image (0.0 ~ 1.0).
+         - brightness: The brightness value of the image (0.0 ~ 1.0).
+         - gamma: The gamma value of the image (0.0 ~ 1.0).
+         - wbgain: The white balance rgb-triplet of the image
+                (0.0 ~ 1.0, 0.0 ~ 1.0, 0.0 ~ 1.0).
+        
+        """
+
+        if 'exposure' in kwargs:
+            self._hcam_exposure = int(kwargs.get('exposure', '') * 219) + 16
+        if 'temp' in kwargs:
+            self._hcam_temp = int(kwargs.get('temp', '') * 13000) + 2000
+        if 'tint' in kwargs:
+            self._hcam_tint = int(kwargs.get('tint', '') * 2300) + 200
+        if 'levelrange_low' in kwargs:
+            self._hcam_level_range_low = (
+                int(kwargs.get('levelrange_low', '')[0] * 255) + 0,
+                int(kwargs.get('levelrange_low', '')[1] * 255) + 0,
+                int(kwargs.get('levelrange_low', '')[2] * 255) + 0,
+                int(kwargs.get('levelrange_low', '')[3] * 255) + 0
+            )
+        if 'levelrange_high' in kwargs:
+            self._hcam_level_range_high = (
+                int(kwargs.get('levelrange_high', '')[0] * 255) + 0,
+                int(kwargs.get('levelrange_high', '')[1] * 255) + 0,
+                int(kwargs.get('levelrange_high', '')[2] * 255) + 0,
+                int(kwargs.get('levelrange_high', '')[3] * 255) + 0
+            )
+        if 'contrast' in kwargs:
+            self._hcam_contrast = int(kwargs.get('contrast', '') * 200) - 100
+        if 'hue' in kwargs:
+            self._hcam_hue = int(kwargs.get('hue', '') * 360) - 180
+        if 'saturation' in kwargs: 
+            self._hcam_saturation = int(kwargs.get('saturation', '') * 255) + 0
+        if 'brightness' in kwargs:
+            self._hcam_brightness = int(kwargs.get('brightness', '') * 128) - 64
+        if 'gamma' in kwargs:
+            self._hcam_gamma = int(kwargs.get('gamma', '') * 160) + 20
+        if 'wbgain' in kwargs:
+            self._hcam_wbgain = (
+                int(kwargs.get('wbgain', '')[0] * 254) - 127,
+                int(kwargs.get('wbgain', '')[1] * 254) - 127,
+                int(kwargs.get('wbgain', '')[2] * 254) - 127
+            )
+        
+        try:
+            self._hcam.put_AutoExpoTarget(self._hcam_exposure)
+            self._hcam.put_TempTint(self._hcam_temp, self._hcam_tint)
+            self._hcam.put_LevelRange(self._hcam_level_range_low, self._hcam_level_range_high)
+            self._hcam.put_Contrast(self._hcam_contrast)
+            self._hcam.put_Hue(self._hcam_contrast)
+            self._hcam.put_Saturation(self._hcam_saturation)
+            self._hcam.put_Brightness(self._hcam_brightness)
+            self._hcam.put_Gamma(self._hcam_gamma)
+            # self._hcam.put_WhiteBalanceGain(self._hcam_wbgain) ! Not implemented yet
+        except amcam.HRESULTException as e:
+            print(e)
+        
+
+
     @staticmethod
     def camera_callback(event, _self: 'Camera'):
         if event == amcam.AMCAM_EVENT_IMAGE:
             _self.stream()
+        elif event == amcam.AMCAM_EVENT_EXPO_START:
+            print("Found expo start!")
         
     def name(self) -> str: return self._cam_name
 

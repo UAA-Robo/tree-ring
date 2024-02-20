@@ -75,8 +75,10 @@ class GUI(QWidget):
         self.width = 640
         self.height = 480
         
-        self.core_length = "20"  # Default value (mm)
+        self.image_name = "Tree_Core"  # Default value
+        self.core_length = "20"  # Default value (cm)
         self.shift_length = "3"  # Default value (mm)
+        
 
         self.video_width = 640
         self.video_height = 480
@@ -176,39 +178,50 @@ class GUI(QWidget):
 
         # Automation Messages
         self.message_label = QLabel(self)
-        self.grid.addWidget(self.message_label, 2, 0, 1, 5, Qt.AlignCenter)
+        self.grid.addWidget(self.message_label, 2, 1, 1, 5, Qt.AlignCenter)
+
+        # Create image name input
+        self.image_name_label = QLabel('Image/Core name', self)
+        self.right_grid.addWidget(self.image_name_label, 0,0, Qt.AlignRight)
+        self.image_name_textbox = QLineEdit(self)
+        self.image_name_textbox.setText(str(self.image_name))
+        self.image_name_textbox.setFixedWidth(100)
+        self.right_grid.addWidget(self.image_name_textbox, 0, 1, Qt.AlignLeft)
+        self.image_name_textbox.textChanged.connect(self.on_image_name_change)
 
         # Create core length input
         self.core_input_label = QLabel('Core Length (cm)', self)
-        self.right_grid.addWidget(self.core_input_label, 0, 0, Qt.AlignRight)
+        self.right_grid.addWidget(self.core_input_label, 1, 0, Qt.AlignRight)
         self.core_input_textbox = QLineEdit(self)
         self.core_input_textbox.setText(str(self.core_length))
         self.core_input_textbox.setFixedWidth(50)
-        self.right_grid.addWidget(self.core_input_textbox, 0, 1, Qt.AlignLeft)
+        self.right_grid.addWidget(self.core_input_textbox, 1, 1, Qt.AlignLeft)
         self.core_input_textbox.textChanged.connect(self.on_core_input_change)
 
         # Create shift length input
         self.shift_input_label = QLabel('Shift Length (mm)', self)
-        self.right_grid.addWidget(self.shift_input_label, 1,0, Qt.AlignRight)
+        self.right_grid.addWidget(self.shift_input_label, 2,0, Qt.AlignRight)
         self.shift_input_textbox = QLineEdit(self)
         self.shift_input_textbox.setText(str(self.shift_length))
         self.shift_input_textbox.setFixedWidth(50)
-        self.right_grid.addWidget(self.shift_input_textbox, 1, 1, Qt.AlignLeft)
+        self.right_grid.addWidget(self.shift_input_textbox, 2, 1, Qt.AlignLeft)
         self.shift_input_textbox.textChanged.connect(self.on_shift_input_change)
+
 
         # Create buttons
         self.start_stop_button = QPushButton(self)
         self.start_stop_button.setText("Start Automation")
-        self.right_grid.addWidget(self.start_stop_button, 2, 0, 1, 2, Qt.AlignHCenter)
+        self.right_grid.addWidget(self.start_stop_button, 3, 0, 1, 2, Qt.AlignHCenter)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
         )
 
-        self.zeroing_button = QPushButton(self)
-        self.zeroing_button.setText("Zero Platform")
-
-        self.right_grid.addWidget(self.zeroing_button, 3, 0, 1, 2, Qt.AlignHCenter)
-        self.zeroing_button.clicked.connect(lambda: self.Automation.zero_platform()) # Add Button Trigger
+        self.pause_play_button = QPushButton(self)
+        self.pause_play_button.setText("Pause")
+        self.grid.addWidget(self.pause_play_button, 2, 0, 1, 1, Qt.AlignCenter)
+        self.pause_play_button.clicked.connect(
+            lambda: self.pause_play()
+        )
 
 
         # Start Video Thread
@@ -230,10 +243,18 @@ class GUI(QWidget):
         print("Closing!")
         self.Automation.change_status(False)
 
+    def on_image_name_change(self, text: str) -> None:
+        """
+        @brief Called every time the text in the image_name_textbox changes.
+        @param text Contains the new text.
+        """
+
+        self.image_name = text
+        print(f"New image name input: {text}")
 
     def on_core_input_change(self, text: str) -> None:
         """
-        @brief Called every time the text in the core_input textbox changes.
+        @brief Called every time the text in the core_input_textbox changes.
         @param text Contains the new text.
         """
 
@@ -243,12 +264,24 @@ class GUI(QWidget):
 
     def on_shift_input_change(self, text: str) -> None:
         """
-        @brief Called every time the text in the shift_input textbox changes.
+        @brief Called every time the text in the shift_input_textbox changes.
         @param text Contains the new text.
         """
 
         self.shift_length = text
         print(f"New shift input: {text}")
+
+    def pause_play(self) -> None:
+        """
+        @brief Pauses or plays the automation status.
+        """
+        if self.Automation.is_paused():
+            self.Automation.set_pause(False)
+            self.pause_play_button.setText("Pause")
+        else:
+            self.Automation.set_pause(True)
+            self.pause_play_button.setText("Play")
+        
 
 
     def start_stop_automation(self) -> None:
@@ -268,13 +301,13 @@ class GUI(QWidget):
                         # QMessageBox.warning(self, "Invalid capture directory", "
                         #                     "Please select a capture directory.?", QMessageBox.Ok)
                         raise InvalidFolderError("Please select a captures")
-                    print('Capture directory set to', self.Automation.capture_dir)
+                    print('Capture directory set to', self.Automation._capture_dir)
                     print("Automation started!")
                 else:
                     # Ask directory does not work on mac so sets to tree_ring_captures folder on desktop
                     self.Automation.set_capture_location(os.path.expanduser(
                         '~/Desktop/tree_ring_captures'))
-                self.Automation.start_automation(float(self.core_length), float(self.shift_length))
+                self.Automation.start_automation(self.image_name, float(self.core_length), float(self.shift_length))
 
             except InvalidFolderError as e:
                 QMessageBox.warning(self, "Invalid selection", e.msg, QMessageBox.Ok)
