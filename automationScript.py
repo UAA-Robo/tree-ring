@@ -234,7 +234,7 @@ class Automation():
         @brief Checks if the rightmost column of pixels is red on average.
         @return True if red, false if not
         """
-        image = self.camera.get_image()
+        image = self._camera.get_image()
 
         # Convert QImage to numpy array
         buffer = image.bits()
@@ -242,7 +242,7 @@ class Automation():
         image_array = np.frombuffer(buffer, dtype=np.uint8).reshape(image.height(), image.width(), -1) 
 
         # Get rightmost column pixel color average
-        print("SIZE", image_array.size)
+        print("SIZE", len(image_array))
         average_RGB = np.mean(image_array[:, -1, :], axis=0)
 
         RED_THRESHOLD = 250
