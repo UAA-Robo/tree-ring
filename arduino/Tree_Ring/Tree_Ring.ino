@@ -1,9 +1,9 @@
 
 int DIRECTION_PIN = 3;
 int STEPPER_PIN = 4;
-int LIMIT_SWITCH_PIN = 5;
-int ENABLE_PIN = 7;
-int RESET_PIN = 6;
+int LIMIT_SWITCH_PIN = 10;
+int ENABLE_PIN = 9;
+int RESET_PIN = 5;
 
 int incoming_byte;
 
@@ -11,8 +11,9 @@ bool IS_CLOCKWISE = true;
 bool IS_ACTIVE = false;
 
 int active_counter = 0;
-int rotate_amount = 200; //steps per revolution for 200 pulses = 360 degree full cycle rotation
-
+int rotate_amount = 1400;//1600; //steps per revolution for 200 pulses = 360 degree full cycle rotation
+int millimeters = 3;
+int actual_movement = rotate_amount * millimeters;
 
 void setup()
 {
@@ -43,9 +44,9 @@ void step(boolean dir,int steps)
  for(int i=0;i<steps;i++)
  {
    digitalWrite(STEPPER_PIN, HIGH);
-   delayMicroseconds(600);//Adjust the speed of motor. Increase the value, motor speed become slower.
+   delayMicroseconds(150);//Adjust the speed of motor. Increase the value, motor speed become slower.
    digitalWrite(STEPPER_PIN, LOW);
-   delayMicroseconds(600);
+   delayMicroseconds(150);
  }
 }
 
@@ -58,7 +59,7 @@ void zero(){
   while(digitalRead(LIMIT_SWITCH_PIN) != 0){
     step(true,20);
   }
-  step(false,rotate_amount);
+  step(false,actual_movement);
   Serial.write("Zeroed");
 }
 
@@ -104,23 +105,24 @@ void loop()
     }
     if(incoming_byte == 82) { // R Move the platform.
       activate();
-      step(IS_CLOCKWISE, rotate_amount * 3);
+      step(IS_CLOCKWISE, actual_movement);
     }
     if(incoming_byte == 90) { // Z Zero the platform.
       activate();
       zero();
     }
       if(incoming_byte == 43) { // + Increase Rotation Amount.
-      rotate_amount = rotate_amount + 20;
-      Serial.write(rotate_amount);
+      millimeters = millimeters + 1;
+      Serial.write(millimeters);
     }
     if(incoming_byte == 45) { // - Decrease Rotation amount.
-      rotate_amount = rotate_amount - 20;
-      Serial.write(rotate_amount);
+      millimeters = millimeters - 1;
+      Serial.write(millimeters);
     }
     if(incoming_byte == 61) { // = Get current Rotation Amount.
-      Serial.write(rotate_amount);
+      Serial.write(millimeters);
     }
+    actual_movement = rotate_amount * millimeters;
   }
 
   // Put motor to sleep if not in use.
