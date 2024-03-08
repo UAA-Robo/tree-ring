@@ -80,7 +80,7 @@ class Arduino:
 
             current_shift_length = 3  # TODO: ask arduino for length
 
-            increments = int((shift_length -current_shift_length) / self._SHIFT_LENGTH_CHANGE)
+            increments = current_shift_length - int(shift_length)
 
             if increments < 0:
                 for _ in range(abs(increments)):
@@ -218,10 +218,14 @@ class Automation():
             if not self.is_active(): break
             self.get_picture(image_name)
 
-            time.sleep(1)
+            time.sleep(1.1)
             while (self._IS_PAUSED and self.is_active()): pass
             if not self.is_active(): break
             self.shift_sample()
+        
+        self.get_picture(image_name)
+        time.sleep(1.1)
+
         self.change_status(False)
         self._status_message = "Automation Stopped."
 
