@@ -1,3 +1,4 @@
 captures/
 build/
 *.spec
+PCB_files/CustomPCB-backups/

@@ -179,7 +179,7 @@ class GUI(QWidget):
 
         # Automation Messages
         self.message_label = QLabel(self)
-        self.grid.addWidget(self.message_label, 2, 0, 1, 5, Qt.AlignCenter)
+        self.grid.addWidget(self.message_label, 2, 1, 1, 5, Qt.AlignCenter)
 
         # Create image name input
         self.image_name_label = QLabel('Image/Core name', self)
@@ -223,6 +223,14 @@ class GUI(QWidget):
         self.options_button.clicked.connect(
             lambda: self.open_camera_options_widget()
         )
+
+        self.pause_play_button = QPushButton(self)
+        self.pause_play_button.setText("Pause")
+        self.grid.addWidget(self.pause_play_button, 2, 0, 1, 1, Qt.AlignCenter)
+        self.pause_play_button.clicked.connect(
+            lambda: self.pause_play()
+        )
+
 
         # Start Video Thread
         self.video_thread = video_stream_thread(self.camera)
@@ -272,6 +280,18 @@ class GUI(QWidget):
         self.shift_length = text
         print(f"New shift input: {text}")
 
+    def pause_play(self) -> None:
+        """
+        @brief Pauses or plays the automation status.
+        """
+        if self.Automation.is_paused():
+            self.Automation.set_pause(False)
+            self.pause_play_button.setText("Pause")
+        else:
+            self.Automation.set_pause(True)
+            self.pause_play_button.setText("Play")
+        
+
 
     def start_stop_automation(self) -> None:
         """
@@ -290,7 +310,7 @@ class GUI(QWidget):
                         # QMessageBox.warning(self, "Invalid capture directory", "
                         #                     "Please select a capture directory.?", QMessageBox.Ok)
                         raise InvalidFolderError("Please select a captures")
-                    print('Capture directory set to', self.Automation.capture_dir)
+                    print('Capture directory set to', self.Automation._capture_dir)
                     print("Automation started!")
                 else:
                     # Ask directory does not work on mac so sets to tree_ring_captures folder on desktop
