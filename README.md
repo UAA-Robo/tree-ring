@@ -38,34 +38,29 @@ the above command will successfully build the executable.
     - Error handleing -> Dawson (in progress)
     - Handle errors in gui.py instead of automation.py -> Mya, Dawson 
     - Try except more intensively -> Mya 
-    - Take out limit switch stuff -> Mya (done)
     - Fix windows defender
     - Enter image name -> Mya 
-
 
 - Automation
     - Reduce wait time -> Mya
     - Automatic start/stop based of color- > Mya
-
-
+    - Dynamic Wait time based on distance
+    - Reset arduino distance upon startup -> Anthony
 
 - Camera
     - Adjust exposure options   -> Dawson
 
-
 - Arduino Code:
-    - Take out limit switch stuff -> Anthony (Done)
-    - merge readme and code into main (done)
+    - Add reset distance command -> Anthony
 
 - Hardware:
-    - Finish PCB -> Anthony (Waiting on PCB to test it)
+    - Update PCB With DC Power Safety Features-> Anthony
+    - Update PCB Silkscreen with more symbols-> Anthony
     - Print Motor mount/pcb mount  (vents, Slide in pane?) -> Mya
-    - Get new hardware working -> Anthony (Waiting on PCB)
-    - Setting calibration of motor controller -> Anthony (Done)
+    - Redesign Box -> Mya
 
 - Documentation w/ docsify
     - Clarify step 2 w/ pics -> Mya 
     - Code guide -> Mya (gui, automation), Dawson (camera), Anthony (arduino)
     - Hardware Setup Guide -> Anthony
     - Trouble Shooting -> Dawson, Mya
-    - Update comments -> EVERYONE (done)
