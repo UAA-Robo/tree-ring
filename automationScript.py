@@ -216,15 +216,16 @@ class Automation():
             self._status_message = f"Automation Started...  Shifting {self._counter} / {motor_shifts_needed} time(s) by  {shift_length} mm"
             while (self._IS_PAUSED and self.is_active()): pass
             if not self.is_active(): break
+
             self.get_picture(image_name)
 
-            time.sleep(1.1)
             while (self._IS_PAUSED and self.is_active()): pass
             if not self.is_active(): break
             self.shift_sample()
+            time.sleep(1.5)
         
         self.get_picture(image_name)
-        time.sleep(1.1)
+        time.sleep(1.5)
 
         self.change_status(False)
         self._status_message = "Automation Stopped."
