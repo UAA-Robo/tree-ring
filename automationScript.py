@@ -224,8 +224,8 @@ class Automation():
             self.shift_sample()
             time.sleep(1.5)
         
-        self.get_picture(image_name)
         time.sleep(1.5)
+        self.get_picture(image_name)
 
         self.change_status(False)
         self._status_message = "Automation Stopped."
