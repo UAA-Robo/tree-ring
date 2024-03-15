@@ -64,8 +64,12 @@ class Arduino:
                 length. Blocking.
         """
         if self._IS_CONNECTED:
-            self._arduino.write(bytes('L',  'utf-8'))
-            self._arduino.write(bytes('R',  'utf-8'))
+            try:
+                self._arduino.write(bytes('L',  'utf-8'))
+                self._arduino.write(bytes('R',  'utf-8'))
+            except Exception as e:
+                print(e)
+                raise CriticalIOError("Motor was disconnected")
             time.sleep(1)
 
             # while(self.arduino.readline() != 'AntiClockwise'): 
