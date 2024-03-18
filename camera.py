@@ -40,6 +40,7 @@ class Camera:
         self._cam_name = ''
         self._image = None
         self._cam_type = camera_type.UNKNOWN
+        # self.stream_enabled = True
         self._capture_dir = ""
         # self.error_box = QWidget()
         try:
@@ -221,7 +222,10 @@ class Camera:
             print("Got still image!")
             _self.save_still_image() # Save still image!
         elif event == amcam.AMCAM_EVENT_IMAGE:
+            print("streaming!")
             _self.stream()
+            else: print("ignoring stream")
+            # pass
         elif event == amcam.AMCAM_EVENT_EXPO_START:
             print("DEBUG> Found expo start!")
         
@@ -264,7 +268,9 @@ class Camera:
 
     #* Takes still image
     def take_still_image(self) -> None:
+        print(self._hcam.get_StillResolution(0))
         self._hcam.Snap(0) # Let's see if this works
+        # self.stream_enabled = False
 
     #* Save the still image
     def save_still_image(self) -> None:
@@ -273,6 +279,7 @@ class Camera:
             height = 1944
             try:
                 buffer_size = ((width * 24 + 31) // 32 * 4) * height # Also equal to 3*w*h
+                buffer_size = width * height * 24
                 buf = bytes(buffer_size)
                 self._hcam.PullStillImageV2(buf, 24, None)
             except amcam.HRESULTException as e: print(e)
@@ -293,6 +300,7 @@ class Camera:
         else:
             ...
         # Use self._hcam.PullStillImageV2(...)
+        # self.stream_enabled = True
 
     #!! REMOVE METHOD BELOW
     def get_image(self) -> QImage:
