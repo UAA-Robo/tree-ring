@@ -1,4 +1,5 @@
 captures/
 build/
+venv/
 *.spec
 PCB_files/CustomPCB-backups/
