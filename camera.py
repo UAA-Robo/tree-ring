@@ -80,7 +80,7 @@ class Camera:
                 self._width, self._height = self._hcam.get_Size()
                 buffer_size = ((self._width * 24 + 31) // 32 * 4) * self._height
                 self._buffer = bytes(buffer_size)
-                
+                print("Number of still resolutions supported:",self._hcam.StillResolutionNumber())
                 try:
                     if sys.platform == 'win32':
                         self._hcam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
@@ -98,7 +98,12 @@ class Camera:
                 self.reset_camera_image_settings()
                 self.set_camera_image_settings(saturation=0.3764705882352941) # Reduces yellow image quality
                 self._hcam.StartPullModeWithCallback(self.camera_callback, self)
-                
+                self._hcam.put_Option(amcam.AMCAM_OPTION_SHARPENING, 500)
+                # self._hcam.put_Option(amcam.AMCAM_OPTION_DENOISE, 100)
+                self._hcam.put_Option(amcam.AMCAM_OPTION_LINEAR, 0)
+                self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, 1)
+                # self._hcam.put_Option(amcam.AMCAM_OPTION_DEMOSAIC, 2)
+
             except amcam.HRESULTException as e: print(e)
 
         elif self._cam_type == camera_type.WEBCAM:
@@ -218,13 +223,14 @@ class Camera:
 
     @staticmethod
     def camera_callback(event, _self: 'Camera'):
+        # print(_self._hcam.get_Resolution(0))
         if event == amcam.AMCAM_EVENT_STILLIMAGE:
             print("Got still image!")
             _self.save_still_image() # Save still image!
         elif event == amcam.AMCAM_EVENT_IMAGE:
-            print("streaming!")
+            # print("streaming!")
             _self.stream()
-            else: print("ignoring stream")
+            # else: print("ignoring stream")
             # pass
         elif event == amcam.AMCAM_EVENT_EXPO_START:
             print("DEBUG> Found expo start!")
