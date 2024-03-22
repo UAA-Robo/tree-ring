@@ -22,6 +22,9 @@ class Arduino:
 
         try:
             self._IS_CONNECTED = self.connect_to_arduino()
+                
+            if self._IS_CONNECTED:
+                self._arduino.write(bytes('R',  'utf-8'))
         except Exception as e:
             QMessageBox.critical(self._error_box, "Error Encountered",
                                 e.msg, QMessageBox.Ok)
@@ -65,7 +68,7 @@ class Arduino:
         """
         if self._IS_CONNECTED:
             self._arduino.write(bytes('L',  'utf-8'))
-            self._arduino.write(bytes('R',  'utf-8'))
+            self._arduino.write(bytes('M',  'utf-8'))
             time.sleep(1)
 
             # while(self.arduino.readline() != 'AntiClockwise'): 
