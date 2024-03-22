@@ -13,6 +13,7 @@ bool IS_ACTIVE = false;
 int active_counter = 0;
 int rotate_amount = 1400;//1600; //steps per revolution for 200 pulses = 360 degree full cycle rotation
 int millimeters = 3;
+int original_millimeters = millimeters;
 int actual_movement = rotate_amount * millimeters;
 
 void setup()
@@ -49,20 +50,6 @@ void step(boolean dir,int steps)
    delayMicroseconds(150);
  }
 }
-
-
-void zero(){
-  /* 
-	@brief   Zero the platform.
-  */
-  Serial.write("Zeroing");
-  while(digitalRead(LIMIT_SWITCH_PIN) != 0){
-    step(true,20);
-  }
-  step(false,actual_movement);
-  Serial.write("Zeroed");
-}
-
 
 void activate(){
   /* 
@@ -103,15 +90,15 @@ void loop()
       Serial.write("AntiClockwise");
       IS_CLOCKWISE = false;
     }
-    if(incoming_byte == 82) { // R Move the platform.
+    if(incoming_byte == 77) { // M Move the platform.
       activate();
       step(IS_CLOCKWISE, actual_movement);
     }
-    if(incoming_byte == 90) { // Z Zero the platform.
+    if(incoming_byte == 82) { // R Reset Rotation Amount.
       activate();
-      zero();
+      millimeters = original_millimeters;
     }
-      if(incoming_byte == 43) { // + Increase Rotation Amount.
+    if(incoming_byte == 43) { // + Increase Rotation Amount.
       millimeters = millimeters + 1;
       Serial.write(millimeters);
     }
