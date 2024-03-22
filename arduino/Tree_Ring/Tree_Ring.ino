@@ -95,8 +95,8 @@ void loop()
       step(IS_CLOCKWISE, actual_movement);
     }
     if(incoming_byte == 82) { // R Reset Rotation Amount.
-      activate();
       millimeters = original_millimeters;
+      Serial.write(millimeters);
     }
     if(incoming_byte == 43) { // + Increase Rotation Amount.
       millimeters = millimeters + 1;
