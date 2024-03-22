@@ -40,6 +40,8 @@ class Camera:
         self._cam_name = ''
         self._image = None
         self._cam_type = camera_type.UNKNOWN
+        # self.stream_enabled = True
+        self._capture_dir = ""
         # self.error_box = QWidget()
         try:
             self.load_camera()
@@ -78,11 +80,11 @@ class Camera:
                 self._width, self._height = self._hcam.get_Size()
                 buffer_size = ((self._width * 24 + 31) // 32 * 4) * self._height
                 self._buffer = bytes(buffer_size)
-                
+                print("Number of still resolutions supported:",self._hcam.StillResolutionNumber())
                 try:
                     if sys.platform == 'win32':
                         self._hcam.put_Option(amcam.AMCAM_OPTION_BYTEORDER, 0) # QImage.Format_RGB888
-                        
+                         
                 except amcam.HRESULTException as e: print(e)
         
         self.connect_stream()
@@ -96,7 +98,12 @@ class Camera:
                 self.reset_camera_image_settings()
                 self.set_camera_image_settings(saturation=0.3764705882352941) # Reduces yellow image quality
                 self._hcam.StartPullModeWithCallback(self.camera_callback, self)
-                
+                self._hcam.put_Option(amcam.AMCAM_OPTION_SHARPENING, 500)
+                # self._hcam.put_Option(amcam.AMCAM_OPTION_DENOISE, 100)
+                self._hcam.put_Option(amcam.AMCAM_OPTION_LINEAR, 0)
+                self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, 1)
+                # self._hcam.put_Option(amcam.AMCAM_OPTION_DEMOSAIC, 2)
+
             except amcam.HRESULTException as e: print(e)
 
         elif self._cam_type == camera_type.WEBCAM:
@@ -129,7 +136,7 @@ class Camera:
         @brief Resets the camera's image settings back to default values. To apply changes to the
             camera one must invoke `set_camera_image_settings()` with no arguments.
         """
-        self._hcam_exposure = 120
+        self._hcam_exposure = 120 # Note: set to 50
         self._hcam_temp = 6503
         self._hcam_tint = 1000
         self._hcam_level_range_low = (0, 0, 0, 0)
@@ -137,7 +144,7 @@ class Camera:
         self._hcam_contrast = 0
         self._hcam_hue = 0
         self._hcam_saturation = 128
-        self._hcam_brightness = 0
+        self._hcam_brightness = 0 # Note set to 16
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
 
@@ -216,10 +223,17 @@ class Camera:
 
     @staticmethod
     def camera_callback(event, _self: 'Camera'):
-        if event == amcam.AMCAM_EVENT_IMAGE:
+        # print(_self._hcam.get_Resolution(0))
+        if event == amcam.AMCAM_EVENT_STILLIMAGE:
+            print("Got still image!")
+            _self.save_still_image() # Save still image!
+        elif event == amcam.AMCAM_EVENT_IMAGE:
+            # print("streaming!")
             _self.stream()
+            # else: print("ignoring stream")
+            # pass
         elif event == amcam.AMCAM_EVENT_EXPO_START:
-            print("Found expo start!")
+            print("DEBUG> Found expo start!")
         
     def name(self) -> str: return self._cam_name
 
@@ -248,6 +262,53 @@ class Camera:
                 bytesPerLine = ch * w
                 self._image = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
 
+    def set_capture_dir(self, path:str) -> None:
+        self._capture_dir = path
+
+# nResolutionIndex is a resolution supported by the camera.
+# For example, UCMOS03100KPA supports the following resolutions:
+#     index 0:    2048,   1536
+#     index 1:    1024,   768
+#     index 2:    680,    510
+# so, we can use put_Size(h, 1024, 768) or put_eSize(h, 1). Both have the same effect.
+
+    #* Takes still image
+    def take_still_image(self) -> None:
+        print(self._hcam.get_StillResolution(0))
+        self._hcam.Snap(0) # Let's see if this works
+        # self.stream_enabled = False
+
+    #* Save the still image
+    def save_still_image(self) -> None:
+        if self._hcam and self._cam_type == camera_type.MICROSCOPE:
+            width = 2592
+            height = 1944
+            try:
+                buffer_size = ((width * 24 + 31) // 32 * 4) * height # Also equal to 3*w*h
+                buffer_size = width * height * 24
+                buf = bytes(buffer_size)
+                self._hcam.PullStillImageV2(buf, 24, None)
+            except amcam.HRESULTException as e: print(e)
+            else:
+                # width, height = self._hcam.get_Size()
+                img = QImage(
+                    buf,
+                    width,
+                    height,
+                    (width * 24 + 31) // 32 * 4,
+                    QImage.Format_RGB888,
+                )
+                try:
+                    if img is not None:
+                        img.save(self._capture_dir)
+                except IOError as e:
+                    print(e)
+        else:
+            ...
+        # Use self._hcam.PullStillImageV2(...)
+        # self.stream_enabled = True
+
+    #!! REMOVE METHOD BELOW
     def get_image(self) -> QImage:
         """
         @brief Takes an image from the camera to store.
