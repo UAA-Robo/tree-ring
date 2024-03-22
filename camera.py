@@ -136,7 +136,7 @@ class Camera:
         @brief Resets the camera's image settings back to default values. To apply changes to the
             camera one must invoke `set_camera_image_settings()` with no arguments.
         """
-        self._hcam_exposure = 120
+        self._hcam_exposure = 120 # Note: set to 50
         self._hcam_temp = 6503
         self._hcam_tint = 1000
         self._hcam_level_range_low = (0, 0, 0, 0)
@@ -144,7 +144,7 @@ class Camera:
         self._hcam_contrast = 0
         self._hcam_hue = 0
         self._hcam_saturation = 128
-        self._hcam_brightness = 0
+        self._hcam_brightness = 0 # Note set to 16
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
 
