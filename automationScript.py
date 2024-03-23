@@ -18,6 +18,7 @@ class Arduino:
         self._IS_CONNECTED = False
         self._error_box = QWidget()
 
+        self.current_shift_length = 3
         self._SHIFT_LENGTH_CHANGE = 0.1  # Increment to change shift length (mm) 
 
         try:
@@ -81,9 +82,7 @@ class Arduino:
         """
         if self._IS_CONNECTED:
 
-            current_shift_length = 3  # TODO: ask arduino for length
-
-            increments = current_shift_length - int(shift_length)
+            increments = self.current_shift_length - int(shift_length)
 
             if increments < 0:
                 for _ in range(abs(increments)):
@@ -97,6 +96,8 @@ class Arduino:
                     self._arduino.write(bytes('+',  'utf-8'))
                     print("+")
                     time.sleep(0.001)
+            
+            self.current_shift_length = shift_length
 
 
 
