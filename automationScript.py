@@ -82,16 +82,16 @@ class Arduino:
         """
         if self._IS_CONNECTED:
 
-            increments = self.current_shift_length - int(shift_length)
+            increments = int(shift_length) - self.current_shift_length
 
             if increments < 0:
-                for _ in range(abs(increments)):
+                for _ in range(abs(int(increments))):
                     # Decrements by _SHIFT_LENGTH_CHANGE each time
                     self._arduino.write(bytes('-',  'utf-8'))
                     print("-")
                     time.sleep(0.001)
             else:
-                for _ in range(increments):
+                for _ in range(int(increments)):
                     # Increments by _SHIFT_LENGTH_CHANGE each time
                     self._arduino.write(bytes('+',  'utf-8'))
                     print("+")
@@ -225,10 +225,11 @@ class Automation():
 
             while (self._IS_PAUSED and self.is_active()): pass
             if not self.is_active(): break
+            time.sleep(0.5)
             self.shift_sample()
-            time.sleep(1.5)
+            time.sleep(self._arduino.current_shift_length / 2.0)
         
-        time.sleep(1.5)
+        time.sleep(self._arduino.current_shift_length / 2.0)
         self.get_picture(image_name)
 
         self.change_status(False)
