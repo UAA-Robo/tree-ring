@@ -18,7 +18,7 @@ class Arduino:
         self._IS_CONNECTED = False
         self._error_box = QWidget()
 
-        self.current_shift_length = 3
+        self.current_shift_length = 30
         self._SHIFT_LENGTH_CHANGE = 0.1  # Increment to change shift length (mm) 
 
         try:
@@ -82,7 +82,7 @@ class Arduino:
         """
         if self._IS_CONNECTED:
 
-            increments = int(shift_length) - self.current_shift_length
+            increments = int(shift_length * 10) - self.current_shift_length
 
             if increments < 0:
                 for _ in range(abs(int(increments))):
@@ -97,7 +97,7 @@ class Arduino:
                     print("+")
                     time.sleep(0.001)
             
-            self.current_shift_length = shift_length
+            self.current_shift_length = shift_length * 10
 
 
 
@@ -212,7 +212,7 @@ class Automation():
 
         self.change_status(True)
 
-        motor_shifts_needed = int(core_length * 10  / (shift_length))
+        motor_shifts_needed = int(core_length * 10  / (shift_length)) + 1
         self._arduino.update_shift_length(shift_length)
 
         self._counter = 0
@@ -227,12 +227,12 @@ class Automation():
             if not self.is_active(): break
             time.sleep(0.5)
             self.shift_sample()
-            time.sleep(self._arduino.current_shift_length / 2.0)
+            time.sleep(self._arduino.current_shift_length / 20.0)
         
-        time.sleep(self._arduino.current_shift_length / 2.0)
+        time.sleep(self._arduino.current_shift_length / 20.0)
         self.get_picture(image_name)
-
         self.change_status(False)
+        print("Automation Stopped")
         self._status_message = "Automation Stopped."
 
 
