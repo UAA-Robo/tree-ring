@@ -11,8 +11,8 @@ bool IS_CLOCKWISE = true;
 bool IS_ACTIVE = false;
 
 int active_counter = 0;
-int rotate_amount = 1400;//1600; //steps per revolution for 200 pulses = 360 degree full cycle rotation
-int millimeters = 3;
+int rotate_amount = 161;//1600; //steps per revolution for 200 pulses = 360 degree full cycle rotation
+int millimeters = 30;
 int original_millimeters = millimeters;
 int actual_movement = rotate_amount * millimeters;
 
