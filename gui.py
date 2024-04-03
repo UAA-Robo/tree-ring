@@ -393,7 +393,7 @@ class GUI(QWidget):
             # self.width = 300
             # self.height = 200
             self.setFixedHeight(250)
-            self.setFixedWidth(200)
+            self.setFixedWidth(250)
             
             self.initUI()
 

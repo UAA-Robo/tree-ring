@@ -1,0 +1,22 @@
+brightness: 16
+contrast: 0
+exposure: 50
+gamma: 100
+hue: 0
+levelrange_high:
+- 255
+- 255
+- 255
+- 255
+levelrange_low:
+- 0
+- 0
+- 0
+- 0
+saturation: 128
+temp: 6503
+tint: 1000
+wbgain:
+- 0
+- 0
+- 0
