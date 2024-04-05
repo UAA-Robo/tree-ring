@@ -309,10 +309,8 @@ class Camera:
                 h, w, ch = rgbImage.shape
                 bytesPerLine = ch * w
                 img = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
-                print("TOOK IMAGE HERE")
         try:
             if img:
-                print("SAVED IMG HERE")
                 img.save(self._capture_dir)
         except IOError as e:
             print(e)
