@@ -211,14 +211,14 @@ class GUI(QWidget):
         # Create buttons
         self.start_stop_button = QPushButton(self)
         self.start_stop_button.setText("Start Automation")
-        self.right_grid.addWidget(self.start_stop_button, 3, 0, 1, 2, Qt.AlignHCenter)
+        self.right_grid.addWidget(self.start_stop_button, 3, 0, 1, 1, Qt.AlignHCenter)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
         )
 
         self.pause_play_button = QPushButton(self)
         self.pause_play_button.setText("Pause")
-        self.grid.addWidget(self.pause_play_button, 2, 0, 1, 1, Qt.AlignCenter)
+        self.right_grid.addWidget(self.pause_play_button, 3, 1, 1, 1, Qt.AlignCenter)
         self.pause_play_button.clicked.connect(
             lambda: self.pause_play()
         )
