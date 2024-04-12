@@ -272,11 +272,14 @@ class Camera:
 #     index 2:    680,    510
 # so, we can use put_Size(h, 1024, 768) or put_eSize(h, 1). Both have the same effect.
 
-    #* Takes still image
+    #* Takes still image triggers save
     def take_still_image(self) -> None:
-        print(self._hcam.get_StillResolution(0))
-        self._hcam.Snap(0) # Let's see if this works
-        # self.stream_enabled = False
+        if self._hcam and self._cam_type == camera_type.MICROSCOPE:
+            print(self._hcam.get_StillResolution(0))
+            self._hcam.Snap(0) # Triggers saving with callback
+            # self.stream_enabled = False
+        elif self._hcam and self._cam_type == camera_type.WEBCAM:
+            self.save_still_image()
 
     #* Save the still image
     def save_still_image(self) -> None:
@@ -298,15 +301,19 @@ class Camera:
                     (width * 24 + 31) // 32 * 4,
                     QImage.Format_RGB888,
                 )
-                try:
-                    if img is not None:
-                        img.save(self._capture_dir)
-                except IOError as e:
-                    print(e)
-        else:
-            ...
-        # Use self._hcam.PullStillImageV2(...)
-        # self.stream_enabled = True
+
+        elif  self._hcam and self._cam_type == camera_type.WEBCAM:
+            success, frame = self._hcam.read()
+            if success:
+                rgbImage = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                h, w, ch = rgbImage.shape
+                bytesPerLine = ch * w
+                img = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
+        try:
+            if img:
+                img.save(self._capture_dir)
+        except IOError as e:
+            print(e)
 
     #!! REMOVE METHOD BELOW
     def get_image(self) -> QImage:
