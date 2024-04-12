@@ -222,6 +222,7 @@ class Automation():
             if not self.is_active(): break
 
             self.get_picture(image_name)
+            time.sleep(1.0)
 
             while (self._IS_PAUSED and self.is_active()): pass
             if not self.is_active(): break
@@ -247,15 +248,24 @@ class Automation():
     #     if img is not None:
     #         img.save(f'{self._capture_dir}/{image_name}_{image_number}.jpg')
 
-    def get_picture(self, image_name:str):
+    def get_picture(self, image_name:str) -> None:
         """
         @brief    Tells the camera to take a picture.
+        @
         """
         self.check_capture_location()
         image_number = str(self._counter).zfill(3) # Add 0s in front so 3 digits long
         self._camera.set_capture_dir(f'{self._capture_dir}/{image_name}_{image_number}.png')
         self._camera.take_still_image()
-        time.sleep(1.0)
+        
+
+    @run_in_thread
+    def get_picture_in_thread(self, image_name:str):
+        """
+        @brief    Tells the camera to take a picture (runs in another thread)
+        """
+        self.get_picture(image_name)
+        self._status_message = "Image taken."
 
     def shift_sample(self):
         """

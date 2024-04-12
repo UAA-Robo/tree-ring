@@ -209,19 +209,28 @@ class GUI(QWidget):
 
 
         # Create buttons
+        self.single_picture_button = QPushButton(self)
+        self.single_picture_button.setText("Take Single Image")
+        self.right_grid.addWidget(self.single_picture_button, 3, 0, 1, 2)
+        self.single_picture_button.clicked.connect(
+            lambda: self.take_single_image()
+        )
+
         self.start_stop_button = QPushButton(self)
         self.start_stop_button.setText("Start Automation")
-        self.right_grid.addWidget(self.start_stop_button, 3, 0, 1, 1, Qt.AlignHCenter)
+        self.right_grid.addWidget(self.start_stop_button, 4, 0, 1, 1)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
         )
 
         self.pause_play_button = QPushButton(self)
         self.pause_play_button.setText("Pause")
-        self.right_grid.addWidget(self.pause_play_button, 3, 1, 1, 1, Qt.AlignCenter)
+        self.right_grid.addWidget(self.pause_play_button, 4, 1, 1, 1)
         self.pause_play_button.clicked.connect(
             lambda: self.pause_play()
         )
+
+
 
 
         # Start Video Thread
@@ -281,6 +290,13 @@ class GUI(QWidget):
         else:
             self.Automation.set_pause(True)
             self.pause_play_button.setText("Play")
+
+    def take_single_image(self) -> None:
+        """
+        @brief Takes single image, saving it in the specified directory.
+        """
+        self.set_directory()
+        self.Automation.get_picture_in_thread(self.image_name)
         
 
 
@@ -292,30 +308,30 @@ class GUI(QWidget):
         
 
         if not self.Automation.is_active(): # Pressed 'START'
-            try:
-                if sys.platform == 'win32': 
-                    open_folder = askdirectory()  
-                    if open_folder:
-                        self.Automation.set_capture_location(open_folder)
-                    else:
-                        # QMessageBox.warning(self, "Invalid capture directory", "
-                        #                     "Please select a capture directory.?", QMessageBox.Ok)
-                        raise InvalidFolderError("Please select a captures")
-                    print('Capture directory set to', self.Automation._capture_dir)
-                    print("Automation started!")
-                else:
-                    # Ask directory does not work on mac so sets to tree_ring_captures folder on desktop
-                    self.Automation.set_capture_location(os.path.expanduser(
-                        '~/Desktop/tree_ring_captures'))
-                self.Automation.start_automation(self.image_name, float(self.core_length), float(self.shift_length))
-
-            except InvalidFolderError as e:
-                QMessageBox.warning(self, "Invalid selection", e.msg, QMessageBox.Ok)
+            self.set_directory()
+            self.Automation.start_automation(self.image_name, float(self.core_length), float(self.shift_length))
         
         else: # Pressed 'STOP'
             print("Automation stopped")
             self.Automation.change_status(False)
 
+    def set_directory(self):
+        try:
+            if sys.platform == 'win32': 
+                open_folder = askdirectory()  
+                if open_folder:
+                    self.Automation.set_capture_location(open_folder)
+                else:
+                    raise InvalidFolderError("Please select a captures")
+                print('Capture directory set to', self.Automation._capture_dir)
+                print("Automation started!")
+            else:
+                # Ask directory does not work on mac so sets to tree_ring_captures folder on desktop
+                self.Automation.set_capture_location(os.path.expanduser(
+                    '~/Desktop/tree_ring_captures'))
+        except InvalidFolderError as e:
+            QMessageBox.warning(self, "Invalid selection", e.msg, QMessageBox.Ok)
+    
 
 
     def resizeEvent(self, event) -> None:
