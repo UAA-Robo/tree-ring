@@ -448,6 +448,12 @@ class GUI(QWidget):
             self.brightness_slider = QSlider(Qt.Orientation.Horizontal, self)
             self.sliders_grid.addWidget(self.brightness_slider, 5, 0, alignment=Qt.AlignRight)
             self.brightness_slider.valueChanged.connect(self.update_brightness_value)
+
+            self.sharpening_label = QLabel('Sharpening', self)
+            self.sliders_grid.addWidget(self.sharpening_label, 6, 0, alignment=Qt.AlignLeft)
+            self.sharpening_slider = QSlider(Qt.Orientation.Horizontal, self)
+            self.sliders_grid.addWidget(self.sharpening_slider, 6, 0, alignment=Qt.AlignRight)
+            self.sharpening_slider.valueChanged.connect(self.update_sharpening_value)
             
             self.temp_slider.setRange(2000, 15000)
             self.tint_slider.setRange(200, 2500)
@@ -455,6 +461,7 @@ class GUI(QWidget):
             self.hue_slider.setRange(-180, 180)
             self.saturation_slider.setRange(0, 255)
             self.brightness_slider.setRange(-64, 64)
+            self.sharpening_slider.setRange(0, 500)
 
             # Create buttons
             self.save_button = QPushButton(self)
@@ -480,7 +487,10 @@ class GUI(QWidget):
                         contrast_pos,
                         hue_pos,
                         sat_pos,
-                        brightness_pos
+                        brightness_pos,
+                        sharpening,
+                        linear,
+                        curve
                     ) = self._camera.get_slider_values()
                 except ValueError as e:
                     print(e)
@@ -489,13 +499,15 @@ class GUI(QWidget):
                     contrast_pos = 0
                     hue_pos = 0
                     sat_pos = 128
-                    brightness_pos = 0
+                    brightness_pos = 16
+                    sharpening = 500
                 if temp_pos is not None: self.temp_slider.setValue(temp_pos)
                 if tint_pos is not None: self.tint_slider.setValue(tint_pos)
                 if contrast_pos is not None: self.contrast_slider.setValue(contrast_pos)
                 if hue_pos is not None: self.hue_slider.setValue(hue_pos)
                 if sat_pos is not None: self.saturation_slider.setValue(sat_pos)
                 if brightness_pos is not None: self.brightness_slider.setValue(brightness_pos)
+                if sharpening is not None: self.sharpening_slider.setValue(sharpening)
     
         def update_temp_value(self, value: int):
             if not self.toggled: return
@@ -515,7 +527,10 @@ class GUI(QWidget):
         def update_brightness_value(self, value: int):
             if not self.toggled: return
             if value is not None: self._camera.set_camera_image_settings(brightness=value)
-
+        def update_sharpening_value(self, value: int):
+            if not self.toggled: return
+            if value is not None: self._camera.set_camera_image_settings(sharpening=value)
+        
         def save_configuration(self) -> None: self._camera.save_camera_settings()
 
         def reset_configuration(self) -> None:

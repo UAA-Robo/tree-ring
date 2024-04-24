@@ -140,6 +140,9 @@ class Camera:
 #   | Brightness               | -64~64        | 0                    |
 #   | Gamma                    | 20~180        | 100                  |
 #   | WBGain                   | -127~127      | 0                    |
+#   | Sharpening               | 0~500         | 0                    |
+#   | Linear Tone Mapping      | 1/0           | 1                    |
+#   | Curved Tone Mapping      | 2/1/0         | 2                    |
 #   '-----------------------------------------------------------------'
 
     def reset_camera_image_settings(self) -> None:
@@ -158,6 +161,9 @@ class Camera:
         self._hcam_brightness = 16 # Originally 0
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
+        self._hcam_sharpening = 500
+        self._hcam_linear = 0
+        self._hcam_curve = 1
 
     def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
         try:
@@ -175,6 +181,9 @@ class Camera:
                     self._hcam_brightness = settings['brightness']
                     self._hcam_gamma = settings['gamma']
                     self._hcam_wbgain = settings['wbgain']
+                    self._hcam_sharpening = settings['sharpening']
+                    self._hcam_linear = settings['linear']
+                    self._hcam_curve = settings['curve']
                 except yaml.YAMLError as e:
                     print('YAML ERROR >', e)
                 except OSError as e:
@@ -191,7 +200,10 @@ class Camera:
             self._hcam_contrast,
             self._hcam_hue,
             self._hcam_saturation,
-            self._hcam_brightness
+            self._hcam_brightness,
+            self._hcam_sharpening,
+            self._hcam_linear,
+            self._hcam_curve
         )
 
     def set_camera_image_settings(self, **kwargs) -> None:
@@ -212,6 +224,10 @@ class Camera:
          - gamma: The gamma value of the image (20 ~ 180).
          - wbgain: The white balance rgb-triplet of the image
                    (-127~127, -127~127, -127~127).
+         - sharpness: The amount of sharpness to use on the image (0~500).
+         - linear: Whether to use linear (...) or not (1/0).
+         - curve: Whether to use curve (...) or not (2/1/0).
+
         """
 
         if 'exposure' in kwargs:
@@ -250,6 +266,13 @@ class Camera:
                 kwargs.get('wbgain', '')[1],
                 kwargs.get('wbgain', '')[2]
             )
+        if 'sharpening' in kwargs:
+            self._hcam_sharpening = int(kwargs.get('sharpening', ''))
+        if 'linear' in kwargs:
+            self._hcam_linear = int(kwargs.get('linear', ''))
+        if 'curve' in kwargs:
+            self._hcam_curve = int(kwargs.get('curve', ''))
+
         if kwargs: print(kwargs)
         # print('setting temp', self._hcam_temp)
         # print('expo', self._hcam_exposure)
@@ -275,6 +298,9 @@ class Camera:
                 if self._hcam_saturation is not None: self._hcam.put_Saturation(self._hcam_saturation)
                 if self._hcam_brightness is not None: self._hcam.put_Brightness(self._hcam_brightness)
                 if self._hcam_gamma is not None: self._hcam.put_Gamma(self._hcam_gamma)
+                if self._hcam_sharpening is not None: self._hcam.put_Option(amcam.AMCAM_OPTION_SHARPENING, self._hcam_sharpening)
+                if self._hcam_linear is not None: self._hcam.put_Option(amcam.AMCAM_OPTION_LINEAR, self._hcam_linear)
+                if self._hcam_curve is not None: self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, self._hcam_curve)
                 #if self._hcam_wbgain is not None: self._hcam.put_WhiteBalanceGain(self._hcam_wbgain) ! Not implemented yet
             except amcam.HRESULTException as e:
                 print(e)
@@ -307,7 +333,10 @@ class Camera:
                 self._hcam_wbgain[0],
                 self._hcam_wbgain[1],
                 self._hcam_wbgain[2]
-            ]
+            ],
+            'sharpening': self._hcam_sharpening,
+            'linear': self._hcam_linear,
+            'curve': self._hcam_curve,
         }
         output = open("camera_configuration.yaml","w")
         yaml.dump(settings, output)
