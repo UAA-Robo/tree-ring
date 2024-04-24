@@ -1,6 +1,6 @@
 import sys, time, os
 import threading
-from PyQt5.QtWidgets import  QWidget, QLabel, QSlider, QApplication, QPushButton, QGridLayout, QLineEdit,\
+from PyQt5.QtWidgets import  QWidget, QLabel, QCheckBox, QSlider, QApplication, QPushButton, QGridLayout, QLineEdit,\
 QMessageBox
 from PyQt5.QtCore import QThread, Qt, pyqtSignal, pyqtSlot
 from PyQt5.QtGui import QCloseEvent, QImage, QPixmap, QFont
@@ -226,7 +226,7 @@ class GUI(QWidget):
         
         self.options_button = QPushButton(self)
         self.options_button.setText("Adjust Camera Options")
-        self.right_grid.addWidget(self.options_button, 4, 0, 1, 2, Qt.AlignHCenter)
+        self.right_grid.addWidget(self.options_button, 5, 0, 1, 2, Qt.AlignHCenter)
         self.options_button.clicked.connect(
             lambda: self.open_camera_options_widget()
         )
@@ -307,6 +307,9 @@ class GUI(QWidget):
         self.set_directory()
         self.Automation.get_picture_in_thread(self.image_name)
         
+    def open_camera_options_widget(self) -> None:
+        self.camera_options_widget = self.CameraOptionsGUI(self.camera, self.stylesheet)
+        self.camera_options_widget.launch_dialog()
 
 
     def start_stop_automation(self) -> None:
@@ -468,6 +471,12 @@ class GUI(QWidget):
             self.sliders_grid.addWidget(self.sharpening_slider, 6, 0, alignment=Qt.AlignRight)
             self.sharpening_slider.valueChanged.connect(self.update_sharpening_value)
             
+            self.linear_label = QLabel('Linear TM', self)
+            self.sliders_grid.addWidget(self.linear_label, 7, 0, alignment=Qt.AlignLeft)
+            self.linear_cb = QCheckBox(self)
+            self.sliders_grid.addWidget(self.linear_cb, 7, 0, alignment=Qt.AlignRight)
+            self.linear_cb.stateChanged.connect(self.update_linear_value)
+
             self.temp_slider.setRange(2000, 15000)
             self.tint_slider.setRange(200, 2500)
             self.contrast_slider.setRange(-100, 100)
@@ -521,7 +530,10 @@ class GUI(QWidget):
                 if sat_pos is not None: self.saturation_slider.setValue(sat_pos)
                 if brightness_pos is not None: self.brightness_slider.setValue(brightness_pos)
                 if sharpening is not None: self.sharpening_slider.setValue(sharpening)
-    
+                if linear is not None:
+                    if linear == 1: self.linear_cb.setChecked(True)
+                    else: self.linear_cb.setChecked(False)
+
         def update_temp_value(self, value: int):
             if not self.toggled: return
             if value is not None: self._camera.set_camera_image_settings(temp=value)
@@ -543,7 +555,11 @@ class GUI(QWidget):
         def update_sharpening_value(self, value: int):
             if not self.toggled: return
             if value is not None: self._camera.set_camera_image_settings(sharpening=value)
-        
+        def update_linear_value(self, value: int):
+            if not self.toggled: return
+            if self.linear_cb.isChecked(): self._camera.set_camera_image_settings(linear=1)
+            if not self.linear_cb.isChecked(): self._camera.set_camera_image_settings(linear=0)
+
         def save_configuration(self) -> None: self._camera.save_camera_settings()
 
         def reset_configuration(self) -> None:
