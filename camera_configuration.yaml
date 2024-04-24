@@ -1,5 +1,6 @@
 brightness: 16
 contrast: 0
+curve: 1
 exposure: 50
 gamma: 100
 hue: 0
@@ -13,7 +14,9 @@ levelrange_low:
 - 0
 - 0
 - 0
+linear: 0
 saturation: 128
+sharpening: 500
 temp: 6503
 tint: 1000
 wbgain:
