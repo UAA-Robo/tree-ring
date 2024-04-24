@@ -18,10 +18,14 @@ class Arduino:
         self._IS_CONNECTED = False
         self._error_box = QWidget()
 
+        self.current_shift_length = 30
         self._SHIFT_LENGTH_CHANGE = 0.1  # Increment to change shift length (mm) 
 
         try:
             self._IS_CONNECTED = self.connect_to_arduino()
+                
+            if self._IS_CONNECTED:
+                self._arduino.write(bytes('R',  'utf-8'))
         except Exception as e:
             QMessageBox.critical(self._error_box, "Error Encountered",
                                 e.msg, QMessageBox.Ok)
@@ -65,7 +69,7 @@ class Arduino:
         """
         if self._IS_CONNECTED:
             self._arduino.write(bytes('L',  'utf-8'))
-            self._arduino.write(bytes('R',  'utf-8'))
+            self._arduino.write(bytes('M',  'utf-8'))
             time.sleep(1)
 
             # while(self.arduino.readline() != 'AntiClockwise'): 
@@ -78,22 +82,22 @@ class Arduino:
         """
         if self._IS_CONNECTED:
 
-            current_shift_length = 3  # TODO: ask arduino for length
-
-            increments = int((shift_length -current_shift_length) / self._SHIFT_LENGTH_CHANGE)
+            increments = int(shift_length * 10) - self.current_shift_length
 
             if increments < 0:
-                for _ in range(abs(increments)):
+                for _ in range(abs(int(increments))):
                     # Decrements by _SHIFT_LENGTH_CHANGE each time
                     self._arduino.write(bytes('-',  'utf-8'))
                     print("-")
                     time.sleep(0.001)
             else:
-                for _ in range(increments):
+                for _ in range(int(increments)):
                     # Increments by _SHIFT_LENGTH_CHANGE each time
                     self._arduino.write(bytes('+',  'utf-8'))
                     print("+")
                     time.sleep(0.001)
+            
+            self.current_shift_length = shift_length * 10
 
 
 
@@ -208,7 +212,7 @@ class Automation():
 
         self.change_status(True)
 
-        motor_shifts_needed = int(core_length * 10  / (shift_length))
+        motor_shifts_needed = int(core_length * 10  / (shift_length)) + 1
         self._arduino.update_shift_length(shift_length)
 
         self._counter = 0
@@ -216,27 +220,52 @@ class Automation():
             self._status_message = f"Automation Started...  Shifting {self._counter} / {motor_shifts_needed} time(s) by  {shift_length} mm"
             while (self._IS_PAUSED and self.is_active()): pass
             if not self.is_active(): break
-            self.get_picture(image_name)
 
-            time.sleep(1)
+            self.get_picture(image_name)
+            time.sleep(1.0)
+
             while (self._IS_PAUSED and self.is_active()): pass
             if not self.is_active(): break
+            time.sleep(0.5)
             self.shift_sample()
+            time.sleep(self._arduino.current_shift_length / 20.0)
+        
+        time.sleep(self._arduino.current_shift_length / 20.0)
+        self.get_picture(image_name)
         self.change_status(False)
+        print("Automation Stopped")
         self._status_message = "Automation Stopped."
 
 
-    def get_picture(self, image_name:str):
+    # def get_picture(self, image_name:str):
+    #     """
+    #     @brief    Gets and Stores the image from the camera
+    #     """
+    #     self.check_capture_location()
+    #     img = self._camera.get_image()
+
+    #     image_number = str(self._counter).zfill(3) # Add 0s in front so 3 digits long
+    #     if img is not None:
+    #         img.save(f'{self._capture_dir}/{image_name}_{image_number}.jpg')
+
+    def get_picture(self, image_name:str) -> None:
         """
-        @brief    Gets and Stores the image from the camera
+        @brief    Tells the camera to take a picture.
+        @
         """
         self.check_capture_location()
-        img = self._camera.get_image()
-
         image_number = str(self._counter).zfill(3) # Add 0s in front so 3 digits long
-        if img is not None:
-            img.save(f'{self._capture_dir}/{image_name}_{image_number}.jpg')
+        self._camera.set_capture_dir(f'{self._capture_dir}/{image_name}_{image_number}.png')
+        self._camera.take_still_image()
+        
 
+    @run_in_thread
+    def get_picture_in_thread(self, image_name:str):
+        """
+        @brief    Tells the camera to take a picture (runs in another thread)
+        """
+        self.get_picture(image_name)
+        self._status_message = "Image taken."
 
     def shift_sample(self):
         """
