@@ -255,7 +255,7 @@ class Automation():
         """
         self.check_capture_location()
         image_number = str(self._counter).zfill(3) # Add 0s in front so 3 digits long
-        self._camera.set_capture_dir(f'{self._capture_dir}/{image_name}_{image_number}.png')
+        self._camera.set_capture_dir(f'{self._capture_dir}/{image_name}_{image_number}.{self._camera.get_image_file_format()}')
         self._camera.take_still_image()
         
 

@@ -164,13 +164,14 @@ class Camera:
         self._hcam_level_range_high = (255, 255, 255, 255)
         self._hcam_contrast = 0
         self._hcam_hue = 0
-        self._hcam_saturation = 128
+        self._hcam_saturation = 96 # Originally 128
         self._hcam_brightness = 16 # Originally 0
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
         self._hcam_sharpening = 500
         self._hcam_linear = 0
         self._hcam_curve = 1
+        self._hcam_image_file_format = 'png'
 
     def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
         try:
@@ -191,6 +192,7 @@ class Camera:
                     self._hcam_sharpening = settings['sharpening']
                     self._hcam_linear = settings['linear']
                     self._hcam_curve = settings['curve']
+                    self._hcam_image_file_format = settings['fformat']
                 except yaml.YAMLError as e:
                     print('YAML ERROR >', e)
                 except OSError as e:
@@ -210,7 +212,8 @@ class Camera:
             self._hcam_brightness,
             self._hcam_sharpening,
             self._hcam_linear,
-            self._hcam_curve
+            self._hcam_curve,
+            self._hcam_image_file_format,
         )
 
     def set_camera_image_settings(self, **kwargs) -> None:
@@ -234,6 +237,7 @@ class Camera:
          - sharpness: The amount of sharpness to use on the image (0~500).
          - linear: Whether to use linear (...) or not (1/0).
          - curve: Whether to use curve (...) or not (2/1/0).
+         - fformat: The image file format to save as (png/jpg).
 
         """
 
@@ -279,6 +283,8 @@ class Camera:
             self._hcam_linear = int(kwargs.get('linear', ''))
         if 'curve' in kwargs:
             self._hcam_curve = int(kwargs.get('curve', ''))
+        if 'fformat' in kwargs:
+            self._hcam_image_file_format = kwargs.get('fformat', '')
 
         if kwargs: print(kwargs)
         # print('setting temp', self._hcam_temp)
@@ -344,6 +350,7 @@ class Camera:
             'sharpening': self._hcam_sharpening,
             'linear': self._hcam_linear,
             'curve': self._hcam_curve,
+            'fformat': self._hcam_image_file_format,
         }
         output = open("camera_configuration.yaml","w")
         yaml.dump(settings, output)
@@ -450,6 +457,11 @@ class Camera:
         @return Returns a QImage from the camera.
         """
         return self._image
+    
+    def get_image_file_format(self) -> str:
+
+        
+        return self._hcam_image_file_format
 
     def close(self) -> None:
         """
