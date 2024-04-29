@@ -477,7 +477,7 @@ class CameraOptionsGUI(QWidget):
         self.sliders_grid.addWidget(self.fformat_label, 0, 0, alignment=Qt.AlignLeft)
         # self.fformat_dropdown = FileFormatComboBox(self.update_fformat_value)
         self.fformat_dropdown = QComboBox(self)
-        self.fformat_dropdown.addItems(('png', 'jpg'))
+        self.fformat_dropdown.addItems(('jpeg', 'tiff', 'png'))
         self.fformat_dropdown.currentIndexChanged.connect(self.update_fformat_value)
         self.fformat_dropdown.setStyleSheet(
             '''
@@ -586,8 +586,9 @@ class CameraOptionsGUI(QWidget):
                 brightness_pos = 16
                 sharpening = 500
             if fformat is not None:
-                if fformat == 'png': self.fformat_dropdown.setCurrentIndex(0)
-                elif fformat == 'jpg': self.fformat_dropdown.setCurrentIndex(1)
+                if fformat == 'jpeg': self.fformat_dropdown.setCurrentIndex(0)
+                elif fformat == 'tiff': self.fformat_dropdown.setCurrentIndex(1)
+                elif fformat == 'png': self.fformat_dropdown.setCurrentIndex(2)
                 else: self.fformat_dropdown.setCurrentIndex(0)
             if temp_pos is not None: self.temp_slider.set_value(temp_pos)
             if tint_pos is not None: self.tint_slider.set_value(tint_pos)
@@ -607,7 +608,7 @@ class CameraOptionsGUI(QWidget):
 
     def update_fformat_value(self, value: int):
         if not self.toggled: return
-        if value is not None: self._camera.set_camera_image_settings(fformat=('png', 'jpg')[value])
+        if value is not None: self._camera.set_camera_image_settings(fformat=('jpeg', 'tiff', 'png')[value])
     def update_temp_value(self, value: int):
         if not self.toggled: return
         if value is not None: self._camera.set_camera_image_settings(temp=value)

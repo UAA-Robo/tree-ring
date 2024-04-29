@@ -2,7 +2,7 @@ brightness: 16
 contrast: 0
 curve: Polynomial
 exposure: 50
-fformat: png
+fformat: jpeg
 gamma: 100
 hue: 0
 levelrange_high:
@@ -17,7 +17,7 @@ levelrange_low:
 - 0
 linear: 0
 saturation: 96
-sharpening: 500
+sharpening: 300
 temp: 6503
 tint: 1000
 wbgain:

@@ -171,7 +171,7 @@ class Camera:
         self._hcam_sharpening = 500
         self._hcam_linear = 0
         self._hcam_curve = 'Polynomial'
-        self._hcam_image_file_format = 'png'
+        self._hcam_image_file_format = 'jpeg'
 
     def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
         try:
@@ -449,7 +449,7 @@ class Camera:
                 img = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
         try:
             if img:
-                img.save(self._capture_dir)
+                img.save(self._capture_dir, format=self.get_image_file_format())
         except IOError as e:
             print(e)
 
