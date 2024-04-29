@@ -42,7 +42,7 @@ class Camera:
         self._image = None
         self._cam_type = camera_type.UNKNOWN
         # self.stream_enabled = True
-        self._capture_dir = ""
+        self._capture_path = ""
         # self.error_box = QWidget()
         self._runtime = 0
         try:
@@ -157,20 +157,20 @@ class Camera:
         @brief Resets the camera's image settings back to default values. To apply changes to the
             camera one must invoke `set_camera_image_settings()` with no arguments.
         """
-        self._hcam_exposure = 50 # Originally 120
+        self._hcam_exposure = 120 # Optimal is 50
         self._hcam_temp = 6503
         self._hcam_tint = 1000
         self._hcam_level_range_low = (0, 0, 0, 0)
         self._hcam_level_range_high = (255, 255, 255, 255)
         self._hcam_contrast = 0
         self._hcam_hue = 0
-        self._hcam_saturation = 96 # Originally 128
-        self._hcam_brightness = 16 # Originally 0
+        self._hcam_saturation = 128 # Optimal is 96
+        self._hcam_brightness = 0 # Optimal is 16
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
-        self._hcam_sharpening = 500
-        self._hcam_linear = 0
-        self._hcam_curve = 'Polynomial'
+        self._hcam_sharpening = 0 # Optimal is 300
+        self._hcam_linear = 1 # Optimal is 0
+        self._hcam_curve = 'Logarithmic' # Optimal is Polynomial
         self._hcam_image_file_format = 'jpeg'
 
     def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
@@ -219,6 +219,7 @@ class Camera:
     def set_camera_image_settings(self, **kwargs) -> None:
         """
         @brief Modifies the microscope camera's image settings.
+
         @kwargs
          - exposure: The auto exposure target (16 ~ 235).
          - temp: The temperature value of the image (2000 ~ 15000).
@@ -287,18 +288,6 @@ class Camera:
             self._hcam_image_file_format = kwargs.get('fformat', '')
 
         if kwargs: print(kwargs)
-        # print('setting temp', self._hcam_temp)
-        # print('expo', self._hcam_exposure)
-        # print('temp', self._hcam_temp)
-        # print('tint', self._hcam_tint)
-        # print('levelrangelow', self._hcam_level_range_low)
-        # print('levelrangehigh', self._hcam_level_range_high)
-        # print('contrast', self._hcam_contrast)
-        # print('hue', self._hcam_hue)
-        # print('saturation', self._hcam_saturation)
-        # print('brightness', self._hcam_brightness)
-        # print('gamma', self._hcam_gamma)
-        # print('wbgain', self._hcam_wbgain)
         if self._runtime % 2 == 0:
             try:
                 if self._hcam_exposure is not None: self._hcam.put_AutoExpoTarget(self._hcam_exposure)
@@ -324,6 +313,7 @@ class Camera:
                 print(e)
         
     def save_camera_settings(self):
+        """Saves the current camera settings to a file."""
         settings: dict = {
             'exposure': self._hcam_exposure,
             'temp': self._hcam_temp,
@@ -361,15 +351,10 @@ class Camera:
 
     @staticmethod
     def camera_callback(event, _self: 'Camera'):
-        # print(_self._hcam.get_Resolution(0))
         if event == amcam.AMCAM_EVENT_STILLIMAGE:
-            print("Got still image!")
             _self.save_still_image() # Save still image!
         elif event == amcam.AMCAM_EVENT_IMAGE:
-            # print("streaming!")
             _self.stream()
-            # else: print("ignoring stream")
-            # pass
         elif event == amcam.AMCAM_EVENT_EXPO_START:
             print("DEBUG> Found expo start!")
         
@@ -378,9 +363,7 @@ class Camera:
     def type(self) -> camera_type: return self._cam_type
 
     def stream(self) -> None:
-        """
-        @brief Streams the image received by the camera in real time.
-        """
+        """Streams the image received by the camera in real time."""
 
         # Use Microscope camera
         if self._hcam and self._cam_type == camera_type.MICROSCOPE:
@@ -400,8 +383,14 @@ class Camera:
                 bytesPerLine = ch * w
                 self._image = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
 
-    def set_capture_dir(self, path:str) -> None:
-        self._capture_dir = path
+    def set_capture_path(self, path:str) -> None:
+        """
+        @brief Sets the camera's capture path for the next image.
+        
+        @param path The path to the file.
+
+        """
+        self._capture_path = path
 
 # nResolutionIndex is a resolution supported by the camera.
 # For example, UCMOS03100KPA supports the following resolutions:
@@ -412,6 +401,7 @@ class Camera:
 
     #* Takes still image triggers save
     def take_still_image(self) -> None:
+        """Takes a still image or saves an image from the webcam if the microscope is not available."""
         if self._hcam and self._cam_type == camera_type.MICROSCOPE:
             print(self._hcam.get_StillResolution(0))
             self._hcam.Snap(0) # Triggers saving with callback
@@ -421,6 +411,7 @@ class Camera:
 
     #* Save the still image
     def save_still_image(self) -> None:
+        """Saves the captured still image to the directory stored in the camera."""
         if self._hcam and self._cam_type == camera_type.MICROSCOPE:
             width = 2592
             height = 1944
@@ -449,27 +440,24 @@ class Camera:
                 img = QImage(rgbImage.data, w, h, bytesPerLine, QImage.Format_RGB888)
         try:
             if img:
-                img.save(self._capture_dir, format=self.get_image_file_format())
+                img.save(self._capture_path, format=self.get_image_file_format())
         except IOError as e:
             print(e)
 
-    #!! REMOVE METHOD BELOW
     def get_image(self) -> QImage:
         """
         @brief Takes an image from the camera to store.
+        
         @return Returns a QImage from the camera.
+
         """
         return self._image
     
-    def get_image_file_format(self) -> str:
-
-        
+    def get_image_file_format(self) -> str:        
         return self._hcam_image_file_format
 
     def close(self) -> None:
-        """
-        @brief Closes the camera.
-        """
+        """Closes the camera."""
         if self._hcam is not None and self._cam_type == camera_type.MICROSCOPE:
             self._hcam.Close() # Amcam camera close method
         elif self._hcam is not None and self._cam_type == camera_type.WEBCAM:

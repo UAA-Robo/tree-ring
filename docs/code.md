@@ -14,6 +14,10 @@ Then the user can start the automation program  in the Automation class. On Wind
 
 TODO: ADD picture of GUI
 
+### Camera Options
+
+Pressing the **Advanced Camera Options** button will open a new window that allows the user to adjust camera video and save options. Pressing **Save** will save them to a file called `camera_configuration.yaml` in the directory where the program is located. By default, the program loads the settings from this file on startup. Pressing **Reset** will reset any changes back to this file, or if it is missing, the defaults. The default settings are not optimal, so if the original configuration file is lost, go to [this link](troubleshooting/optimal_settings.md) to get the original file.
+
 ## Automation 
 * automationScript.py
 
@@ -31,10 +35,10 @@ The Arduino Class is a wrapper for the commands sent to the Arduino. The Arduino
 * /win (windows drivers)
 
 
-The Camera class holds all properties for the camera and wraps all interactions with it. When the program begins and initializes the Camera, a callback method is loaded into the Amcam API. The Amcam API controls the camera, and by manipulating the contents of this callback method, we can choose to act on the events being sent from the camera (in this case we use `AMCAM_EVENT_IMAGE`). The microscope image quality is left as default in all settings but the saturation, which is adjusted to around 37.6% of its range (96 / 255).
+The Camera class holds all properties for the camera and wraps all interactions with it. When the program begins and initializes the Camera, a callback method is loaded into the Amcam API. The Amcam API controls the camera, and by manipulating the contents of this callback method, we can choose to act on the events being sent from the camera (in this case we use `AMCAM_EVENT_IMAGE` and `AMCAM_EVENT_STILLIMAGE). The microscope image quality is left as default in all settings but the saturation, which is adjusted to around 37.6% of its range (96 / 255).
 
 ### Using the Microscope Camera
-The Amcam camera starts its own thread, seen by `StartPullModeWithCallback()` in `connect_stream`, and runs the callback method first loaded in the init method. From then on, the camera runs asynchronously to the main thread, calling the static method, `camera_callback`. This callback pulls the camera's image into a byte array, converts it to a QImage, and saves it in the class for extraction by the program later.
+The Amcam camera starts its own thread, seen by `StartPullModeWithCallback()` in `connect_stream`, and runs the callback method first loaded in the init method. From then on, the camera runs asynchronously to the main thread, calling the static method, `camera_callback`. This callback pulls the camera's image into a byte array, converts it to a QImage, and saves it in the class for extraction by the program later. When an image is taken, the camera pauses the preview to take a still image (a full-resolution picture). The callback waits for a signal from the camera that it is done before saving the image to the specified directory.
 
 ### No Microscope Camera
 If the microscope camera could not be loaded in the first place, the **cv2** library is used to load the next available camera (called `WEBCAM` in the camera type). In this case the Amcam API is not running its own thread, so instead of using the callback method, `connect_stream` starts a new thread for streaming from this camera, paralleling the Amcam API's behavior.
