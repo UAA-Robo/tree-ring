@@ -7,7 +7,7 @@ from PIL import Image
 import cv2
 import threading
 
-# Code borrowed from https://stackoverflow.com/questions/44404349/pyqt-showing-video-stream-from-opencv
+# Some code borrowed from https://stackoverflow.com/questions/44404349/pyqt-showing-video-stream-from-opencv
 
 class camera_type(enum.Enum):
     """Class for containing the different types of cameras the program may interact with."""
@@ -41,26 +41,12 @@ class Camera:
         self._cam_name = ''
         self._image = None
         self._cam_type = camera_type.UNKNOWN
-        # self.stream_enabled = True
         self._capture_path = ""
-        # self.error_box = QWidget()
         self._runtime = 0
         try:
             self.load_camera()
         except Exception as e:
             print(e)
-        
-        # self._hcam_exposure = None
-        # self._hcam_temp = None
-        # self._hcam_tint = None
-        # self._hcam_level_range_low = None
-        # self._hcam_level_range_high = None
-        # self._hcam_contrast = None
-        # self._hcam_hue = None
-        # self._hcam_saturation = None
-        # self._hcam_brightness = None
-        # self._hcam_gamma = None
-        # self._hcam_wbgain = None
 
 
     def is_microscope(self) -> bool:
@@ -75,14 +61,12 @@ class Camera:
     def load_camera(self) -> None:
         available_cameras = amcam.Amcam.EnumV2()
         if len(available_cameras) <= 0:
-            # raise CriticalCameraError("Microscope camera not connected")
             print("No microscope found, defaulting to webcam...")
             self._cam_type = camera_type.WEBCAM
             self._cam_name = 'Webcam'
             starttime = time.time()
             self._hcam = cv2.VideoCapture(0)
             print(f"Webcam took {(time.time() - starttime):.2f} seconds to open.")
-            # raise WarningCameraError("Microscope camera not connected, \ndefaulting to next camera")
 
         else:
             self._cam_name = available_cameras[0].displayname
@@ -111,16 +95,9 @@ class Camera:
             try:
                 print('loading microscope')
                 self.reset_camera_image_settings()
-                # self.set_camera_image_settings(saturation=0.3764705882352941) # Reduces yellow image quality
-                self.set_camera_image_settings(saturation=96)
                 self.load_camera_image_settings()
                 self.set_camera_image_settings()
                 self._hcam.StartPullModeWithCallback(self.camera_callback, self)
-                # self._hcam.put_Option(amcam.AMCAM_OPTION_SHARPENING, 500)
-                # self._hcam.put_Option(amcam.AMCAM_OPTION_DENOISE, 100)
-                self._hcam.put_Option(amcam.AMCAM_OPTION_LINEAR, 0)
-                # self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, 1)
-                # self._hcam.put_Option(amcam.AMCAM_OPTION_DEMOSAIC, 2)
 
             except amcam.HRESULTException as e: print(e)
 
@@ -352,7 +329,7 @@ class Camera:
     @staticmethod
     def camera_callback(event, _self: 'Camera'):
         if event == amcam.AMCAM_EVENT_STILLIMAGE:
-            _self.save_still_image() # Save still image!
+            _self.save_still_image()
         elif event == amcam.AMCAM_EVENT_IMAGE:
             _self.stream()
         elif event == amcam.AMCAM_EVENT_EXPO_START:
@@ -399,17 +376,14 @@ class Camera:
 #     index 2:    680,    510
 # so, we can use put_Size(h, 1024, 768) or put_eSize(h, 1). Both have the same effect.
 
-    #* Takes still image triggers save
     def take_still_image(self) -> None:
         """Takes a still image or saves an image from the webcam if the microscope is not available."""
         if self._hcam and self._cam_type == camera_type.MICROSCOPE:
             print(self._hcam.get_StillResolution(0))
             self._hcam.Snap(0) # Triggers saving with callback
-            # self.stream_enabled = False
         elif self._hcam and self._cam_type == camera_type.WEBCAM:
             self.save_still_image()
 
-    #* Save the still image
     def save_still_image(self) -> None:
         """Saves the captured still image to the directory stored in the camera."""
         if self._hcam and self._cam_type == camera_type.MICROSCOPE:
@@ -422,7 +396,6 @@ class Camera:
                 self._hcam.PullStillImageV2(buf, 24, None)
             except amcam.HRESULTException as e: print(e)
             else:
-                # width, height = self._hcam.get_Size()
                 img = QImage(
                     buf,
                     width,
