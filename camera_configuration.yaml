@@ -1,6 +1,6 @@
 brightness: 16
 contrast: 0
-curve: 1
+curve: Polynomial
 exposure: 50
 fformat: png
 gamma: 100

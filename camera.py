@@ -116,10 +116,10 @@ class Camera:
                 self.load_camera_image_settings()
                 self.set_camera_image_settings()
                 self._hcam.StartPullModeWithCallback(self.camera_callback, self)
-                self._hcam.put_Option(amcam.AMCAM_OPTION_SHARPENING, 500)
+                # self._hcam.put_Option(amcam.AMCAM_OPTION_SHARPENING, 500)
                 # self._hcam.put_Option(amcam.AMCAM_OPTION_DENOISE, 100)
                 self._hcam.put_Option(amcam.AMCAM_OPTION_LINEAR, 0)
-                self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, 1)
+                # self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, 1)
                 # self._hcam.put_Option(amcam.AMCAM_OPTION_DEMOSAIC, 2)
 
             except amcam.HRESULTException as e: print(e)
@@ -149,7 +149,7 @@ class Camera:
 #   | WBGain                   | -127~127      | 0                    |
 #   | Sharpening               | 0~500         | 0                    |
 #   | Linear Tone Mapping      | 1/0           | 1                    |
-#   | Curved Tone Mapping      | 2/1/0         | 2                    |
+#   | Curved Tone Mapping      | Log/Pol/Off   | 2 (Logarithmic)      |
 #   '-----------------------------------------------------------------'
 
     def reset_camera_image_settings(self) -> None:
@@ -170,7 +170,7 @@ class Camera:
         self._hcam_wbgain = (0, 0, 0)
         self._hcam_sharpening = 500
         self._hcam_linear = 0
-        self._hcam_curve = 1
+        self._hcam_curve = 'Polynomial'
         self._hcam_image_file_format = 'png'
 
     def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
@@ -282,7 +282,7 @@ class Camera:
         if 'linear' in kwargs:
             self._hcam_linear = int(kwargs.get('linear', ''))
         if 'curve' in kwargs:
-            self._hcam_curve = int(kwargs.get('curve', ''))
+            self._hcam_curve = kwargs.get('curve', '')
         if 'fformat' in kwargs:
             self._hcam_image_file_format = kwargs.get('fformat', '')
 
@@ -313,7 +313,10 @@ class Camera:
                 if self._hcam_gamma is not None: self._hcam.put_Gamma(self._hcam_gamma)
                 if self._hcam_sharpening is not None: self._hcam.put_Option(amcam.AMCAM_OPTION_SHARPENING, self._hcam_sharpening)
                 if self._hcam_linear is not None: self._hcam.put_Option(amcam.AMCAM_OPTION_LINEAR, self._hcam_linear)
-                if self._hcam_curve is not None: self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, self._hcam_curve)
+                if self._hcam_curve is not None:
+                    if self._hcam_curve == 'Off': self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, 0)
+                    if self._hcam_curve == 'Polynomial': self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, 1)
+                    if self._hcam_curve == 'Logarithmic': self._hcam.put_Option(amcam.AMCAM_OPTION_CURVE, 2)
                 #if self._hcam_wbgain is not None: self._hcam.put_WhiteBalanceGain(self._hcam_wbgain) ! Not implemented yet
             except amcam.HRESULTException as e:
                 print(e)

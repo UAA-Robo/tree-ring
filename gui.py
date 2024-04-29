@@ -452,7 +452,7 @@ class CameraOptionsGUI(QWidget):
         # self.top = 100
         # self.width = 300
         # self.height = 200
-        self.setFixedHeight(450)
+        self.setFixedHeight(500)
         self.setFixedWidth(300)
         
         self.initUI()
@@ -530,6 +530,22 @@ class CameraOptionsGUI(QWidget):
         self.sliders_grid.addWidget(self.linear_cb, 8, 0, alignment=Qt.AlignRight)
         self.linear_cb.stateChanged.connect(self.update_linear_value)
 
+        self.curve_label = QLabel('Curve TM', self)
+        self.sliders_grid.addWidget(self.curve_label, 9, 0, alignment=Qt.AlignLeft)
+        self.curve_dropdown = QComboBox(self)
+        self.curve_dropdown.addItems(('Off', 'Polynomial', 'Logarithmic'))
+        self.curve_dropdown.currentIndexChanged.connect(self.update_curve_value)
+        self.curve_dropdown.setStyleSheet(
+            '''
+            QWidget {
+                background-color: white;
+                font-size: 11pt;
+            }
+            '''
+        )
+        self.sliders_grid.addWidget(self.curve_dropdown, 9, 0, alignment=Qt.AlignRight)
+
+
         # Create buttons
         self.save_button = QPushButton(self)
         self.save_button.setText("Save")
@@ -583,6 +599,11 @@ class CameraOptionsGUI(QWidget):
             if linear is not None:
                 if linear == 1: self.linear_cb.setChecked(True)
                 else: self.linear_cb.setChecked(False)
+            if curve is not None:
+                if curve == 'Off': self.curve_dropdown.setCurrentIndex(0)
+                elif curve == 'Polynomial': self.curve_dropdown.setCurrentIndex(1)
+                elif curve == 'Logarithmic': self.curve_dropdown.setCurrentIndex(2)
+                else: self.curve_dropdown.setCurrentIndex(0)
 
     def update_fformat_value(self, value: int):
         if not self.toggled: return
@@ -612,6 +633,10 @@ class CameraOptionsGUI(QWidget):
         if not self.toggled: return
         if self.linear_cb.isChecked(): self._camera.set_camera_image_settings(linear=1)
         if not self.linear_cb.isChecked(): self._camera.set_camera_image_settings(linear=0)
+
+    def update_curve_value(self, value: int):
+        if not self.toggled: return
+        if value is not None: self._camera.set_camera_image_settings(curve=('Off', 'Polynomial', 'Logarithmic')[value])
 
     def save_configuration(self) -> None: self._camera.save_camera_settings()
 
