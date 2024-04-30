@@ -1,4 +1,6 @@
 captures/
 build/
+venv/
+__pycache__/
 *.spec
 PCB_files/CustomPCB-backups/
