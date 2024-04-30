@@ -91,12 +91,12 @@ class Camera:
         """
         @brief Starts the camera's stream.
         """
+        self.reset_camera_image_settings()
+        self.load_camera_image_settings()
+        self.set_camera_image_settings()
         if self._cam_type == camera_type.MICROSCOPE:
             try:
                 print('loading microscope')
-                self.reset_camera_image_settings()
-                self.load_camera_image_settings()
-                self.set_camera_image_settings()
                 self._hcam.StartPullModeWithCallback(self.camera_callback, self)
 
             except amcam.HRESULTException as e: print(e)
@@ -134,20 +134,20 @@ class Camera:
         @brief Resets the camera's image settings back to default values. To apply changes to the
             camera one must invoke `set_camera_image_settings()` with no arguments.
         """
-        self._hcam_exposure = 120 # Optimal is 50
+        self._hcam_exposure = 50 # Optimal is 50
         self._hcam_temp = 6503
         self._hcam_tint = 1000
         self._hcam_level_range_low = (0, 0, 0, 0)
         self._hcam_level_range_high = (255, 255, 255, 255)
         self._hcam_contrast = 0
         self._hcam_hue = 0
-        self._hcam_saturation = 128 # Optimal is 96
-        self._hcam_brightness = 0 # Optimal is 16
+        self._hcam_saturation = 96 # Optimal is 96
+        self._hcam_brightness = 16 # Optimal is 16
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
-        self._hcam_sharpening = 0 # Optimal is 300
-        self._hcam_linear = 1 # Optimal is 0
-        self._hcam_curve = 'Logarithmic' # Optimal is Polynomial
+        self._hcam_sharpening = 300 # Optimal is 300
+        self._hcam_linear = 0 # Optimal is 0
+        self._hcam_curve = 'Polynomial' # Optimal is Polynomial
         self._hcam_image_file_format = 'jpeg'
 
     def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
@@ -218,6 +218,7 @@ class Camera:
          - fformat: The image file format to save as (png/jpg).
 
         """
+        if not self.is_microscope(): return
 
         if 'exposure' in kwargs:
             self._hcam_exposure = kwargs.get('exposure', '')
