@@ -78,6 +78,7 @@ class GUI(QWidget):
         
         self.image_name = "tree-core"  # Default value
         self.capture_path = self.capture_path = os.path.expanduser('~/Desktop')  # Default to desktop
+        self.initial_image_number = 0
                 
         self.core_length = "20"  # Default value (cm)
         self.shift_length = "3"  # Default value (mm)
@@ -214,38 +215,45 @@ class GUI(QWidget):
         self.right_grid.addWidget(self.image_name_textbox, 2, 1, Qt.AlignLeft)
         self.image_name_textbox.textChanged.connect(self.on_image_name_change)
 
-
+        # Create initial image name number
+        self.image_number_label = QLabel('Initial Image Number:', self)
+        self.right_grid.addWidget(self.image_number_label, 3, 0, Qt.AlignRight)
+        self.image_number_textbox = QLineEdit(self)
+        self.image_number_textbox.setText(str(self.initial_image_number))
+        self.image_number_textbox.setFixedWidth(100)
+        self.right_grid.addWidget(self.image_number_textbox, 3, 1, Qt.AlignLeft)
+        self.image_number_textbox.textChanged.connect(self.on_image_number_change) 
 
         # Create core length input
         self.core_input_label = QLabel('Core Length (cm):', self)
-        self.right_grid.addWidget(self.core_input_label, 3, 0, Qt.AlignRight)
+        self.right_grid.addWidget(self.core_input_label, 4, 0, Qt.AlignRight)
         self.core_input_textbox = QLineEdit(self)
         self.core_input_textbox.setText(str(self.core_length))
         self.core_input_textbox.setFixedWidth(50)
-        self.right_grid.addWidget(self.core_input_textbox, 3, 1, Qt.AlignLeft)
+        self.right_grid.addWidget(self.core_input_textbox, 4, 1, Qt.AlignLeft)
         self.core_input_textbox.textChanged.connect(self.on_core_input_change)
 
         # Create shift length input
         self.shift_input_label = QLabel('Shift Length (mm):', self)
-        self.right_grid.addWidget(self.shift_input_label, 4, 0, Qt.AlignRight)
+        self.right_grid.addWidget(self.shift_input_label, 5, 0, Qt.AlignRight)
         self.shift_input_textbox = QLineEdit(self)
         self.shift_input_textbox.setText(str(self.shift_length))
         self.shift_input_textbox.setFixedWidth(50)
-        self.right_grid.addWidget(self.shift_input_textbox, 4, 1, Qt.AlignLeft)
+        self.right_grid.addWidget(self.shift_input_textbox, 5, 1, Qt.AlignLeft)
         self.shift_input_textbox.textChanged.connect(self.on_shift_input_change)
 
 
         # Create Automation buttons
         self.single_picture_button = QPushButton(self)
         self.single_picture_button.setText("Take Single Image")
-        self.right_grid.addWidget(self.single_picture_button, 5, 0, 1, 2)
+        self.right_grid.addWidget(self.single_picture_button, 6, 0, 1, 2)
         self.single_picture_button.clicked.connect(
             lambda: self.take_single_image()
         )
 
         self.start_stop_button = QPushButton(self)
         self.start_stop_button.setText("Start Automation")
-        self.right_grid.addWidget(self.start_stop_button, 6, 0, 1, 1)
+        self.right_grid.addWidget(self.start_stop_button, 7, 0, 1, 1)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
         )
@@ -253,13 +261,13 @@ class GUI(QWidget):
 
         self.pause_play_button = QPushButton(self)
         self.pause_play_button.setText("Pause")
-        self.right_grid.addWidget(self.pause_play_button, 6, 1, 1, 1)
+        self.right_grid.addWidget(self.pause_play_button, 7, 1, 1, 1)
         self.pause_play_button.clicked.connect(
             lambda: self.pause_play()
         )
         self.options_button = QPushButton(self)
         self.options_button.setText("Adjust Camera Options")
-        self.right_grid.addWidget(self.options_button, 7, 0, 1, 2)
+        self.right_grid.addWidget(self.options_button, 8, 0, 1, 2)
         self.options_button.clicked.connect(
             lambda: self.open_camera_options_widget()
         )
@@ -294,6 +302,17 @@ class GUI(QWidget):
         self.image_name = text
         self.set_directory()
         print(f"New image name input: {text}")
+
+    def on_image_number_change(self, text: str) -> None:
+        """
+        @brief Called every time the text in the image_number_textbox changes.
+        @param text Contains the new text.
+        """
+
+        self.initial_image_number = text
+        self.Automation.set_counter_value(self.initial_image_number)
+        print(f"New image name number: {text}")
+        
 
     def on_core_input_change(self, text: str) -> None:
         """
@@ -346,6 +365,7 @@ class GUI(QWidget):
 
         if not self.Automation.is_active(): # Pressed 'START'
             #self.set_directory()
+            self.Automation.set_counter_value(self.initial_image_number)
             self.Automation.start_automation(self.image_name, float(self.core_length), float(self.shift_length))
         
         else: # Pressed 'STOP'
@@ -362,7 +382,8 @@ class GUI(QWidget):
             # Does not work on mac
             if sys.platform == 'win32': 
                 self.capture_path = askdirectory()  
-            self.set_directory()
+            if  self.capture_path:
+                self.set_directory()
         except InvalidFolderError as e:
             QMessageBox.warning(self, "Invalid selection", e.msg, QMessageBox.Ok)
 

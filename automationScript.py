@@ -110,6 +110,7 @@ class Automation():
         self._camera = camera
         self._arduino = Arduino()
         self._counter = 0
+        self._image_counter = 0
         self._capture_dir = "tree_core"
         self._status = False
         self._last_status = False
@@ -168,7 +169,17 @@ class Automation():
         @return Return status as string
         """
         return self._status_message
-
+    
+    def set_counter_value(self, number:str) -> None:
+        """
+        @brief Sets capture location.
+        @param file_path Path to set as capture location.
+        """
+        if isinstance(number, str) and not number.isdecimal():
+            self._image_counter = 1
+        else:
+            self._image_counter = int(number)
+            
     def set_capture_location(self, file_path: str) -> None: 
         """
         @brief Sets capture location.
@@ -235,6 +246,7 @@ class Automation():
             time.sleep(0.5)
             self.shift_sample()
             time.sleep(self._arduino.current_shift_length / 20.0)
+            self._image_counter += 1
         
         time.sleep(self._arduino.current_shift_length / 20.0)
         self.get_picture(image_name)
@@ -249,7 +261,7 @@ class Automation():
         @
         """
         self.check_capture_location()
-        image_number = str(self._counter).zfill(3) # Add 0s in front so 3 digits long
+        image_number = str(self._image_counter).zfill(4) # Add 0s in front so 4 digits long
         self._camera.set_capture_path(f'{self._capture_dir}/{image_name}_{image_number}.{self._camera.get_image_file_format()}')
         self._camera.take_still_image()
         
