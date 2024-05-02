@@ -499,6 +499,12 @@ class CameraOptionsGUI(QWidget):
             border-radius: 5px;
             padding: 5px;
         }
+        QPushButton:hover {
+            color: black;
+            background-color: white;
+            border-radius: 5px;
+            padding: 5px;
+        }
         QLineEdit {
             border: none;
             color: white;
