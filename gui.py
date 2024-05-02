@@ -70,19 +70,24 @@ class GUI(QWidget):
         @brief This is the main GUI class.
         """
         super().__init__()
-        self.title = 'Tree Ring Grabber Nabber'
+        self.title = 'T.R.I.M.'
         self.left = 100
         self.top = 100
         self.width = 640
         self.height = 480
         
-        self.image_name = "Tree_Core"  # Default value
+        self.image_name = "tree-core"  # Default value
+        self.capture_path = self.capture_path = os.path.expanduser('~/Desktop')  # Default to desktop
+        self.initial_image_number = 0
+                
         self.core_length = "20"  # Default value (cm)
         self.shift_length = "3"  # Default value (mm)
         
 
         self.video_width = 640
         self.video_height = 480
+
+        
         try:
             self.camera = Camera()
         except CriticalIOError as e:
@@ -150,6 +155,12 @@ class GUI(QWidget):
                 border-radius: 5px;
                 padding: 5px;
             }
+            QPushButton:hover {
+                color: black;
+                background-color: white;
+                border-radius: 5px;
+                padding: 5px;
+            }
             QLineEdit {
                 border: none;
                 color: white;
@@ -181,64 +192,85 @@ class GUI(QWidget):
         self.message_label = QLabel(self)
         self.grid.addWidget(self.message_label, 2, 1, 1, 5, Qt.AlignCenter)
 
+        # Create Image Path Selection Button
+        self.path_button = QPushButton(self)
+        self.path_button.setText("Set Image Path")
+        self.right_grid.addWidget(self.path_button, 0, 0, 1, 2)
+        self.path_button.clicked.connect(
+            lambda: self.choose_directory()
+        )
+
+        # Create Path Name
+        self.path_label = QLabel(self)
+        self.right_grid.addWidget(self.path_label, 1, 0, 1, 2 )
+
+        self.set_directory()
+
         # Create image name input
-        self.image_name_label = QLabel('Image/Core name', self)
-        self.right_grid.addWidget(self.image_name_label, 0,0, Qt.AlignRight)
+        self.image_name_label = QLabel('Image/Core Name/Directory:', self)
+        self.right_grid.addWidget(self.image_name_label, 2, 0, Qt.AlignRight)
         self.image_name_textbox = QLineEdit(self)
         self.image_name_textbox.setText(str(self.image_name))
         self.image_name_textbox.setFixedWidth(100)
-        self.right_grid.addWidget(self.image_name_textbox, 0, 1, Qt.AlignLeft)
+        self.right_grid.addWidget(self.image_name_textbox, 2, 1, Qt.AlignLeft)
         self.image_name_textbox.textChanged.connect(self.on_image_name_change)
 
+        # Create initial image name number
+        self.image_number_label = QLabel('Initial Image Number:', self)
+        self.right_grid.addWidget(self.image_number_label, 3, 0, Qt.AlignRight)
+        self.image_number_textbox = QLineEdit(self)
+        self.image_number_textbox.setText(str(self.initial_image_number))
+        self.image_number_textbox.setFixedWidth(100)
+        self.right_grid.addWidget(self.image_number_textbox, 3, 1, Qt.AlignLeft)
+        self.image_number_textbox.textChanged.connect(self.on_image_number_change) 
+
         # Create core length input
-        self.core_input_label = QLabel('Core Length (cm)', self)
-        self.right_grid.addWidget(self.core_input_label, 1, 0, Qt.AlignRight)
+        self.core_input_label = QLabel('Core Length (cm):', self)
+        self.right_grid.addWidget(self.core_input_label, 4, 0, Qt.AlignRight)
         self.core_input_textbox = QLineEdit(self)
         self.core_input_textbox.setText(str(self.core_length))
         self.core_input_textbox.setFixedWidth(50)
-        self.right_grid.addWidget(self.core_input_textbox, 1, 1, Qt.AlignLeft)
+        self.right_grid.addWidget(self.core_input_textbox, 4, 1, Qt.AlignLeft)
         self.core_input_textbox.textChanged.connect(self.on_core_input_change)
 
         # Create shift length input
-        self.shift_input_label = QLabel('Shift Length (mm)', self)
-        self.right_grid.addWidget(self.shift_input_label, 2,0, Qt.AlignRight)
+        self.shift_input_label = QLabel('Shift Length (mm):', self)
+        self.right_grid.addWidget(self.shift_input_label, 5, 0, Qt.AlignRight)
         self.shift_input_textbox = QLineEdit(self)
         self.shift_input_textbox.setText(str(self.shift_length))
         self.shift_input_textbox.setFixedWidth(50)
-        self.right_grid.addWidget(self.shift_input_textbox, 2, 1, Qt.AlignLeft)
+        self.right_grid.addWidget(self.shift_input_textbox, 5, 1, Qt.AlignLeft)
         self.shift_input_textbox.textChanged.connect(self.on_shift_input_change)
 
 
-        # Create buttons
+        # Create Automation buttons
         self.single_picture_button = QPushButton(self)
         self.single_picture_button.setText("Take Single Image")
-        self.right_grid.addWidget(self.single_picture_button, 3, 0, 1, 2)
+        self.right_grid.addWidget(self.single_picture_button, 6, 0, 1, 2)
         self.single_picture_button.clicked.connect(
             lambda: self.take_single_image()
         )
 
         self.start_stop_button = QPushButton(self)
         self.start_stop_button.setText("Start Automation")
-        self.right_grid.addWidget(self.start_stop_button, 4, 0, 1, 1)
+        self.right_grid.addWidget(self.start_stop_button, 7, 0, 1, 1)
         self.start_stop_button.clicked.connect(
             lambda: self.start_stop_automation()
         )
         
-        self.options_button = QPushButton(self)
-        self.options_button.setText("Adjust Camera Options")
-        self.right_grid.addWidget(self.options_button, 5, 0, 1, 2, Qt.AlignHCenter)
-        self.options_button.clicked.connect(
-            lambda: self.open_camera_options_widget()
-        )
 
         self.pause_play_button = QPushButton(self)
         self.pause_play_button.setText("Pause")
-        self.right_grid.addWidget(self.pause_play_button, 4, 1, 1, 1)
+        self.right_grid.addWidget(self.pause_play_button, 7, 1, 1, 1)
         self.pause_play_button.clicked.connect(
             lambda: self.pause_play()
         )
-
-
+        self.options_button = QPushButton(self)
+        self.options_button.setText("Adjust Camera Options")
+        self.right_grid.addWidget(self.options_button, 8, 0, 1, 2)
+        self.options_button.clicked.connect(
+            lambda: self.open_camera_options_widget()
+        )
 
 
         # Start Video Thread
@@ -268,12 +300,24 @@ class GUI(QWidget):
         """
 
         self.image_name = text
+        self.set_directory()
         print(f"New image name input: {text}")
+
+    def on_image_number_change(self, text: str) -> None:
+        """
+        @brief Called every time the text in the image_number_textbox changes.
+        @param text Contains the new text.
+        """
+
+        self.initial_image_number = text
+        self.Automation.set_counter_value(self.initial_image_number)
+        print(f"New image name number: {text}")
+        
 
     def on_core_input_change(self, text: str) -> None:
         """
         @brief Called every time the text in the core_input_textbox changes.
-        @param text Contains the new text.
+        @param text Contains the new text.F
         """
 
         self.core_length = text
@@ -304,7 +348,7 @@ class GUI(QWidget):
         """
         @brief Takes single image, saving it in the specified directory.
         """
-        self.set_directory()
+        #self.set_directory()
         self.Automation.get_picture_in_thread(self.image_name)
         
     def open_camera_options_widget(self) -> None:
@@ -320,29 +364,42 @@ class GUI(QWidget):
         
 
         if not self.Automation.is_active(): # Pressed 'START'
-            self.set_directory()
+            #self.set_directory()
+            self.Automation.set_counter_value(self.initial_image_number)
             self.Automation.start_automation(self.image_name, float(self.core_length), float(self.shift_length))
         
         else: # Pressed 'STOP'
             print("Automation stopped")
             self.Automation.change_status(False)
 
-    def set_directory(self):
+    def choose_directory(self):
+        """
+        @brief Called when the start/stop button is pressed. On windows when the start button
+            is pressed, a dialog prompt asks the user to enter a directory to save images.
+        """
+       
         try:
+            # Does not work on mac
             if sys.platform == 'win32': 
-                open_folder = askdirectory()  
-                if open_folder:
-                    self.Automation.set_capture_location(open_folder)
-                else:
-                    raise InvalidFolderError("Please select a captures")
-                print('Capture directory set to', self.Automation._capture_dir)
-                print("Automation started!")
-            else:
-                # Ask directory does not work on mac so sets to tree_ring_captures folder on desktop
-                self.Automation.set_capture_location(os.path.expanduser(
-                    '~/Desktop/tree_ring_captures'))
+                self.capture_path = askdirectory()  
+            if  self.capture_path:
+                self.set_directory()
         except InvalidFolderError as e:
             QMessageBox.warning(self, "Invalid selection", e.msg, QMessageBox.Ok)
+
+
+    def set_directory(self):
+        """
+        @brief Sets the directory in the automation script with the root path and the tree core image name
+            as the folder.
+        """
+
+        full_path = self.capture_path + f"/{self.image_name}" # Folder with image name added to improve automation
+        self.Automation.set_capture_location(full_path)
+        self.path_label.setText(f"Image Path: {full_path}")
+
+                  
+
     
 
 
@@ -442,16 +499,19 @@ class CameraOptionsGUI(QWidget):
             border-radius: 5px;
             padding: 5px;
         }
+        QPushButton:hover {
+            color: black;
+            background-color: white;
+            border-radius: 5px;
+            padding: 5px;
+        }
         QLineEdit {
             border: none;
             color: white;
             border-bottom: 1px solid white;  
         }
     """
-        # self.left = 100
-        # self.top = 100
-        # self.width = 300
-        # self.height = 200
+
         self.setFixedHeight(500)
         self.setFixedWidth(300)
         
@@ -465,7 +525,7 @@ class CameraOptionsGUI(QWidget):
     def initUI(self) -> None:
         self.setStyleSheet(self.stylesheet)
         self.grid = QGridLayout(self)
-        # self.grid.setSpacing(0)
+
         self.sliders_side = QWidget()
         self.buttons_bottom = QWidget()
         self.sliders_grid = QGridLayout(self.sliders_side)
@@ -475,7 +535,7 @@ class CameraOptionsGUI(QWidget):
 
         self.fformat_label = QLabel('File Format', self)
         self.sliders_grid.addWidget(self.fformat_label, 0, 0, alignment=Qt.AlignLeft)
-        # self.fformat_dropdown = FileFormatComboBox(self.update_fformat_value)
+
         self.fformat_dropdown = QComboBox(self)
         self.fformat_dropdown.addItems(('jpeg', 'tiff', 'png'))
         self.fformat_dropdown.currentIndexChanged.connect(self.update_fformat_value)
@@ -668,7 +728,6 @@ if __name__ == '__main__':
     try:
         app = QApplication(sys.argv)
         win = GUI()
-        # win.show() TODO: Check this
         sys.exit(app.exec_())
     except CriticalIOError as e:
         QMessageBox.critical(None, "Error encountered", e.msg, QMessageBox.Ok)
