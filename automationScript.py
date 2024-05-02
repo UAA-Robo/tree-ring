@@ -72,8 +72,6 @@ class Arduino:
             self._arduino.write(bytes('M',  'utf-8'))
             time.sleep(1)
 
-            # while(self.arduino.readline() != 'AntiClockwise'): 
-            #     pass
     
     def update_shift_length(self, shift_length: float) -> None:
         """
@@ -178,7 +176,14 @@ class Automation():
         """
 
         self._capture_dir = file_path
-        self.check_capture_location()
+
+    def get_capture_location(self) -> str: 
+        """
+        @brief Gets capture location.
+        @return Capture Location
+        """
+
+        return self._capture_dir
 
     def check_capture_location(self) -> None:
         """
@@ -214,6 +219,7 @@ class Automation():
 
         motor_shifts_needed = int(core_length * 10  / (shift_length)) + 1
         self._arduino.update_shift_length(shift_length)
+        self.check_capture_location()
 
         self._counter = 0
         for self._counter in range(motor_shifts_needed):
@@ -236,17 +242,6 @@ class Automation():
         print("Automation Stopped")
         self._status_message = "Automation Stopped."
 
-
-    # def get_picture(self, image_name:str):
-    #     """
-    #     @brief    Gets and Stores the image from the camera
-    #     """
-    #     self.check_capture_location()
-    #     img = self._camera.get_image()
-
-    #     image_number = str(self._counter).zfill(3) # Add 0s in front so 3 digits long
-    #     if img is not None:
-    #         img.save(f'{self._capture_dir}/{image_name}_{image_number}.jpg')
 
     def get_picture(self, image_name:str) -> None:
         """
