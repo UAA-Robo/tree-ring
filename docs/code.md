@@ -16,7 +16,7 @@ TODO: ADD picture of GUI
 
 ### Camera Options
 
-Pressing the **Advanced Camera Options** button will open a new window that allows the user to adjust camera video and save options. Pressing **Save** will save them to a file called `camera_configuration.yaml` in the directory where the program is located. By default, the program loads the settings from this file on startup. Pressing **Reset** will reset any changes back to this file, or if it is missing, the defaults. The default settings are not optimal, so if the original configuration file is lost, go to [this link](troubleshooting/optimal_settings.md) to get the original file.
+Pressing the **Advanced Camera Options** button will open a new window that allows the user to adjust camera video and save options. Pressing **Save** will save them to a file called `camera_configuration.yaml` in the directory where the program is located. By default, the program loads the settings from this file on startup. Pressing **Reset** will reset any changes back to this file, or if it is missing, the optimal settings. If you need the actual default settings in the API or a copy of the optimal settings file, go to [this link](troubleshooting/optimal_settings.md) to get the original file.
 
 ## Automation 
 * automationScript.py

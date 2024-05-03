@@ -15,7 +15,7 @@ The camera has a number of defaults for its image settings. However, through tes
 | Brightness             | -64~64    |  0       |  16       |
 | Gamma                  | 20~180    |  100     |  100      |
 | WBGain                 | -127~127 x 3   |  (0,0,0)       |  (0,0,0)       |
-| Sharpening             | 0~500     |  0       |  300      |
+| Sharpening             | 0~500     |  0       |  500      |
 | Linear Tone Mapping    | 1/0       |  1       |  0        |
 | Curved Tone Mapping    | 2/1/0     |  2 (Logarithmic)     |  1 (Polynomial)      |
 
@@ -43,7 +43,7 @@ levelrange_low:
 - 0
 linear: 0
 saturation: 96
-sharpening: 300
+sharpening: 500
 temp: 6503
 tint: 1000
 wbgain:
