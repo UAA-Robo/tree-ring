@@ -145,7 +145,7 @@ class Camera:
         self._hcam_brightness = 16 # Optimal is 16
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
-        self._hcam_sharpening = 300 # Optimal is 300
+        self._hcam_sharpening = 500 # Optimal is 500
         self._hcam_linear = 0 # Optimal is 0
         self._hcam_curve = 'Polynomial' # Optimal is Polynomial
         self._hcam_image_file_format = 'jpeg'
