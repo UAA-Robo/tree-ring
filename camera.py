@@ -134,21 +134,21 @@ class Camera:
         @brief Resets the camera's image settings back to default values. To apply changes to the
             camera one must invoke `set_camera_image_settings()` with no arguments.
         """
-        self._hcam_exposure = 50 # Optimal is 50
-        self._hcam_temp = 6503
-        self._hcam_tint = 1000
+        self._hcam_exposure = 120 # Optimal is 120
+        self._hcam_temp = 11616
+        self._hcam_tint = 925
         self._hcam_level_range_low = (0, 0, 0, 0)
         self._hcam_level_range_high = (255, 255, 255, 255)
         self._hcam_contrast = 0
         self._hcam_hue = 0
-        self._hcam_saturation = 96 # Optimal is 96
-        self._hcam_brightness = 16 # Optimal is 16
+        self._hcam_saturation = 126 # Optimal is 126
+        self._hcam_brightness = -64 # Optimal is -64
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
         self._hcam_sharpening = 500 # Optimal is 500
         self._hcam_linear = 0 # Optimal is 0
         self._hcam_curve = 'Polynomial' # Optimal is Polynomial
-        self._hcam_image_file_format = 'jpeg'
+        self._hcam_image_file_format = 'jpg'
 
     def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
         try:
@@ -181,6 +181,7 @@ class Camera:
     def get_slider_values(self) -> tuple:
         # if not self.is_microscope(): raise ValueError("Could not load camera settings")
         return (
+            self._hcam_exposure,
             self._hcam_temp,
             self._hcam_tint,
             self._hcam_contrast,

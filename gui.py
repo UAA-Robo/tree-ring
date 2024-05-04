@@ -31,7 +31,7 @@ class video_stream_thread(QThread):
             if image:
                 scaled_image = image.scaled(640, 480, Qt.KeepAspectRatio)
                 self.change_image.emit(scaled_image)
-            time.sleep(0.0001)  # Required to be slower than camera
+            time.sleep(0.01)  # Required to be slower than camera
 
 class automation_listening_thread(QThread):
     def __init__(self, automation: Automation) -> None:
@@ -512,7 +512,7 @@ class CameraOptionsGUI(QWidget):
         }
     """
 
-        self.setFixedHeight(500)
+        self.setFixedHeight(550)
         self.setFixedWidth(300)
         
         self.initUI()
@@ -537,7 +537,7 @@ class CameraOptionsGUI(QWidget):
         self.sliders_grid.addWidget(self.fformat_label, 0, 0, alignment=Qt.AlignLeft)
 
         self.fformat_dropdown = QComboBox(self)
-        self.fformat_dropdown.addItems(('jpeg', 'tiff', 'png'))
+        self.fformat_dropdown.addItems(('jpg', 'jpeg', 'tif', 'tiff', 'png'))
         self.fformat_dropdown.currentIndexChanged.connect(self.update_fformat_value)
         self.fformat_dropdown.setStyleSheet(
             '''
@@ -554,44 +554,49 @@ class CameraOptionsGUI(QWidget):
         self.temp_slider = Slider(self.update_temp_value, 2000, 15000, 5)
         self.sliders_grid.addWidget(self.temp_slider, 1, 0, alignment=Qt.AlignRight)
 
+        self.expo_label = QLabel('Exposure', self)
+        self.sliders_grid.addWidget(self.expo_label, 2, 0, alignment=Qt.AlignLeft)
+        self.expo_slider = Slider(self.update_expo_value, 16, 235, 1)
+        self.sliders_grid.addWidget(self.expo_slider, 2, 0, alignment=Qt.AlignRight)
+
         self.tint_label = QLabel('Tint', self)
-        self.sliders_grid.addWidget(self.tint_label, 2, 0, alignment=Qt.AlignLeft)
+        self.sliders_grid.addWidget(self.tint_label, 3, 0, alignment=Qt.AlignLeft)
         self.tint_slider = Slider(self.update_tint_value, 200, 2500, 2)
-        self.sliders_grid.addWidget(self.tint_slider, 2, 0, alignment=Qt.AlignRight)
+        self.sliders_grid.addWidget(self.tint_slider, 3, 0, alignment=Qt.AlignRight)
 
         self.contrast_label = QLabel('Contrast', self)
-        self.sliders_grid.addWidget(self.contrast_label, 3, 0, alignment=Qt.AlignLeft)
+        self.sliders_grid.addWidget(self.contrast_label, 4, 0, alignment=Qt.AlignLeft)
         self.contrast_slider = Slider(self.update_contrast_value, -100, 100, 1)
-        self.sliders_grid.addWidget(self.contrast_slider, 3, 0, alignment=Qt.AlignRight)
+        self.sliders_grid.addWidget(self.contrast_slider, 4, 0, alignment=Qt.AlignRight)
 
         self.hue_label = QLabel('Hue', self)
-        self.sliders_grid.addWidget(self.hue_label, 4, 0, alignment=Qt.AlignLeft)
+        self.sliders_grid.addWidget(self.hue_label, 5, 0, alignment=Qt.AlignLeft)
         self.hue_slider = Slider(self.update_hue_value, -180, 180, 1)
-        self.sliders_grid.addWidget(self.hue_slider, 4, 0, alignment=Qt.AlignRight)
+        self.sliders_grid.addWidget(self.hue_slider, 5, 0, alignment=Qt.AlignRight)
 
         self.saturation_label = QLabel('Saturation', self)
-        self.sliders_grid.addWidget(self.saturation_label, 5, 0, alignment=Qt.AlignLeft)
+        self.sliders_grid.addWidget(self.saturation_label, 6, 0, alignment=Qt.AlignLeft)
         self.saturation_slider = Slider(self.update_saturation_value, 0, 255, 1)
-        self.sliders_grid.addWidget(self.saturation_slider, 5, 0, alignment=Qt.AlignRight)
+        self.sliders_grid.addWidget(self.saturation_slider, 6, 0, alignment=Qt.AlignRight)
 
         self.brightness_label = QLabel('Brightness', self)
-        self.sliders_grid.addWidget(self.brightness_label, 6, 0, alignment=Qt.AlignLeft)
+        self.sliders_grid.addWidget(self.brightness_label, 7, 0, alignment=Qt.AlignLeft)
         self.brightness_slider = Slider(self.update_brightness_value, -64, 64, 1)
-        self.sliders_grid.addWidget(self.brightness_slider, 6, 0, alignment=Qt.AlignRight)
+        self.sliders_grid.addWidget(self.brightness_slider, 7, 0, alignment=Qt.AlignRight)
 
         self.sharpening_label = QLabel('Sharpening', self)
-        self.sliders_grid.addWidget(self.sharpening_label, 7, 0, alignment=Qt.AlignLeft)
+        self.sliders_grid.addWidget(self.sharpening_label, 8, 0, alignment=Qt.AlignLeft)
         self.sharpening_slider = Slider(self.update_sharpening_value, 0, 500, 2)
-        self.sliders_grid.addWidget(self.sharpening_slider, 7, 0, alignment=Qt.AlignRight)
+        self.sliders_grid.addWidget(self.sharpening_slider, 8, 0, alignment=Qt.AlignRight)
         
         self.linear_label = QLabel('Linear TM', self)
-        self.sliders_grid.addWidget(self.linear_label, 8, 0, alignment=Qt.AlignLeft)
+        self.sliders_grid.addWidget(self.linear_label, 9, 0, alignment=Qt.AlignLeft)
         self.linear_cb = QCheckBox(self)
-        self.sliders_grid.addWidget(self.linear_cb, 8, 0, alignment=Qt.AlignRight)
+        self.sliders_grid.addWidget(self.linear_cb, 9, 0, alignment=Qt.AlignRight)
         self.linear_cb.stateChanged.connect(self.update_linear_value)
 
         self.curve_label = QLabel('Curve TM', self)
-        self.sliders_grid.addWidget(self.curve_label, 9, 0, alignment=Qt.AlignLeft)
+        self.sliders_grid.addWidget(self.curve_label, 10, 0, alignment=Qt.AlignLeft)
         self.curve_dropdown = QComboBox(self)
         self.curve_dropdown.addItems(('Off', 'Polynomial', 'Logarithmic'))
         self.curve_dropdown.currentIndexChanged.connect(self.update_curve_value)
@@ -603,7 +608,7 @@ class CameraOptionsGUI(QWidget):
             }
             '''
         )
-        self.sliders_grid.addWidget(self.curve_dropdown, 9, 0, alignment=Qt.AlignRight)
+        self.sliders_grid.addWidget(self.curve_dropdown, 10, 0, alignment=Qt.AlignRight)
 
 
         # Create buttons
@@ -625,6 +630,7 @@ class CameraOptionsGUI(QWidget):
         if self.toggled:
             try:
                 (
+                    expo_pos,
                     temp_pos,
                     tint_pos,
                     contrast_pos,
@@ -638,6 +644,7 @@ class CameraOptionsGUI(QWidget):
                 ) = self._camera.get_slider_values()
             except ValueError as e:
                 print(e)
+                expo_pos = 50
                 temp_pos = 6503
                 tint_pos = 1000
                 contrast_pos = 0
@@ -646,11 +653,14 @@ class CameraOptionsGUI(QWidget):
                 brightness_pos = 16
                 sharpening = 500
             if fformat is not None:
-                if fformat == 'jpeg': self.fformat_dropdown.setCurrentIndex(0)
-                elif fformat == 'tiff': self.fformat_dropdown.setCurrentIndex(1)
-                elif fformat == 'png': self.fformat_dropdown.setCurrentIndex(2)
+                if fformat == 'jpg': self.fformat_dropdown.setCurrentIndex(0)
+                if fformat == 'jpeg': self.fformat_dropdown.setCurrentIndex(1)
+                if fformat == 'tif': self.fformat_dropdown.setCurrentIndex(2)
+                elif fformat == 'tiff': self.fformat_dropdown.setCurrentIndex(3)
+                elif fformat == 'png': self.fformat_dropdown.setCurrentIndex(4)
                 else: self.fformat_dropdown.setCurrentIndex(0)
             if temp_pos is not None: self.temp_slider.set_value(temp_pos)
+            if expo_pos is not None: self.expo_slider.set_value(expo_pos)
             if tint_pos is not None: self.tint_slider.set_value(tint_pos)
             if contrast_pos is not None: self.contrast_slider.set_value(contrast_pos)
             if hue_pos is not None: self.hue_slider.set_value(hue_pos)
@@ -668,10 +678,13 @@ class CameraOptionsGUI(QWidget):
 
     def update_fformat_value(self, value: int):
         if not self.toggled: return
-        if value is not None: self._camera.set_camera_image_settings(fformat=('jpeg', 'tiff', 'png')[value])
+        if value is not None: self._camera.set_camera_image_settings(fformat=('jpg', 'jpeg', 'tif', 'tiff', 'png')[value])
     def update_temp_value(self, value: int):
         if not self.toggled: return
         if value is not None: self._camera.set_camera_image_settings(temp=value)
+    def update_expo_value(self, value: int):
+        if not self.toggled: return
+        if value is not None: self._camera.set_camera_image_settings(exposure=value)
     def update_tint_value(self, value: int):
         if not self.toggled: return
         if value is not None: self._camera.set_camera_image_settings(tint=value)
@@ -706,22 +719,6 @@ class CameraOptionsGUI(QWidget):
         self._camera.load_camera_image_settings()
         self._camera.set_camera_image_settings()
         self.load_default_slider_values()
-
-class FileFormatComboBox(QWidget):
-
-    def __init__(self, callback) -> None:
-        super(FileFormatComboBox, self).__init__(None)
-        self.callback = callback
-
-        layout = QHBoxLayout()
-        self.box = QComboBox()
-        self.box.addItems(('png', 'jpg'))
-        self.box.currentIndexChanged.connect(self.callback)
-        layout.addWidget(self.box)
-        self.setLayout(layout)
-    
-    def get_contents(self, idx: int):
-        return self.box.itemData(idx)
 
 
 if __name__ == '__main__':
