@@ -5,6 +5,7 @@ The camera has a number of defaults for its image settings. However, through tes
 
 | Camera Setting         | Range     | Default  | Optimal   |
 | ---------------------- | --------- | -------- | --------- |
+| Auto-Expo Enabled      | 1/0       |  1       |  0        |
 | Auto Exposure Target   |   16~235  |  120     |  120      |
 | Temperature            | 2000~15000|  6503    |  11616    |
 | Tint                   | 200~2500  |  1000    |  925      |
@@ -25,11 +26,12 @@ To configure the camera to the optimal settings, copy the following text block i
 
 **For a Leica KL 1500LCD light:**
 ```yaml
+auto_expo: 0
 brightness: 16
 contrast: 0
 curve: Polynomial
 exposure: 50
-fformat: jpg
+fformat: tiff
 gamma: 100
 hue: 0
 levelrange_high:
@@ -56,11 +58,12 @@ wbgain:
 
 **For a ring light:**
 ```yaml
+auto_expo: 0
 brightness: -64
 contrast: 0
 curve: Polynomial
 exposure: 120
-fformat: jpg
+fformat: tiff
 gamma: 100
 hue: 0
 levelrange_high:

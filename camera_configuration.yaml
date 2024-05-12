@@ -1,8 +1,9 @@
+auto_expo: 0
 brightness: -64
 contrast: 0
 curve: Polynomial
 exposure: 120
-fformat: jpg
+fformat: tif
 gamma: 100
 hue: 0
 levelrange_high:
