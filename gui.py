@@ -653,13 +653,13 @@ class CameraOptionsGUI(QWidget):
             except ValueError as e:
                 print(e)
                 auto_expo = 0
-                expo_pos = 50
-                temp_pos = 6503
-                tint_pos = 1000
+                expo_pos = 120
+                temp_pos = 11616
+                tint_pos = 925
                 contrast_pos = 0
                 hue_pos = 0
-                sat_pos = 128
-                brightness_pos = 16
+                sat_pos = 126
+                brightness_pos = -64
                 sharpening = 500
             if fformat is not None:
                 if fformat == 'jpg': self.fformat_dropdown.setCurrentIndex(0)
