@@ -46,6 +46,10 @@ class Arduino:
                 raise CriticalIOError("Arduino not connected")
                 return False
             
+        except serial.SerialException as e:
+            print(e)
+            raise CriticalIOError("Port is already open. Please close\nany other instances of the program.")
+
         except Exception as e:
             print("ERROR Could not connect to arduino:")
             raise

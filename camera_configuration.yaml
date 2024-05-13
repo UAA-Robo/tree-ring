@@ -1,8 +1,9 @@
-brightness: 16
+auto_expo: 0
+brightness: -64
 contrast: 0
 curve: Polynomial
 exposure: 120
-fformat: jpeg
+fformat: tif
 gamma: 100
 hue: 0
 levelrange_high:
@@ -16,10 +17,10 @@ levelrange_low:
 - 0
 - 0
 linear: 0
-saturation: 128
+saturation: 126
 sharpening: 500
-temp: 6503
-tint: 1000
+temp: 11616
+tint: 925
 wbgain:
 - 0
 - 0

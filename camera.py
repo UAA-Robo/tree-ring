@@ -134,27 +134,29 @@ class Camera:
         @brief Resets the camera's image settings back to default values. To apply changes to the
             camera one must invoke `set_camera_image_settings()` with no arguments.
         """
-        self._hcam_exposure = 50 # Optimal is 50
-        self._hcam_temp = 6503
-        self._hcam_tint = 1000
+        self._hcam_auto_expo = 0
+        self._hcam_exposure = 120 # Optimal is 120
+        self._hcam_temp = 11616
+        self._hcam_tint = 925
         self._hcam_level_range_low = (0, 0, 0, 0)
         self._hcam_level_range_high = (255, 255, 255, 255)
         self._hcam_contrast = 0
         self._hcam_hue = 0
-        self._hcam_saturation = 96 # Optimal is 96
-        self._hcam_brightness = 16 # Optimal is 16
+        self._hcam_saturation = 126 # Optimal is 126
+        self._hcam_brightness = -64 # Optimal is -64
         self._hcam_gamma = 100
         self._hcam_wbgain = (0, 0, 0)
         self._hcam_sharpening = 500 # Optimal is 500
         self._hcam_linear = 0 # Optimal is 0
         self._hcam_curve = 'Polynomial' # Optimal is Polynomial
-        self._hcam_image_file_format = 'jpeg'
+        self._hcam_image_file_format = 'jpg'
 
     def load_camera_image_settings(self) -> None: # With code borrowed from https://stackoverflow.com/questions/1773805/how-can-i-parse-a-yaml-file-in-python
         try:
             with open("camera_configuration.yaml", "r") as stream:
                 try:
                     settings = yaml.safe_load(stream)
+                    self._hcam_auto_expo = settings['auto_expo']
                     self._hcam_exposure = settings['exposure']
                     self._hcam_temp = settings['temp']
                     self._hcam_tint = settings['tint']
@@ -181,6 +183,8 @@ class Camera:
     def get_slider_values(self) -> tuple:
         # if not self.is_microscope(): raise ValueError("Could not load camera settings")
         return (
+            self._hcam_auto_expo,
+            self._hcam_exposure,
             self._hcam_temp,
             self._hcam_tint,
             self._hcam_contrast,
@@ -198,6 +202,7 @@ class Camera:
         @brief Modifies the microscope camera's image settings.
 
         @kwargs
+         - auto_expo: Whether to enable the auto exposure (1/0).
          - exposure: The auto exposure target (16 ~ 235).
          - temp: The temperature value of the image (2000 ~ 15000).
          - tint: The tint of the image (200 ~ 2500).
@@ -218,8 +223,9 @@ class Camera:
          - fformat: The image file format to save as (png/jpg).
 
         """
-        if not self.is_microscope(): return
 
+        if 'auto_expo' in kwargs:
+            self._hcam_auto_expo = int(kwargs.get('auto_expo', ''))
         if 'exposure' in kwargs:
             self._hcam_exposure = kwargs.get('exposure', '')
         if 'temp' in kwargs:
@@ -266,8 +272,9 @@ class Camera:
             self._hcam_image_file_format = kwargs.get('fformat', '')
 
         if kwargs: print(kwargs)
-        if self._runtime % 2 == 0:
+        if self._runtime % 2 == 0 and self.is_microscope():
             try:
+                if self._hcam_auto_expo is not None: self._hcam.put_AutoExpoEnable(self._hcam_auto_expo)
                 if self._hcam_exposure is not None: self._hcam.put_AutoExpoTarget(self._hcam_exposure)
                 if self._hcam_temp is not None and\
                     self._hcam_tint is not None: self._hcam.put_TempTint(self._hcam_temp, self._hcam_tint)
@@ -293,6 +300,7 @@ class Camera:
     def save_camera_settings(self):
         """Saves the current camera settings to a file."""
         settings: dict = {
+            'auto_expo': self._hcam_auto_expo,
             'exposure': self._hcam_exposure,
             'temp': self._hcam_temp,
             'tint': self._hcam_tint,
@@ -420,7 +428,7 @@ class Camera:
 
     def get_image(self) -> QImage:
         """
-        @brief Takes an image from the camera to store.
+        @brief Returns the most recent preview image taken from the camera.
         
         @return Returns a QImage from the camera.
 
