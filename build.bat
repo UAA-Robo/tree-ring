@@ -1,0 +1,1 @@
+pyinstaller --onefile gui.py camera.py automationScript.py --name "Tree Ring Imaging Machine"
