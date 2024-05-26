@@ -281,7 +281,7 @@ class Camera:
                 if self._hcam_level_range_high is not None and\
                     self._hcam_level_range_low is not None: self._hcam.put_LevelRange(self._hcam_level_range_low, self._hcam_level_range_high)
                 if self._hcam_contrast is not None: self._hcam.put_Contrast(self._hcam_contrast)
-                if self._hcam_hue is not None: self._hcam.put_Hue(self._hcam_contrast)
+                if self._hcam_hue is not None: self._hcam.put_Hue(self._hcam_hue)
                 if self._hcam_saturation is not None: self._hcam.put_Saturation(self._hcam_saturation)
                 if self._hcam_brightness is not None: self._hcam.put_Brightness(self._hcam_brightness)
                 if self._hcam_gamma is not None: self._hcam.put_Gamma(self._hcam_gamma)
