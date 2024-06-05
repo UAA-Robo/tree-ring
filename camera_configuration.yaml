@@ -1,11 +1,11 @@
 auto_expo: 0
-brightness: -64
-contrast: 0
+brightness: 64
+contrast: 10
 curve: Polynomial
 exposure: 120
 fformat: tif
 gamma: 100
-hue: 0
+hue: -2
 levelrange_high:
 - 255
 - 255

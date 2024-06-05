@@ -379,16 +379,15 @@ class Camera:
         self._capture_path = path
 
 # nResolutionIndex is a resolution supported by the camera.
-# For example, UCMOS03100KPA supports the following resolutions:
-#     index 0:    2048,   1536
-#     index 1:    1024,   768
-#     index 2:    680,    510
-# so, we can use put_Size(h, 1024, 768) or put_eSize(h, 1). Both have the same effect.
+# For the MU1000, these are the supported resolutions (found using amcam.get_StillResolution(0))
+#     index 0:    3584,   2748
+#     index 1:    1792,   1374
+#     index 2:    896,    684
+# so, we can use put_Size(h, 1792, 1374) or put_eSize(h, 1). Both have the same effect.
 
     def take_still_image(self) -> None:
         """Takes a still image or saves an image from the webcam if the microscope is not available."""
         if self._hcam and self._cam_type == camera_type.MICROSCOPE:
-            print(self._hcam.get_StillResolution(0))
             self._hcam.Snap(0) # Triggers saving with callback
         elif self._hcam and self._cam_type == camera_type.WEBCAM:
             self.save_still_image()
@@ -396,8 +395,8 @@ class Camera:
     def save_still_image(self) -> None:
         """Saves the captured still image to the directory stored in the camera."""
         if self._hcam and self._cam_type == camera_type.MICROSCOPE:
-            width = 2592
-            height = 1944
+            width = self._hcam.get_StillResolution(0)[0]
+            height = self._hcam.get_StillResolution(0)[1]
             try:
                 buffer_size = ((width * 24 + 31) // 32 * 4) * height # Also equal to 3*w*h
                 buffer_size = width * height * 24
