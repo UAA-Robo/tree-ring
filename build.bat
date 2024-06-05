@@ -1,1 +1,5 @@
+@RD /S /Q ".\dist"
 pyinstaller --onefile gui.py camera.py automationScript.py --name "Tree Ring Imaging Machine"
+set "specFile=Tree Ring Imaging Machine.spec"
+set "specFolder=.\spec"
+move "%specFile%" "%specFolder%"

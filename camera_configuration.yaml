@@ -1,11 +1,11 @@
 auto_expo: 0
-brightness: 64
-contrast: 10
+brightness: 60
+contrast: 15
 curve: Polynomial
 exposure: 120
 fformat: tif
 gamma: 100
-hue: -2
+hue: -7
 levelrange_high:
 - 255
 - 255
@@ -17,7 +17,7 @@ levelrange_low:
 - 0
 - 0
 linear: 0
-saturation: 126
+saturation: 42
 sharpening: 500
 temp: 11616
 tint: 925

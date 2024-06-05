@@ -23,44 +23,18 @@ For setup, run `python -m pip install -r requirements.txt` to install the python
 To execute this program run `python gui.py` in this directory.
 
 ## Bundle program into an executable for Windows
-To compile this program go open the terminal in the directory of gui.py and run `python -m PyInstaller gui.py --onefile --windowed`. This will not work on Mac due to strict camera permission.
+To compile this program, double-click on the `build.bat` script. An executable will be generated
+in the dist folder.
+
+Note: When building the program in "windowed" mode or "noconsole", Windows thinks its a virus. Building
+it with the console window attached when running prevents that from happening.
+
+<!-- Old instructions -->
+<!-- To compile this program go open the terminal in the directory of gui.py and run `python -m PyInstaller gui.py --onefile --windowed`. This will not work on Mac due to strict camera permission.
 
 When building the program into a binary, Windows will throw a 'severe' threat warning. This is
 because the software lacks an official Microsoft signature. To bypass this, open Windows Security,
 click on 'Virus & threat protection,' and click on the link 'Manage settings' under 'Virus & threat
 protection settings.' At the bottom of this menu there is a link to 'Add or remove exclusions.'
 Add an exclusion of the type 'Folder,' and select the directory containing the program. Now running
-the above command will successfully build the executable.
-
-## TODO:
-- QT application (gui.py)
-    - Pause automation program  -> Dawson 
-    - Error handleing -> Dawson (in progress)
-    - Handle errors in gui.py instead of automation.py -> Mya, Dawson 
-    - Try except more intensively -> Mya 
-    - Fix windows defender
-    - Enter image name -> Mya 
-
-- Automation
-    - Reduce wait time -> Mya
-    - Automatic start/stop based of color- > Mya
-    - Dynamic Wait time based on distance
-    - Reset arduino distance upon startup -> Anthony
-
-- Camera
-    - Adjust exposure options   -> Dawson
-
-- Arduino Code:
-    - Add reset distance command -> Anthony
-
-- Hardware:
-    - Update PCB With DC Power Safety Features-> Anthony
-    - Update PCB Silkscreen with more symbols-> Anthony
-    - Print Motor mount/pcb mount  (vents, Slide in pane?) -> Mya
-    - Redesign Box -> Mya
-
-- Documentation w/ docsify
-    - Clarify step 2 w/ pics -> Mya 
-    - Code guide -> Mya (gui, automation), Dawson (camera), Anthony (arduino)
-    - Hardware Setup Guide -> Anthony
-    - Trouble Shooting -> Dawson, Mya
+the above command will successfully build the executable. -->
