@@ -1,8 +1,8 @@
-# Tree Grabber Nabber
+# Tree Ring Imaging Machine (TRIM)
 
 Documentation can be viewed at [uaa-robo.github.io/tree-ring](https://uaa-robo.github.io/tree-ring/) and in the docs folder.
 
-This code controls the Amscope camera (our model is the MU500).
+This code controls the Amscope camera (our model is the MU500 and MU1000).
 
 The following files are taken from the SDK provided by AmScope [here](https://amscope.com/pages/software-downloads) when you select your camera and model:
 * amcam.py - this file provides an API for the camera. For more information about the API, see [API.pdf](API.pdf).
