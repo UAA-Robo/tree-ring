@@ -10,13 +10,13 @@ The GUI class contains all the logic for displaying the user interface. It has a
 * **Shift Length (mm)**: This is the length to shift the core sample after taking a picture.
 
 
-Then the user can start the automation program  in the Automation class. On Windows, the user will be prompted to select a folder to save the images to (on Mac, images will save to a `tree-ring` desktop folder). After selection, the automation immediately starts. If there is a camera connected but no arduino connected, the automation program will take pictures without sending signals to the arduino to move the motor. The user can stop the program at any time (a pause button is in the works of being implemented).
+Then the user can start the automation program in the Automation class. We suggest setting the image path to the desired location where you want TRIM to put the folder of images it creates, otherwise it will default to the desktop. After selection, the automation immediately starts. The user can stop the program at any time by pressing the pause button, and can later resume the automation by pressing play.
 
-TODO: ADD picture of GUI
+![GUI](./_media/TRIM_UI.png)
 
 ### Camera Options
 
-Pressing the **Advanced Camera Options** button will open a new window that allows the user to adjust camera video and save options. Pressing **Save** will save them to a file called `camera_configuration.yaml` in the directory where the program is located. By default, the program loads the settings from this file on startup. Pressing **Reset** will reset any changes back to this file, or if it is missing, the optimal settings. If you need the actual default settings in the API or a copy of the optimal settings file, go to [this link](troubleshooting/optimal_settings.md) to get the original file.
+Pressing the **Adjust Camera Options** button will open a new window that allows the user to adjust camera video and save options. Pressing **Save** will save them to a file called `camera_configuration.yaml` in the directory where the program is located. By default, the program loads the settings from this file on startup. Pressing **Reset** will reset any changes back to this file, or if it is missing, the optimal settings. If you need the actual default settings in the API or a copy of the optimal settings file, go to [this link](troubleshooting/optimal_settings.md) to get the original file.
 
 ## Automation 
 * automationScript.py
