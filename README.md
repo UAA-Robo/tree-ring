@@ -1,4 +1,7 @@
 # Tree Ring Imaging Machine (TRIM)
+> **⚠️ Notice:** This project is no longer actively maintained.
+>
+> For an actively supported alternative, please see [FORGE](https://github.com/AnthonyvW/FORGE) — a low-cost, open-source imaging system built with off-the-shelf hardware. FORGE is designed to replace TRIM with improved support, extensibility, and easier hardware sourcing.
 
 Documentation can be viewed at [uaa-robo.github.io/tree-ring](https://uaa-robo.github.io/tree-ring/) and in the docs folder.
 
